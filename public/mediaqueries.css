@@ -41,7 +41,14 @@
   .about-containers {
     margin-top: 0;
   }
+  .privacy-section {
+    margin: 1.5rem 5% 4rem;
+  }
+  .policy-content-card {
+    padding: 2.2rem;
+  }
 }
+
 
 @media screen and (max-width: 600px) {
   #contact,
@@ -96,4 +103,32 @@
   .text-container {
     text-align: justify;
   }
+  .privacy-section {
+    margin: 1rem 1.2rem 3rem;
+  }
+  .policy-content-card {
+    padding: 1.5rem 1.2rem;
+    border-radius: 1.5rem;
+  }
+  .policy-highlights {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .policy-highlight-card {
+    border-radius: 1.5rem;
+    padding: 1.3rem;
+  }
+  .policy-article h2 {
+    font-size: 1.15rem;
+    gap: 0.5rem;
+  }
+  .policy-article p,
+  .policy-article li {
+    font-size: 0.92rem;
+  }
+  .policy-badge {
+    font-size: 0.82rem;
+    padding: 0.35rem 0.8rem;
+  }
 }
+
