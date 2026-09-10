@@ -54,6 +54,7 @@
 }
 
 
+
 @media screen and (max-width: 600px) {
   #contact,
   footer {
@@ -148,6 +149,11 @@
   .btn-wide {
     width: 100%;
     max-width: 280px;
+  }
+  footer.policy-footer {
+    height: auto;
+    margin: 0;
+    padding: 2rem 1rem;
   }
 }
 

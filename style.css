@@ -631,6 +631,7 @@ footer p {
 .policy-highlight-grid {
   display: flex;
   gap: 1.2rem;
+  margin-top: 0;
   margin-bottom: 2.5rem;
 }
 
@@ -777,7 +778,7 @@ footer p {
 /* Permission Cards Grid */
 .policy-permission-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
   margin: 1.2rem 0;
 }
@@ -1019,7 +1020,30 @@ footer p {
 /* Footer for Policy Page */
 .policy-footer {
   height: auto;
+  margin: 0;
   padding: 2.5rem 1rem;
   text-align: center;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
-}
+}
+
+/* Override global a:hover underline-offset inside policy page */
+.policy-wrapper a:hover,
+.policy-toc-links a:hover,
+.third-party-card:hover,
+.email-highlight a:hover,
+.dev-item a.val:hover {
+  text-underline-offset: 0.3rem;
+}
+
+.third-party-card:hover {
+  text-decoration: none;
+}
+
+.policy-toc-links a:hover {
+  text-decoration: none;
+}
+
+.email-highlight a:hover {
+  text-decoration: none !important;
+}
+
