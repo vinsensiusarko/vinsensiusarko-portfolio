@@ -801,7 +801,7 @@ nav.scrolled {
    ========================================================================== */
 .contact-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.25rem;
   max-width: 900px;
   margin: 0 auto;
@@ -811,13 +811,15 @@ nav.scrolled {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem 1.4rem;
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-normal);
   text-decoration: none;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .contact-card:hover {
@@ -848,6 +850,9 @@ nav.scrolled {
 .contact-card-info {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 .contact-card-label {
@@ -859,9 +864,12 @@ nav.scrolled {
 }
 
 .contact-card-value {
-  font-size: 0.98rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ==========================================================================
