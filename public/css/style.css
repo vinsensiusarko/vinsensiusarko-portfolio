@@ -709,6 +709,12 @@ nav.scrolled {
   margin-top: 0.15rem;
 }
 
+svg.skill-icon {
+  height: 1.6rem;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .skill-info h3 {
   font-size: 1rem;
   font-weight: 600;
@@ -959,12 +965,20 @@ footer p {
 }
 
 .btn-nav-back {
-  font-size: 0.9rem;
-  padding: 0.6rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.55rem 1.25rem;
   border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap;
+  line-height: 1;
+  text-decoration: none !important;
+}
+
+.btn-nav-back::after {
+  display: none !important;
 }
 
 .policy-wrapper {
