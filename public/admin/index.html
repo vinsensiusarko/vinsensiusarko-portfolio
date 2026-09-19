@@ -21,6 +21,18 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="../js/firebase-config.js"></script>
+    <!-- Instant Auth State & Theme Init (Prevents FOUC / Login Flash on Refresh) -->
+    <script>
+      (function() {
+        try {
+          const theme = localStorage.getItem('admin-theme') || 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+          if (localStorage.getItem('admin_logged_in') === 'true') {
+            document.documentElement.classList.add('is-authenticated');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <!-- Login Screen (Displayed when unauthenticated) -->
@@ -69,7 +81,7 @@
     </div>
 
     <!-- Admin Dashboard App (Displayed when authenticated) -->
-    <div id="admin-app" style="display: none; width: 100%; min-height: 100vh;">
+    <div id="admin-app" class="admin-app">
       <!-- Sidebar -->
       <aside class="admin-sidebar">
         <div class="sidebar-brand">

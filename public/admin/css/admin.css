@@ -626,6 +626,13 @@ body {
 .toast-error i { color: var(--accent-danger); }
 .toast-info i { color: var(--accent-info); }
 
+/* App Container */
+.admin-app {
+  display: none;
+  width: 100%;
+  min-height: 100vh;
+}
+
 /* Login Modal Screen */
 .login-screen {
   position: fixed;
@@ -639,6 +646,15 @@ body {
   justify-content: center;
   z-index: 5000;
   padding: 1.5rem;
+}
+
+/* FOUC Prevention: When authenticated, immediately hide login screen and show dashboard */
+html.is-authenticated .login-screen {
+  display: none !important;
+}
+
+html.is-authenticated .admin-app {
+  display: flex !important;
 }
 
 .login-card {

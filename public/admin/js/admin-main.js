@@ -12,6 +12,16 @@ const AdminMain = {
     this.initNavigation();
     this.initModals();
 
+    const savedTab = localStorage.getItem('admin_active_tab') || 'projects';
+    this.switchTab(savedTab);
+
+    // If pre-authenticated session detected, start loading data immediately
+    if (localStorage.getItem('admin_logged_in') === 'true') {
+      if (window.AdminProjects) AdminProjects.loadProjects();
+      if (window.AdminSkills) AdminSkills.loadSkills();
+      if (window.AdminProfile) AdminProfile.loadProfile();
+    }
+
     // Initialize sub-controllers
     if (window.AdminAuth) AdminAuth.init();
     if (window.AdminProjects) AdminProjects.init();
@@ -20,9 +30,14 @@ const AdminMain = {
   },
 
   onUserLoggedIn() {
-    this.switchTab('projects');
-    AdminProjects.loadProjects();
-    AdminSkills.loadSkills();
+    const savedTab = localStorage.getItem('admin_active_tab') || 'projects';
+    this.switchTab(savedTab);
+    if (!window.AdminProjects?.projects?.length) {
+      AdminProjects.loadProjects();
+    }
+    if (!window.AdminSkills?.skills?.length) {
+      AdminSkills.loadSkills();
+    }
     AdminProfile.loadProfile();
   },
 
@@ -79,6 +94,7 @@ const AdminMain = {
 
   switchTab(tabName) {
     this.currentTab = tabName;
+    try { localStorage.setItem('admin_active_tab', tabName); } catch (e) {}
 
     // Update active sidebar link
     document.querySelectorAll('.sidebar-link[data-tab]').forEach(link => {
