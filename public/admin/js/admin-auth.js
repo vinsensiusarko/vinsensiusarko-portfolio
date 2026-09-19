@@ -24,9 +24,19 @@ const AdminAuth = {
     // Observer for authentication changes
     auth.onAuthStateChanged((user) => {
       this.currentUser = user;
+      const splashScreen = document.getElementById('auth-splash-screen');
       const loginOverlay = document.getElementById('login-screen');
       const adminApp = document.getElementById('admin-app');
       const userDisplay = document.getElementById('user-email-display');
+
+      // Dismiss the splash screen gracefully
+      if (splashScreen) {
+        splashScreen.style.opacity = '0';
+        splashScreen.style.visibility = 'hidden';
+        setTimeout(() => {
+          splashScreen.style.display = 'none';
+        }, 250);
+      }
 
       if (user) {
         try { localStorage.setItem('admin_logged_in', 'true'); } catch (e) {}

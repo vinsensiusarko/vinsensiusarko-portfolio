@@ -170,9 +170,9 @@ body {
 /* Main Area */
 .admin-main {
   margin-left: var(--sidebar-width);
-  width: calc(100% - var(--sidebar-width));
-  max-width: calc(100% - var(--sidebar-width));
+  width: auto;
   min-width: 0;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -186,16 +186,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 clamp(1rem, 3vw, 2.5rem);
+  padding: 0 clamp(1rem, 2.5vw, 2rem);
   position: sticky;
   top: 0;
   z-index: 90;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .menu-toggle-btn {
@@ -205,17 +209,23 @@ body {
   color: var(--text-main);
   font-size: 1.3rem;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .header-title {
   font-size: 1.25rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .btn-icon {
@@ -230,6 +240,7 @@ body {
   color: var(--text-main);
   cursor: pointer;
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .btn-icon:hover {
@@ -238,8 +249,11 @@ body {
 }
 
 .admin-content {
-  padding: clamp(1.25rem, 3vw, 2.5rem);
+  padding: clamp(1rem, 2.5vw, 2rem);
   flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 /* ==========================================================================
@@ -309,9 +323,12 @@ body {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 1.75rem;
+  padding: clamp(1.25rem, 2vw, 1.75rem);
   box-shadow: var(--shadow-sm);
   margin-bottom: 1.75rem;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .card-header {
@@ -330,20 +347,24 @@ body {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.25rem;
   margin-bottom: 2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stat-box {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   display: flex;
   align-items: center;
   gap: 1.2rem;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .stat-icon {
@@ -469,8 +490,10 @@ body {
 /* Grid Project & Skill Items in Admin */
 .admin-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .admin-project-card {
@@ -482,6 +505,8 @@ body {
   flex-direction: column;
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .admin-project-card:hover {
@@ -507,6 +532,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .admin-project-body h3 {
@@ -530,6 +556,8 @@ body {
   border-top: 1px solid var(--border-color);
   padding-top: 0.85rem;
   margin-top: auto;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 /* Modals */
@@ -640,6 +668,86 @@ body {
   box-sizing: border-box;
 }
 
+/* Mobile Sidebar Backdrop */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 95;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+}
+
+.sidebar-backdrop.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Auth Splash Screen (Sleek transitional screen) */
+.auth-splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1.5rem;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.splash-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+}
+
+.splash-logo {
+  width: 4.2rem;
+  height: 4.2rem;
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.9rem;
+  color: var(--text-main);
+  box-shadow: var(--shadow-md);
+}
+
+.splash-spinner {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: splashSpin 0.8s linear infinite;
+}
+
+@keyframes splashSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.splash-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
 /* Login Modal Screen: Strictly hidden by default to guarantee zero blink */
 .login-screen {
   position: fixed;
@@ -660,7 +768,15 @@ html.is-unauthenticated .login-screen {
   display: flex !important;
 }
 
+html.is-unauthenticated .auth-splash-screen {
+  display: none !important;
+}
+
 html.is-authenticated .login-screen {
+  display: none !important;
+}
+
+html.is-authenticated .auth-splash-screen {
   display: none !important;
 }
 
@@ -715,5 +831,52 @@ html.is-authenticated .admin-app {
 
   .menu-toggle-btn {
     display: block;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .admin-header {
+    padding: 0 1rem;
+    gap: 0.5rem;
+  }
+
+  .header-left {
+    gap: 0.6rem;
+  }
+
+  .header-title {
+    font-size: 1.05rem;
+  }
+
+  .header-right {
+    gap: 0.5rem;
+  }
+
+  .header-right .btn-text {
+    display: none;
+  }
+
+  .header-right .public-site-link {
+    padding: 0.45rem 0.65rem;
+  }
+
+  .admin-content {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1.25rem 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }

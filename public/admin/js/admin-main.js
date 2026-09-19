@@ -68,27 +68,37 @@ const AdminMain = {
   },
 
   initNavigation() {
+    // Mobile sidebar toggle & backdrop
+    const menuBtn = document.getElementById('menu-toggle-btn');
+    const sidebar = document.querySelector('.admin-sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+
+    const closeMobileSidebar = () => {
+      if (sidebar) sidebar.classList.remove('open');
+      if (backdrop) backdrop.classList.remove('show');
+    };
+
     // Sidebar navigation tabs
     document.querySelectorAll('.sidebar-link[data-tab]').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const tab = link.getAttribute('data-tab');
         this.switchTab(tab);
-        // On mobile, close sidebar after clicking
-        const sidebar = document.querySelector('.admin-sidebar');
-        if (sidebar && window.innerWidth <= 900) {
-          sidebar.classList.remove('open');
+        if (window.innerWidth <= 900) {
+          closeMobileSidebar();
         }
       });
     });
 
-    // Mobile sidebar toggle
-    const menuBtn = document.getElementById('menu-toggle-btn');
-    const sidebar = document.querySelector('.admin-sidebar');
     if (menuBtn && sidebar) {
       menuBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
+        const isOpen = sidebar.classList.toggle('open');
+        if (backdrop) backdrop.classList.toggle('show', isOpen);
       });
+    }
+
+    if (backdrop) {
+      backdrop.addEventListener('click', closeMobileSidebar);
     }
 
     // Ensure public site links point to main domain when running on admin subdomain

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Critical Anti-FOUC & Layout Styles (Zero-Millisecond Protection) -->
+    <!-- Critical Anti-FOUC & Auth State Initializer -->
     <script>
       (function() {
         try {
@@ -13,18 +13,36 @@
           document.documentElement.setAttribute('data-theme', theme);
           if (localStorage.getItem('admin_logged_in') === 'true') {
             document.documentElement.classList.add('is-authenticated');
-          } else {
-            document.documentElement.classList.add('is-unauthenticated');
           }
         } catch (e) {}
       })();
     </script>
     <style>
-      /* Critical protection: Login screen strictly hidden by default */
+      /* Zero-blink default states */
       #login-screen { display: none !important; }
-      html.is-unauthenticated #login-screen { display: flex !important; }
-      html.is-authenticated #login-screen { display: none !important; }
+      #admin-app { display: none; }
+      #auth-splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--bg-body, #f3f4f6);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+      }
+      [data-theme="dark"] #auth-splash-screen {
+        background-color: #0b0f19;
+      }
+      /* If confirmed authenticated in localStorage, show admin shell immediately */
+      html.is-authenticated #auth-splash-screen { display: none !important; }
       html.is-authenticated #admin-app { display: block !important; }
+      html.is-unauthenticated #login-screen { display: flex !important; }
+      html.is-unauthenticated #auth-splash-screen { display: none !important; }
     </style>
 
     <title>Admin Dashboard — Vinsensius Arka</title>
@@ -46,6 +64,17 @@
     <script src="../js/firebase-config.js"></script>
   </head>
   <body>
+    <!-- Auth Splash Screen (Sleek transitional loader, strictly prevents login screen blink) -->
+    <div id="auth-splash-screen" class="auth-splash-screen">
+      <div class="splash-card">
+        <div class="splash-logo">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="splash-spinner"></div>
+        <p class="splash-text">Verifying session...</p>
+      </div>
+    </div>
+
     <!-- Login Screen (Displayed when unauthenticated) -->
     <div id="login-screen" class="login-screen">
       <div class="login-card">
@@ -93,6 +122,9 @@
 
     <!-- Admin Dashboard App (Displayed when authenticated) -->
     <div id="admin-app" class="admin-app">
+      <!-- Mobile Sidebar Backdrop -->
+      <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
       <!-- Sidebar -->
       <aside class="admin-sidebar">
         <div class="sidebar-brand">
@@ -156,7 +188,7 @@
           </div>
           <div class="header-right">
             <a href="../index.html" target="_blank" class="btn btn-secondary btn-sm public-site-link">
-              <i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Site
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> <span class="btn-text">View Live Site</span>
             </a>
             <button id="theme-toggle-btn" class="btn-icon" aria-label="Toggle Theme">
               <i class="fa-solid fa-moon"></i>
