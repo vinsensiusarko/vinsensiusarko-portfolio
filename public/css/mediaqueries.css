@@ -23,12 +23,16 @@
   .section-container {
     gap: 2.5rem;
   }
+
+  #profile {
+    gap: 3rem;
+  }
 }
 
 /* ==========================================================================
-   2. Tablets & Landscape Phones (max-width: 900px)
+   2. Tablets & Landscape Phones (max-width: 1024px)
    ========================================================================== */
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1024px) {
   #profile {
     flex-direction: column-reverse;
     gap: 2.5rem;
@@ -37,8 +41,8 @@
   }
 
   .section__pic-container {
-    width: clamp(260px, 50vw, 320px);
-    height: clamp(260px, 50vw, 320px);
+    width: clamp(240px, 45vw, 320px);
+    height: clamp(240px, 45vw, 320px);
     margin: 0 auto;
   }
 
@@ -48,7 +52,8 @@
   }
 
   .about-pic-wrapper {
-    width: clamp(260px, 50vw, 320px);
+    width: clamp(240px, 45vw, 320px);
+    height: clamp(240px, 45vw, 320px);
     margin: 0 auto;
   }
 

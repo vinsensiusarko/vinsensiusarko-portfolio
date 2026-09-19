@@ -118,6 +118,9 @@ html {
   scroll-padding-top: var(--nav-height);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -125,8 +128,11 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.65;
-  transition: background-color var(--transition-normal), color var(--transition-normal);
+  width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
+  box-sizing: border-box;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 img,
@@ -491,8 +497,9 @@ nav.scrolled {
 
 .section__pic-container {
   display: flex;
-  height: 380px;
-  width: 380px;
+  width: clamp(260px, 32vw, 380px);
+  height: clamp(260px, 32vw, 380px);
+  max-width: 100%;
   margin: auto 0;
   position: relative;
   flex-shrink: 0;

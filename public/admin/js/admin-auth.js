@@ -31,9 +31,10 @@ const AdminAuth = {
       if (user) {
         try { localStorage.setItem('admin_logged_in', 'true'); } catch (e) {}
         document.documentElement.classList.add('is-authenticated');
+        document.documentElement.classList.remove('is-unauthenticated');
 
         if (loginOverlay) loginOverlay.style.display = 'none';
-        if (adminApp) adminApp.style.display = 'flex';
+        if (adminApp) adminApp.style.display = 'block';
         if (userDisplay) userDisplay.textContent = user.email;
 
         // Initialize dashboard modules
@@ -41,6 +42,7 @@ const AdminAuth = {
       } else {
         try { localStorage.removeItem('admin_logged_in'); } catch (e) {}
         document.documentElement.classList.remove('is-authenticated');
+        document.documentElement.classList.add('is-unauthenticated');
 
         if (loginOverlay) loginOverlay.style.display = 'flex';
         if (adminApp) adminApp.style.display = 'none';
@@ -68,6 +70,7 @@ const AdminAuth = {
           .then(() => {
             try { localStorage.setItem('admin_logged_in', 'true'); } catch (e) {}
             document.documentElement.classList.add('is-authenticated');
+            document.documentElement.classList.remove('is-unauthenticated');
             AdminMain.showToast('Successfully signed in!', 'success');
             loginBtn.disabled = false;
             loginBtn.innerHTML = 'Sign In';
@@ -87,6 +90,7 @@ const AdminAuth = {
       logoutBtn.addEventListener('click', () => {
         try { localStorage.removeItem('admin_logged_in'); } catch (e) {}
         document.documentElement.classList.remove('is-authenticated');
+        document.documentElement.classList.add('is-unauthenticated');
         auth.signOut().then(() => {
           AdminMain.showToast('Logged out', 'info');
         });

@@ -4,6 +4,29 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Critical Anti-FOUC & Layout Styles (Zero-Millisecond Protection) -->
+    <script>
+      (function() {
+        try {
+          const theme = localStorage.getItem('admin-theme') || 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+          if (localStorage.getItem('admin_logged_in') === 'true') {
+            document.documentElement.classList.add('is-authenticated');
+          } else {
+            document.documentElement.classList.add('is-unauthenticated');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      /* Critical protection: Login screen strictly hidden by default */
+      #login-screen { display: none !important; }
+      html.is-unauthenticated #login-screen { display: flex !important; }
+      html.is-authenticated #login-screen { display: none !important; }
+      html.is-authenticated #admin-app { display: block !important; }
+    </style>
+
     <title>Admin Dashboard — Vinsensius Arka</title>
     <link rel="shortcut icon" href="../assets/favicon.ico" type="image/x-icon" />
 
@@ -21,18 +44,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="../js/firebase-config.js"></script>
-    <!-- Instant Auth State & Theme Init (Prevents FOUC / Login Flash on Refresh) -->
-    <script>
-      (function() {
-        try {
-          const theme = localStorage.getItem('admin-theme') || 'light';
-          document.documentElement.setAttribute('data-theme', theme);
-          if (localStorage.getItem('admin_logged_in') === 'true') {
-            document.documentElement.classList.add('is-authenticated');
-          }
-        } catch (e) {}
-      })();
-    </script>
   </head>
   <body>
     <!-- Login Screen (Displayed when unauthenticated) -->
