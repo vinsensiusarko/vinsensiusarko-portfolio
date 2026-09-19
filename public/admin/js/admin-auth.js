@@ -1,0 +1,81 @@
+/**
+ * Admin Authentication Controller
+ * Uses Firebase Auth to protect the admin panel
+ */
+
+'use strict';
+
+const AdminAuth = {
+  currentUser: null,
+
+  init() {
+    if (!auth) {
+      console.error('Firebase Auth not available');
+      return;
+    }
+
+    // Observer for authentication changes
+    auth.onAuthStateChanged((user) => {
+      this.currentUser = user;
+      const loginOverlay = document.getElementById('login-screen');
+      const adminApp = document.getElementById('admin-app');
+      const userDisplay = document.getElementById('user-email-display');
+
+      if (user) {
+        if (loginOverlay) loginOverlay.style.display = 'none';
+        if (adminApp) adminApp.style.display = 'flex';
+        if (userDisplay) userDisplay.textContent = user.email;
+
+        // Initialize dashboard modules
+        if (window.AdminMain) AdminMain.onUserLoggedIn();
+      } else {
+        if (loginOverlay) loginOverlay.style.display = 'flex';
+        if (adminApp) adminApp.style.display = 'none';
+      }
+    });
+
+    // Login Form Submit
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const loginBtn = document.getElementById('login-btn');
+
+        if (!email || !password) {
+          AdminMain.showToast('Please enter email and password', 'error');
+          return;
+        }
+
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
+
+        auth.signInWithEmailAndPassword(email, password)
+          .then(() => {
+            AdminMain.showToast('Successfully signed in!', 'success');
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Sign In';
+          })
+          .catch((error) => {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Sign In';
+            console.error('Login error:', error);
+            AdminMain.showToast(error.message || 'Login failed', 'error');
+          });
+      });
+    }
+
+    // Logout Button
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        auth.signOut().then(() => {
+          AdminMain.showToast('Logged out', 'info');
+        });
+      });
+    }
+  }
+};
+
+window.AdminAuth = AdminAuth;
