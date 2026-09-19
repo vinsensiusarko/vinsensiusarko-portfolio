@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Subdomain Router: If accessed via admin.*, immediately route to /admin -->
+    <script>
+      (function() {
+        if (window.location.hostname.startsWith('admin.') && !window.location.pathname.startsWith('/admin')) {
+          window.location.replace('/admin' + window.location.pathname + window.location.search + window.location.hash);
+        }
+      })();
+    </script>
     <meta name="google-site-verification" content="0zYiihEbj8shbLC1m4sEfeZC--VJimE8-FxzqDEcpM8" />
 
     <title>Vinsensius Arka — Web &amp; Mobile Developer</title>

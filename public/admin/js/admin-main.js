@@ -90,6 +90,13 @@ const AdminMain = {
         sidebar.classList.toggle('open');
       });
     }
+
+    // Ensure public site links point to main domain when running on admin subdomain
+    if (window.location.hostname.startsWith('admin.')) {
+      document.querySelectorAll('.public-site-link').forEach(link => {
+        link.href = 'https://vinsensiusarka.id/';
+      });
+    }
   },
 
   switchTab(tabName) {
