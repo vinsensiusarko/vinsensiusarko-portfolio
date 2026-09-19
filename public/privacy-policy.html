@@ -13,9 +13,9 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
-    <link rel="shortcut icon" href="./assets/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="mediaqueries.css" />
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/mediaqueries.css" />
   </head>
   <body>
     <!-- Top Navigation -->
@@ -25,7 +25,7 @@
           >Vinsensius Arka</a
         >
       </div>
-      <div>
+      <div style="display: flex; align-items: center; gap: 1.5rem;">
         <ul class="nav-links policy-nav-links">
           <li><a href="index.html">Home</a></li>
           <li><a href="index.html#projects">Projects</a></li>
@@ -36,6 +36,13 @@
             </a>
           </li>
         </ul>
+        <button
+          type="button"
+          class="theme-toggle"
+          aria-label="Switch to dark theme"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
       </div>
     </nav>
 
@@ -47,17 +54,31 @@
         >
       </div>
       <div class="hamburger-menu">
-        <div class="hamburger-icon" onclick="toggleMenu()">
+        <button
+          type="button"
+          class="theme-toggle"
+          aria-label="Switch to dark theme"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button
+          type="button"
+          class="hamburger-icon"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
           <span></span>
           <span></span>
           <span></span>
-        </div>
-        <div class="menu-links">
-          <li><a href="index.html" onclick="toggleMenu()">Home</a></li>
-          <li><a href="index.html#about" onclick="toggleMenu()">About</a></li>
-          <li><a href="index.html#projects" onclick="toggleMenu()">Projects</a></li>
-          <li><a href="index.html#contact" onclick="toggleMenu()">Contact</a></li>
-        </div>
+        </button>
+        <ul class="menu-links" id="mobile-menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="index.html#projects">Projects</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+          <li><a href="index.html" class="btn btn-color-1" style="margin: 0.5rem 1rem; padding: 0.6rem 1rem; width: auto; font-size: 0.9rem;">Back to Portfolio</a></li>
+        </ul>
       </div>
     </nav>
 
@@ -462,26 +483,20 @@
 
     <!-- Footer -->
     <footer class="policy-footer">
-      <link
-        rel="stylesheet"
-        href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"
-      />
       <a
         href="https://api.whatsapp.com/send?phone=6285179793167"
         class="float"
         target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat on WhatsApp"
       >
-        <i class="fa fa-whatsapp my-float"></i>
+        <i class="fa-brands fa-whatsapp my-float"></i>
       </a>
       <p>
-        Copyright &#169;
-        <script>
-          document.write(new Date().getFullYear());
-        </script>
-        Vinsensius Arka. All Rights Reserved.
+        Copyright &#169; <span id="current-year">2026</span> Vinsensius Arka. All Rights Reserved.
       </p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="js/main.js"></script>
   </body>
 </html>

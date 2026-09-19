@@ -5,561 +5,722 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="0zYiihEbj8shbLC1m4sEfeZC--VJimE8-FxzqDEcpM8" />
-    <title>Vinsensius Arka</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="shortcut icon" href="./assets/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="mediaqueries.css" />
-    <!-- <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="7144d495-a259-47f3-8558-6c69aba74b64";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script> -->
+
+    <title>Vinsensius Arka — Web &amp; Mobile Developer</title>
+    <meta
+      name="description"
+      content="Vinsensius Arka is a Web &amp; Mobile Developer specializing in Flutter, Laravel, Java, and modern web technologies. Explore projects, skills, and portfolio."
+    />
+    <meta name="author" content="Vinsensius Arka" />
+
+    <!-- Open Graph / Social Media Meta -->
+    <meta property="og:title" content="Vinsensius Arka — Web &amp; Mobile Developer" />
+    <meta property="og:description" content="Explore projects, skills, and professional portfolio of Vinsensius Arka." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://vinsensiusarko.web.app" />
+    <meta property="og:image" content="https://vinsensiusarko.web.app/assets/images/arko-pic.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Font Awesome 6 Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/mediaqueries.css" />
   </head>
   <body>
+    <!-- Skip to Content for Accessibility -->
+    <a href="#profile" class="skip-link">Skip to main content</a>
+
+    <!-- Top Navigation (Desktop) -->
     <nav id="desktop-nav">
-      <div class="logo">Vinsensius Arka</div>
-      <div>
+      <div class="logo">
+        <a href="#profile">Vinsensius Arka</a>
+      </div>
+      <div style="display: flex; align-items: center; gap: 2rem;">
         <ul class="nav-links">
           <li><a href="#about">About</a></li>
           <li><a href="#experience">Experience</a></li>
           <li><a href="#projects">Projects</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
+        <button
+          type="button"
+          class="theme-toggle"
+          aria-label="Switch to dark theme"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
       </div>
     </nav>
+
+    <!-- Mobile Navigation (Hamburger) -->
     <nav id="hamburger-nav">
-      <div class="logo">Vinsensius Arka</div>
+      <div class="logo">
+        <a href="#profile">Vinsensius Arka</a>
+      </div>
       <div class="hamburger-menu">
-        <div class="hamburger-icon" onclick="toggleMenu()">
+        <button
+          type="button"
+          class="theme-toggle"
+          aria-label="Switch to dark theme"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button
+          type="button"
+          class="hamburger-icon"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
           <span></span>
           <span></span>
           <span></span>
-        </div>
-        <div class="menu-links">
-          <li><a href="#about" onclick="toggleMenu()">About</a></li>
-          <li><a href="#experience" onclick="toggleMenu()">Experience</a></li>
-          <li><a href="#projects" onclick="toggleMenu()">Projects</a></li>
-          <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
-        </div>
+        </button>
+        <ul class="menu-links" id="mobile-menu">
+          <li><a href="#about">About</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        </ul>
       </div>
     </nav>
-    <section id="profile">
-      <div class="section__pic-container">
-        <img src="./assets/arko-pic.png" alt="Vinsensius Arka profile picture" />
-      </div>
-      <div class="section__text">
-        <p class="section__text__p1">Hello I'm</p>
-        <h1 class="title">Vinsensius Arka</h1>
-        <p class="section__text__p2">
-          <span class="typeWriter" data-checkVisible="true" data-end="3000" data-speed="2" data-text='["Web Developer", "Mobile Developer"]'></span></p>
-        <div class="btn-container">
-          <button
-            class="btn btn-color-2"
-            onclick="window.open('./assets/cv-vinsensiusarka.pdf')"
-          >
-            Download CV
-          </button>
-          <button class="btn btn-color-1" onclick="location.href='index.html#contact'">
-            Contact Info
-          </button>
-        </div>
-        <div id="socials-container">
-          <img
-            src="./assets/linkedin.png"
-            alt="My LinkedIn profile"
-            class="icon"
-            onclick="location.href='https://www.linkedin.com/in/vinsensius-arka-a2185a229/'"/>
-          <img
-            src="./assets/github.png"
-            alt="My Github profile"
-            class="icon"
-            onclick="location.href='https://github.com/vinsensiusarko'"/>
-        </div>
-      </div>
-    </section>
-    <section id="about">
-      <p class="section__text__p1">Get To Know More</p>
-      <h1 class="title">About Me</h1>
-      <div class="section-container">
+
+    <main id="main-content">
+      <!-- Hero / Profile Section -->
+      <section id="profile">
         <div class="section__pic-container">
           <img
-            src="./assets/arko-about.jpg"
-            alt="Profile picture"
-            class="about-pic"
+            src="assets/images/arko-pic.png"
+            alt="Portrait of Vinsensius Arka"
+            width="380"
+            height="380"
           />
         </div>
-        <div class="about-details-container">
-          <div class="about-containers">
-            <div class="details-container">
-              <img
-                src="./assets/experience.png"
-                alt="Experience icon"
-                class="icon"
-              />
-              <h3>Experience</h3>
-              <p>3+ years <br />Android & Website Development</p>
-            </div>
-            <div class="details-container">
-              <img
-                src="./assets/education.png"
-                alt="Education icon"
-                class="icon"
-              />
-              <h3>Education</h3>
-              <p>Bachelors Degree<br />of Computer Information Systems</p>
-            </div>
+        <div class="section__text">
+          <p class="section__text__p1">Hello, I'm</p>
+          <h1 class="title">Vinsensius Arka</h1>
+          <p class="section__text__p2">
+            <span
+              class="typeWriter"
+              data-checkVisible="true"
+              data-end="3000"
+              data-speed="2"
+              data-text='["Web Developer", "Mobile Developer"]'
+            ></span>
+          </p>
+          <div class="btn-container">
+            <a
+              href="assets/docs/cv-vinsensiusarka.pdf"
+              download="CV-VinsensiusArka.pdf"
+              class="btn btn-color-2"
+            >
+              <i class="fa-solid fa-file-arrow-down"></i> Download CV
+            </a>
+            <a href="#contact" class="btn btn-color-1">
+              <i class="fa-solid fa-paper-plane"></i> Contact Info
+            </a>
           </div>
-          <div class="text-container">
-            <p>Web and Mobile Development is one of the skills that I specialize in, because in this digital era, rapid technological developments, especially websites and mobile applications, are the most sought after at this time.</span></p>
+          <div id="socials-container">
+            <a
+              href="https://www.linkedin.com/in/vinsensius-arka-a2185a229/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="social-link"
+              aria-label="LinkedIn Profile"
+            >
+              <i class="fa-brands fa-linkedin"></i>
+            </a>
+            <a
+              href="https://github.com/vinsensiusarko"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="social-link"
+              aria-label="GitHub Profile"
+            >
+              <i class="fa-brands fa-github"></i>
+            </a>
           </div>
         </div>
-      </div>
-      <img
-        src="./assets/arrow.png"
-        alt="Arrow icon"
-        class="icon arrow"
-        onclick="location.href='index.html#experience'"/>
-    </section>
-    <section id="experience">
-      <p class="section__text__p1">Explore My</p>
-      <h1 class="title">Experience</h1>
-      <div class="experience-details-container">
-        <div class="about-containers">
-          <div class="details-container">
-            <h2 class="experience-sub-title">Programming Language</h2>
+      </section>
+
+      <!-- About Section -->
+      <section id="about" class="reveal-on-scroll">
+        <p class="section__text__p1">Get To Know More</p>
+        <h2 class="title">About Me</h2>
+        <div class="section-container">
+          <div class="section__pic-container about-pic-wrapper">
+            <img
+              src="assets/images/arko-about.jpg"
+              alt="Vinsensius Arka personal photo"
+              width="380"
+              height="380"
+              style="border-radius: var(--radius-card); object-fit: cover;"
+              loading="lazy"
+            />
+          </div>
+          <div class="about-details-container">
+            <div class="about-containers">
+              <div class="details-container">
+                <i class="fa-solid fa-briefcase about-card-icon"></i>
+                <h3>Experience</h3>
+                <p>3+ years <br />Web &amp; Mobile Development</p>
+              </div>
+              <div class="details-container">
+                <i class="fa-solid fa-graduation-cap about-card-icon"></i>
+                <h3>Education</h3>
+                <p>Bachelors Degree <br />Computer Science</p>
+              </div>
+            </div>
+            <div class="text-container">
+              <p>
+                I am a passionate software developer with experience in building responsive web applications and cross-platform mobile solutions. I specialize in turning complex problems into clean, intuitive, and performant digital experiences using modern frameworks like Flutter, Laravel, and native Java. Always excited to learn, collaborate, and build impactful software.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="arrow">
+          <a href="#experience" aria-label="Scroll down to Experience section">
+            <i class="fa-solid fa-chevron-down"></i>
+          </a>
+        </div>
+      </section>
+
+      <!-- Experience & Skills Section -->
+      <section id="experience" class="reveal-on-scroll">
+        <p class="section__text__p1">Explore My</p>
+        <h2 class="title">Experience &amp; Skills</h2>
+        <div class="experience-details-container">
+          <!-- Programming Languages -->
+          <div class="experience-box">
+            <h3 class="experience-sub-title">Programming Languages</h3>
             <div class="article-container">
-              <article>
-                <img
-                  src="./assets/html.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
-                  <h3>HTML</h3>
+              <div class="skill-item">
+                <i class="fa-brands fa-html5 skill-icon"></i>
+                <div class="skill-info">
+                  <h3>HTML5</h3>
                   <p>Experienced</p>
                 </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/css.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
-                  <h3>CSS</h3>
+              </div>
+              <div class="skill-item">
+                <i class="fa-brands fa-css3-alt skill-icon"></i>
+                <div class="skill-info">
+                  <h3>CSS3</h3>
                   <p>Experienced</p>
                 </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/java.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
+              </div>
+              <div class="skill-item">
+                <i class="fa-brands fa-js skill-icon"></i>
+                <div class="skill-info">
+                  <h3>JavaScript</h3>
+                  <p>Experienced</p>
+                </div>
+              </div>
+              <div class="skill-item">
+                <i class="fa-brands fa-java skill-icon"></i>
+                <div class="skill-info">
                   <h3>Java</h3>
                   <p>Experienced</p>
                 </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/javascript.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
-                  <h3>JavaScript</h3>
+              </div>
+              <div class="skill-item">
+                <i class="fa-brands fa-flutter skill-icon"></i>
+                <div class="skill-info">
+                  <h3>Flutter</h3>
                   <p>Intermediate</p>
                 </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/flutter.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
-                  <h3>Flutter</h3>
+              </div>
+              <div class="skill-item">
+                <i class="fa-brands fa-php skill-icon"></i>
+                <div class="skill-info">
+                  <h3>PHP</h3>
                   <p>Experienced</p>
                 </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/php.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
-                  <h3>PHP</h3>
-                  <p>Intermediate</p>
-                </div>
-              </article>
+              </div>
             </div>
           </div>
-          <div class="details-container">
-            <h2 class="experience-sub-title">CMS, Framework, Database</h2>
+
+          <!-- Frameworks, CMS & Databases -->
+          <div class="experience-box">
+            <h3 class="experience-sub-title">Frameworks &amp; Tools</h3>
             <div class="article-container">
-              <article>
-                <img
-                  src="./assets/wordpress.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
-                  <h3>Wordpress</h3>
+              <div class="skill-item">
+                <i class="fa-brands fa-laravel skill-icon"></i>
+                <div class="skill-info">
+                  <h3>Laravel</h3>
                   <p>Experienced</p>
                 </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/mysql.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
-                  <h3>MySQL</h3>
-                  <p>Experienced</p>
-                </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/node-js.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
+              </div>
+              <div class="skill-item">
+                <i class="fa-brands fa-node-js skill-icon"></i>
+                <div class="skill-info">
                   <h3>Node JS</h3>
                   <p>Intermediate</p>
                 </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/git.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
+              </div>
+              <div class="skill-item">
+                <i class="fa-solid fa-database skill-icon"></i>
+                <div class="skill-info">
+                  <h3>MySQL</h3>
+                  <p>Experienced</p>
+                </div>
+              </div>
+              <div class="skill-item">
+                <i class="fa-brands fa-git-alt skill-icon"></i>
+                <div class="skill-info">
                   <h3>Git</h3>
+                  <p>Experienced</p>
+                </div>
+              </div>
+              <div class="skill-item">
+                <i class="fa-brands fa-wordpress skill-icon"></i>
+                <div class="skill-info">
+                  <h3>WordPress</h3>
                   <p>Intermediate</p>
                 </div>
-              </article>
-              <article>
-                <img
-                  src="./assets/laravel.png"
-                  alt="Experience icon"
-                  class="icon"/>
-                <div>
-                  <h3>Laravel</h3>
-                  <p>Intermediate</p>
-                </div>
-              </article>
-              <article>
-                
-              </article>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <img
-        src="./assets/arrow.png"
-        alt="Arrow icon"
-        class="icon arrow"
-        onclick="location.href='index.html#projects'"/>
-    </section>
-    <section id="projects">
-      <p class="section__text__p1">Browse My Recent</p>
-      <h1 class="title">Projects</h1>
-      <div class="experience-details-container">
-        <div class="about-containers">
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/portfolio-1.png"
-                alt="Project 1"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">Chatting App</h2>
-            <p style="padding-bottom: 10px;">Made with Java - Firebase Database</p>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('https://github.com/vinsensiusarko/MyChat','_blank')"
-              >
-                Github
-              </button>
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('https://drive.google.com/file/d/1s-HaHScdRtdgaEALp0UHUAGyKisrrhkq/view?usp=sharing','_blank')"
-              >
-                Live Demo
-              </button>
-            </div>
-          </div>
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/portfolio-2.png"
-                alt="Project 2"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">Yearbook Website</h2>
-            <p style="padding-bottom: 10px;">Made with CMS Wordpress - Elementor</p>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='/#'"
-              >
-                Github
-              </button>
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('http://smpk2santamaria-malang.com','_blank')"
-              >
-                Live Demo
-              </button>
-            </div>
-          </div>
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/portfolio-3.png"
-                alt="Project 3"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">School Website</h2>
-            <p style="padding-bottom: 10px;">Made with CMS Wordpress - Elementor</p>
-            <div class="btn-container">
-              <!-- <button
-                class="btn btn-color-2 project-btn"
-                onclick="location.href='/#'"
-              >
-                Github
-              </button> -->
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('https://smpkanisiuspati.sch.id','_blank')"
-              >
-                Live Demo
-              </button>
-            </div>
-          </div>
+        <div class="arrow">
+          <a href="#projects" aria-label="Scroll down to Projects section">
+            <i class="fa-solid fa-chevron-down"></i>
+          </a>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section id="projects">
-      <div class="experience-details-container">
-        <div class="about-containers">
-          <div class="details-container color-container">
-            <div class="article-container">
+      <!-- Projects Section -->
+      <section id="projects" class="reveal-on-scroll">
+        <p class="section__text__p1">Browse My Recent</p>
+        <h2 class="title">Projects</h2>
+        <div class="projects-grid">
+          <!-- 1. Chatting App -->
+          <article class="project-card">
+            <div class="project-img-wrapper">
               <img
-                src="./assets/portfolio-4.png"
-                alt="Project 1"
-                class="project-img"
+                src="assets/images/portfolio-1.png"
+                alt="Chatting App user interface screenshot"
+                loading="lazy"
               />
             </div>
-            <h2 class="experience-sub-title project-title">SPMB UNS Solo - Frontend (Redesign)</h2>
-            <p style="padding-bottom: 10px;">Made with Framework Bootstrap</p>
-            <div class="btn-container">
-              <!-- <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('https://github.com/vinsensiusarko/MyChat','_blank')"
-              >
-                Github
-              </button> -->
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('https://spmb-uns-solo.web.app','_blank')"
-              >
-                Live Demo
-              </button>
+            <div class="project-content">
+              <h3 class="project-title">Chatting App</h3>
+              <p class="project-desc">
+                Java-based multi-client chatting application with real-time socket communication.
+              </p>
+              <div class="project-btn-container">
+                <a
+                  href="https://github.com/vinsensiusarko/Chatting-App"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-2 btn-sm"
+                >
+                  <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                <span class="badge-coming-soon">
+                  <i class="fa-solid fa-clock"></i> Coming Soon
+                </span>
+              </div>
             </div>
-          </div>
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/portfolio-5.png"
-                alt="Project 2"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">Arkommerce - Frontend</h2>
-            <p style="padding-bottom: 10px;">Fullstack e-commerce app with Admin backend made with Framework Laravel</p>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('https://github.com/vinsensiusarko/arkommerce','_blank')"
-              >
-                Github
-              </button>
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('https://arkommerce.up.railway.app','_blank')"
-              >
-                Live Demo
-              </button>
-            </div>
-          </div>
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/portfolio-6.png"
-                alt="Project 3"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">Arkommerce - Backend Admin</h2>
-            <p style="padding-bottom: 10px;">Fullstack e-commerce app with Admin backend made with Framework Laravel</p>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('https://github.com/vinsensiusarko/arkommerce','_blank')"
-              >
-                Github
-              </button>
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('https://arkommerce.up.railway.app','_blank')"
-              >
-                Live Demo
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+          </article>
 
-    <section id="projects">
-      <div class="experience-details-container">
-        <div class="about-containers">
-          <div class="details-container color-container">
-            <div class="article-container">
+          <!-- 2. Kanisius High School -->
+          <article class="project-card">
+            <div class="project-img-wrapper">
               <img
-                src="./assets/portfolio-7.png"
-                alt="Project 1"
-                class="project-img"
+                src="assets/images/portfolio-2.png"
+                alt="Kanisius High School Yearbook Website preview"
+                loading="lazy"
               />
             </div>
-            <h2 class="experience-sub-title project-title">PMI Malang - Desktop App</h2>
-            <p style="padding-bottom: 10px;">Made with Java & MySQL. <br>(Private Project)</p>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                disabled
-                onclick=" window.open('/#','_blank')"
-              >
-                Github
-              </button>
-              <button
-                class="btn btn-color-2 project-btn"
-                disabled
-                onclick=" window.open('/#','_blank')"
-              >
-                Live Demo
-              </button>
+            <div class="project-content">
+              <h3 class="project-title">Kanisius High School</h3>
+              <p class="project-desc">
+                Interactive digital yearbook website with graduate profiles, memories, and photo galleries.
+              </p>
+              <div class="project-btn-container">
+                <a
+                  href="https://github.com/vinsensiusarko/Yearbook-Website"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-2 btn-sm"
+                >
+                  <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                <a
+                  href="https://kanisiushs.sch.id"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-1 btn-sm"
+                >
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo
+                </a>
+              </div>
             </div>
-          </div>
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/portfolio-8.png"
-                alt="Project 3"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">Mozaic POS App</h2>
-            <p style="padding-bottom: 10px;">Mozaic - Point of Sale App <br>(Release)</p>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                onclick=" window.open('https://play.google.com/store/apps/details?id=com.ciptasolutindo.mozaic_app_new','_blank')"
-              >
-                Playstore
-              </button>
-            </div>
-          </div>
-          <div class="details-container color-container">
-            <div class="article-container">
-              <img
-                src="./assets/portfolio-9.png"
-                alt="Project 2"
-                class="project-img"
-              />
-            </div>
-            <h2 class="experience-sub-title project-title">SMArT</h2>
-            <p style="padding-bottom: 10px;">Sistem Manajemen Administrasi Terpadu</p>
-            <div class="btn-container">
-              <button
-                class="btn btn-color-2 project-btn"
-                disabled
-                onclick=" window.open('/#','_blank')"
-              >
-                Github
-              </button>
-              <button
-                class="btn btn-color-2 project-btn"
-                disabled
-                onclick=" window.open('/#','_blank')"
-              >
-                Live Demo
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <img
-      src="./assets/arrow.png"
-      alt="Arrow icon"
-      class="icon arrow"
-      onclick="location.href='index.html#contact'"/>
-    </section>
+          </article>
 
-    <section id="contact">
-      <p class="section__text__p1">Get in Touch</p>
-      <h1 class="title">Contact Me</h1>
-      <div class="contact-info-upper-container">
-        <div class="contact-info-container">
-          <p>
-            <a href="mailto:vinsensiusarka@gmail.com" style="text-decoration : none">
-              <i class="fa-brands fa-google fa-md"></i>vinsensiusarka@gmail.com</a>
-          </p>
+          <!-- 3. Kanisius Middle School -->
+          <article class="project-card">
+            <div class="project-img-wrapper">
+              <img
+                src="assets/images/portfolio-3.png"
+                alt="Kanisius Middle School website preview"
+                loading="lazy"
+              />
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">Kanisius Middle School</h3>
+              <p class="project-desc">
+                Official school portal providing academic announcements, school profile, and student news.
+              </p>
+              <div class="project-btn-container">
+                <a
+                  href="https://smpkanisiuspati.sch.id"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-1 btn-sm"
+                >
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo
+                </a>
+                <span class="badge-coming-soon">
+                  <i class="fa-solid fa-clock"></i> Coming Soon
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <!-- 4. SPMB UNS Solo -->
+          <article class="project-card">
+            <div class="project-img-wrapper">
+              <img
+                src="assets/images/portfolio-4.png"
+                alt="SPMB UNS Solo admission portal screenshot"
+                loading="lazy"
+              />
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">SPMB UNS Solo</h3>
+              <p class="project-desc">
+                Portal and landing interface for student admission registration at Universitas Sebelas Maret.
+              </p>
+              <div class="project-btn-container">
+                <a
+                  href="https://spmb.uns.ac.id"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-1 btn-sm"
+                >
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo
+                </a>
+                <span class="badge-coming-soon">
+                  <i class="fa-solid fa-clock"></i> Coming Soon
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <!-- 5. Arkommerce Frontend -->
+          <article class="project-card">
+            <div class="project-img-wrapper">
+              <img
+                src="assets/images/portfolio-5.png"
+                alt="Arkommerce Frontend Admin dashboard interface"
+                loading="lazy"
+              />
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">Arkommerce — Admin FE</h3>
+              <p class="project-desc">
+                Modern responsive administration dashboard for shoes e-commerce with order and inventory management.
+              </p>
+              <div class="project-btn-container">
+                <a
+                  href="https://github.com/vinsensiusarko/admin-ecommerce-shoes-fe"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-2 btn-sm"
+                >
+                  <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                <a
+                  href="https://arkommerce-admin.web.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-1 btn-sm"
+                >
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- 6. Arkommerce Backend -->
+          <article class="project-card">
+            <div class="project-img-wrapper">
+              <img
+                src="assets/images/portfolio-6.png"
+                alt="Arkommerce Backend RESTful API documentation screenshot"
+                loading="lazy"
+              />
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">Arkommerce — Admin BE</h3>
+              <p class="project-desc">
+                RESTful API backend service powering products, authentication, transactions, and admin operations.
+              </p>
+              <div class="project-btn-container">
+                <a
+                  href="https://github.com/vinsensiusarko/admin-ecommerce-shoes-be"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-2 btn-sm"
+                >
+                  <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                <a
+                  href="https://arkommerce-be-production.up.railway.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-1 btn-sm"
+                >
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- 7. PMI Malang -->
+          <article class="project-card">
+            <div class="project-img-wrapper">
+              <img
+                src="assets/images/portfolio-7.png"
+                alt="PMI Malang extension reporting application"
+                loading="lazy"
+              />
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">PMI Malang</h3>
+              <p class="project-desc">
+                Extension application connected with PMI Malang database to generate and automate reports.
+              </p>
+              <div class="project-btn-container">
+                <a
+                  href="https://github.com/vinsensiusarko/PMI-Malang"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-2 btn-sm"
+                >
+                  <i class="fa-brands fa-github"></i> GitHub
+                </a>
+                <span class="badge-coming-soon">
+                  <i class="fa-solid fa-clock"></i> Coming Soon
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <!-- 8. Mozaic POS App -->
+          <article class="project-card">
+            <div class="project-img-wrapper">
+              <img
+                src="assets/images/portfolio-8.png"
+                alt="Mozaic POS App mobile store listing screenshot"
+                loading="lazy"
+              />
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">Mozaic POS App</h3>
+              <p class="project-desc">
+                Commercial Point of Sale mobile application released on Google Play Store for retail &amp; transactions.
+              </p>
+              <div class="project-btn-container">
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.ciptasolutindo.mozaic_app_new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-color-1 btn-sm"
+                >
+                  <i class="fa-brands fa-google-play"></i> Play Store
+                </a>
+                <span class="badge-coming-soon">
+                  <i class="fa-solid fa-clock"></i> Coming Soon
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <!-- 9. SMArT -->
+          <article class="project-card">
+            <div class="project-img-wrapper">
+              <img
+                src="assets/images/portfolio-9.png"
+                alt="SMArT integrated administrative system preview"
+                loading="lazy"
+              />
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">SMArT</h3>
+              <p class="project-desc">
+                Sistem Manajemen Administrasi Terpadu — integrated administrative and institutional management system.
+              </p>
+              <div class="project-btn-container">
+                <span class="badge-coming-soon">
+                  <i class="fa-solid fa-clock"></i> Coming Soon
+                </span>
+              </div>
+            </div>
+          </article>
         </div>
-        <div class="contact-info-container">
-          <p><a href="https://www.instagram.com/vinsensiusarko/" style="text-decoration : none" target="_blank">
-            <i class="fa-brands fa-instagram fa-md"></i>Instagram</a>
-          </p>
+        <div class="arrow">
+          <a href="#contact" aria-label="Scroll down to Contact section">
+            <i class="fa-solid fa-chevron-down"></i>
+          </a>
         </div>
-        <div class="contact-info-container">
-          <p><a href="https://www.facebook.com/vinsensiusarko" style="text-decoration : none" target="_blank">
-            <i class="fa-brands fa-facebook fa-md"></i>Facebook</a>
-          </p>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="reveal-on-scroll">
+        <p class="section__text__p1">Get In Touch</p>
+        <h2 class="title">Contact Me</h2>
+        <div class="contact-grid">
+          <!-- Email -->
+          <a
+            href="mailto:vinsensiusarka@gmail.com"
+            class="contact-card"
+            aria-label="Send email to vinsensiusarka@gmail.com"
+          >
+            <div class="contact-card-icon">
+              <i class="fa-solid fa-envelope"></i>
+            </div>
+            <div class="contact-card-info">
+              <span class="contact-card-label">Email</span>
+              <span class="contact-card-value">vinsensiusarka@gmail.com</span>
+            </div>
+          </a>
+
+          <!-- LinkedIn -->
+          <a
+            href="https://www.linkedin.com/in/vinsensius-arka-a2185a229/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-card"
+            aria-label="LinkedIn profile"
+          >
+            <div class="contact-card-icon">
+              <i class="fa-brands fa-linkedin"></i>
+            </div>
+            <div class="contact-card-info">
+              <span class="contact-card-label">LinkedIn</span>
+              <span class="contact-card-value">Vinsensius Arka</span>
+            </div>
+          </a>
+
+          <!-- GitHub -->
+          <a
+            href="https://github.com/vinsensiusarko"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-card"
+            aria-label="GitHub profile"
+          >
+            <div class="contact-card-icon">
+              <i class="fa-brands fa-github"></i>
+            </div>
+            <div class="contact-card-info">
+              <span class="contact-card-label">GitHub</span>
+              <span class="contact-card-value">vinsensiusarko</span>
+            </div>
+          </a>
+
+          <!-- Instagram -->
+          <a
+            href="https://www.instagram.com/vinsensiusarka/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-card"
+            aria-label="Instagram profile"
+          >
+            <div class="contact-card-icon">
+              <i class="fa-brands fa-instagram"></i>
+            </div>
+            <div class="contact-card-info">
+              <span class="contact-card-label">Instagram</span>
+              <span class="contact-card-value">@vinsensiusarka</span>
+            </div>
+          </a>
+
+          <!-- Facebook -->
+          <a
+            href="https://www.facebook.com/vinsensiusarka/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-card"
+            aria-label="Facebook profile"
+          >
+            <div class="contact-card-icon">
+              <i class="fa-brands fa-facebook"></i>
+            </div>
+            <div class="contact-card-info">
+              <span class="contact-card-label">Facebook</span>
+              <span class="contact-card-value">Vinsensius Arka</span>
+            </div>
+          </a>
+
+          <!-- X / Twitter -->
+          <a
+            href="https://x.com/vinsensiusarka"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-card"
+            aria-label="X Twitter profile"
+          >
+            <div class="contact-card-icon">
+              <i class="fa-brands fa-x-twitter"></i>
+            </div>
+            <div class="contact-card-info">
+              <span class="contact-card-label">X / Twitter</span>
+              <span class="contact-card-value">@vinsensiusarka</span>
+            </div>
+          </a>
         </div>
-        <div class="contact-info-container">
-          <p><a href="https://twitter.com/vinsensiusarko" style="text-decoration : none" target="_blank">
-            <i class="fa-brands fa-square-x-twitter fa-md"></i>Twitter</a>
-          </p>
-        </div>
-        <div class="contact-info-container">
-          <p><a href="https://github.com/vinsensiusarko" style="text-decoration : none" target="_blank">
-            <i class="fa-brands fa-github fa-md"></i>Github</a>
-          </p>
-        </div>
-        <div class="contact-info-container">
-          <p><a href="https://www.linkedin.com/in/vinsensius-arka-a2185a229/" style="text-decoration : none" target="_blank">
-            <i class="fa-brands fa-linkedin fa-md"></i>LinkedIn</a>
-          </p>
-        </div>
-      </div>
-    </section>
+      </section>
+    </main>
+
+    <!-- Footer -->
     <footer>
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-        <a href="https://api.whatsapp.com/send?phone=6285179793167" class="float" target="_blank">
-          <i class="fa fa-whatsapp my-float"></i>
-        </a>
-      <nav>
-        <div class="nav-links-container">
-          <ul class="nav-links">
-            <li><a href="#about">About</a></li>
-            <li><a href="#experience">Experience</a></li>
-            <li><a href="#projects">Projects</a></li>
-            <li><a href="#contact">Contact</a></li>
-            <li><a href="privacy-policy.html">Privacy Policy</a></li>
-          </ul>
-        </div>
+      <!-- WhatsApp Floating CTA Button -->
+      <a
+        href="https://api.whatsapp.com/send?phone=6285179793167"
+        class="float"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat on WhatsApp"
+      >
+        <i class="fa-brands fa-whatsapp my-float"></i>
+      </a>
+
+      <nav aria-label="Footer navigation">
+        <ul class="nav-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        </ul>
       </nav>
-      <p>Copyright &#169; <script>document.write(new Date().getFullYear())</script> Vinsensius Arka. All Rights Reserved.</p>
+      <p>
+        Copyright &#169; <span id="current-year">2026</span> Vinsensius Arka. All Rights Reserved.
+      </p>
     </footer>
-    <script src="script.js"></script>
-    <script src ="typelighter.min.js"></script>
+
+    <!-- Scripts -->
+    <script src="js/typelighter.min.js"></script>
+    <script src="js/main.js"></script>
   </body>
 </html>
