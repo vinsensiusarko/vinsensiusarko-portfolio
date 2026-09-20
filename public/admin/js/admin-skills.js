@@ -84,15 +84,15 @@ const AdminSkills = {
       }
 
       html += `
-        <div style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 1rem; background:var(--bg-card-alt); border:1px solid var(--border-color); border-radius:var(--radius-md);">
-          <div style="display:flex; align-items:center; gap:0.85rem;">
-            <div style="width:2rem; text-align:center; font-size:1.3rem;">${iconPreview}</div>
-            <div>
-              <strong style="font-size:0.98rem; display:block;">${skill.name}</strong>
+        <div class="skill-item-row">
+          <div class="skill-item-info">
+            <div class="skill-item-icon">${iconPreview}</div>
+            <div style="min-width: 0;">
+              <strong style="font-size:0.98rem; display:block; word-break:break-word;">${skill.name}</strong>
               <small style="color:var(--text-muted);">${skill.category === 'language' ? 'Language' : 'Framework/Tool'}</small>
             </div>
           </div>
-          <div style="display:flex; align-items:center; gap:0.85rem;">
+          <div class="skill-item-actions">
             ${levelBadge}
             <button class="btn btn-secondary btn-sm" onclick="AdminSkills.openEditModal('${skill.id}')" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
             <button class="btn btn-danger btn-sm" onclick="AdminSkills.deleteSkill('${skill.id}', '${skill.name}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
