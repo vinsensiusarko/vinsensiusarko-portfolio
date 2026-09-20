@@ -391,6 +391,58 @@
 
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;" />
 
+                <!-- Profile & About Photos Section -->
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Profile &amp; About Photos</h3>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">
+                  Upload photos for the Hero section avatar (circular) and About Me section. Images are auto-compressed to lightweight WebP/JPEG Base64 (~25KB - 45KB).
+                </p>
+
+                <div class="form-row" style="align-items: flex-start;">
+                  <!-- Hero Photo Dropzone -->
+                  <div class="form-group">
+                    <label class="form-label">Hero Section Photo (Avatar)</label>
+                    <div id="hero-dropzone" class="image-dropzone" style="padding: 1.25rem;">
+                      <i class="fa-solid fa-user-circle dropzone-icon"></i>
+                      <p style="font-size: 0.9rem; font-weight: 600;">Drag &amp; drop or click to upload</p>
+                      <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">PNG, JPG, WEBP (Square recommended)</p>
+                      <input type="file" id="hero-file-input" accept="image/*" style="display: none;" />
+
+                      <div id="hero-img-preview" class="dropzone-preview" style="display: none; margin-top: 0.75rem;">
+                        <img id="hero-preview-img" src="" alt="Hero Avatar Preview" style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-focus); margin: 0 auto; display: block;" />
+                        <div id="hero-compression-badge" class="compression-badge" style="margin-top: 0.5rem;"></div>
+                        <div style="margin-top: 0.5rem;">
+                          <button type="button" id="remove-hero-photo-btn" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; color: var(--accent-danger);">
+                            <i class="fa-solid fa-trash"></i> Remove Photo
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- About Photo Dropzone -->
+                  <div class="form-group">
+                    <label class="form-label">About Me Section Photo</label>
+                    <div id="about-dropzone" class="image-dropzone" style="padding: 1.25rem;">
+                      <i class="fa-solid fa-image dropzone-icon"></i>
+                      <p style="font-size: 0.9rem; font-weight: 600;">Drag &amp; drop or click to upload</p>
+                      <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">PNG, JPG, WEBP (Square or portrait)</p>
+                      <input type="file" id="about-file-input" accept="image/*" style="display: none;" />
+
+                      <div id="about-img-preview" class="dropzone-preview" style="display: none; margin-top: 0.75rem;">
+                        <img id="about-preview-img" src="" alt="About Photo Preview" style="width: 110px; height: 110px; border-radius: var(--radius-md); object-fit: cover; border: 2px solid var(--border-focus); margin: 0 auto; display: block;" />
+                        <div id="about-compression-badge" class="compression-badge" style="margin-top: 0.5rem;"></div>
+                        <div style="margin-top: 0.5rem;">
+                          <button type="button" id="remove-about-photo-btn" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; color: var(--accent-danger);">
+                            <i class="fa-solid fa-trash"></i> Remove Photo
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;" />
+
                 <!-- CV Resume Section -->
                 <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem;">Download CV Resume</h3>
                 <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">
@@ -682,11 +734,11 @@
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Admin App Scripts -->
-    <script src="js/admin-auth.js?v=2.2"></script>
-    <script src="js/admin-projects.js?v=2.2"></script>
-    <script src="js/admin-skills.js?v=2.2"></script>
-    <script src="js/admin-profile.js?v=2.2"></script>
-    <script src="js/admin-seeder.js?v=2.2"></script>
-    <script src="js/admin-main.js?v=2.2"></script>
+    <script src="js/admin-auth.js?v=2.4"></script>
+    <script src="js/admin-projects.js?v=2.4"></script>
+    <script src="js/admin-skills.js?v=2.4"></script>
+    <script src="js/admin-profile.js?v=2.4"></script>
+    <script src="js/admin-seeder.js?v=2.4"></script>
+    <script src="js/admin-main.js?v=2.4"></script>
   </body>
 </html>

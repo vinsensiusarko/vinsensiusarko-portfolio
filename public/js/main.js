@@ -231,6 +231,26 @@ function initFirestoreSync() {
       document.querySelectorAll('#profile .title').forEach(el => el.textContent = data.name);
     }
 
+    // Hero Photo (Avatar)
+    const heroImg = document.getElementById('hero-img') || document.querySelector('#profile .section__pic-container img');
+    if (heroImg) {
+      if (data.heroImage) {
+        heroImg.src = data.heroImage;
+      } else {
+        heroImg.src = 'assets/images/arko-pic.png';
+      }
+    }
+
+    // About Photo
+    const aboutImg = document.getElementById('about-img') || document.querySelector('#about .section__pic-container img');
+    if (aboutImg) {
+      if (data.aboutImage) {
+        aboutImg.src = data.aboutImage;
+      } else {
+        aboutImg.src = 'assets/images/arko-about.jpg';
+      }
+    }
+
     // Hero Greeting
     if (data.heroGreeting) {
       const gEl = document.querySelector('#profile .section__text__p1');

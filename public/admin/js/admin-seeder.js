@@ -142,7 +142,9 @@ const AdminSeeder = {
     expSub: "Web & Mobile Development",
     eduDegree: "Bachelors Degree",
     eduMajor: "Computer Science",
-    cvUrl: "assets/docs/cv-vinsensiusarka.pdf"
+    cvUrl: "assets/docs/cv-vinsensiusarka.pdf",
+    heroImage: null,
+    aboutImage: null
   },
 
   initialContacts: {
