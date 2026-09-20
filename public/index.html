@@ -52,8 +52,8 @@
     <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="css/style.css?v=2.2" />
-    <link rel="stylesheet" href="css/mediaqueries.css?v=2.2" />
+    <link rel="stylesheet" href="css/style.css?v=2.3" />
+    <link rel="stylesheet" href="css/mediaqueries.css?v=2.3" />
 
     <!-- Schema.org JSON-LD for Rich Search Results -->
     <script type="application/ld+json">
@@ -809,17 +809,6 @@
 
     <!-- Footer -->
     <footer>
-      <!-- WhatsApp Floating CTA Button -->
-      <a
-        href="https://api.whatsapp.com/send?phone=6285179793167"
-        class="float"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Chat on WhatsApp"
-      >
-        <i class="fa-brands fa-whatsapp my-float"></i>
-      </a>
-
       <nav aria-label="Footer navigation">
         <ul class="nav-links">
           <li><a href="#about">About</a></li>
@@ -834,16 +823,28 @@
       </p>
     </footer>
 
-    <!-- Back to Top Floating Button -->
-    <button
-      type="button"
-      id="back-to-top-btn"
-      class="back-to-top-btn"
-      aria-label="Back to top"
-      title="Back to top"
-    >
-      <i class="fa-solid fa-arrow-up"></i>
-    </button>
+    <!-- Floating Action Buttons Container (Back to Top & WhatsApp CTA) -->
+    <div class="floating-actions" aria-label="Quick action buttons">
+      <button
+        type="button"
+        id="back-to-top-btn"
+        class="back-to-top-btn"
+        aria-label="Back to top"
+        title="Back to top"
+      >
+        <i class="fa-solid fa-arrow-up"></i>
+      </button>
+      <a
+        href="https://api.whatsapp.com/send?phone=6285179793167"
+        class="float whatsapp-float-btn"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat on WhatsApp"
+        title="Chat on WhatsApp"
+      >
+        <i class="fa-brands fa-whatsapp my-float"></i>
+      </a>
+    </div>
 
     <!-- Project Quick View Modal -->
     <div id="project-detail-modal" class="project-modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="modal-project-title">

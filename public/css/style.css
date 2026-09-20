@@ -230,7 +230,8 @@ section {
 /* ==========================================================================
    5. Navigation Bar
    ========================================================================== */
-nav {
+#desktop-nav,
+#hamburger-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -246,7 +247,8 @@ nav {
   transition: all var(--transition-normal);
 }
 
-nav.scrolled {
+#desktop-nav.scrolled,
+#hamburger-nav.scrolled {
   box-shadow: var(--shadow-sm);
 }
 
@@ -993,15 +995,27 @@ footer {
   border-top: 1px solid var(--border-subtle);
   background-color: var(--bg-secondary);
   text-align: center;
+  position: relative;
+  z-index: 10;
 }
 
 footer nav {
   display: flex;
   justify-content: center;
+  align-items: center;
   height: auto;
+  min-height: unset;
   padding: 0;
-  background: transparent;
-  border: none;
+  position: static !important;
+  top: auto !important;
+  z-index: auto !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
   margin-bottom: 1.5rem;
 }
 
@@ -1024,37 +1038,6 @@ footer .nav-links a:hover {
 footer p {
   font-size: 0.9rem;
   color: var(--text-muted);
-}
-
-/* WhatsApp Floating Button */
-.float {
-  position: fixed;
-  width: 58px;
-  height: 58px;
-  bottom: 30px;
-  right: 30px;
-  background-color: var(--accent-whatsapp);
-  color: #ffffff;
-  border-radius: 50px;
-  text-align: center;
-  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
-  z-index: 99;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.8rem;
-  transition: all var(--transition-normal);
-  text-decoration: none;
-}
-
-.float:hover {
-  transform: scale(1.1) translateY(-3px);
-  box-shadow: 0 8px 20px rgba(37, 211, 102, 0.5);
-  color: #ffffff;
-}
-
-.my-float {
-  margin-top: 0;
 }
 
 /* ==========================================================================
@@ -1947,42 +1930,113 @@ footer p {
 }
 
 /* ==========================================================================
-   16. Back to Top Button & Public Toast
+   16. Floating Action Buttons (Back to Top & WhatsApp CTA) & Public Toast
    ========================================================================== */
-.back-to-top-btn {
+.floating-actions {
   position: fixed;
-  bottom: 85px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
-  background-color: var(--bg-card);
-  color: var(--text-primary);
-  border: 1px solid var(--border-medium);
+  bottom: 28px;
+  right: 28px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.floating-actions .whatsapp-float-btn,
+.floating-actions .float,
+.floating-actions .back-to-top-btn {
+  pointer-events: auto;
+}
+
+/* WhatsApp Floating CTA */
+.whatsapp-float-btn,
+.float {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
+  background-color: var(--accent-whatsapp, #25d366);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.15rem;
+  font-size: 1.65rem;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+  z-index: 999;
+  text-decoration: none;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal), background-color var(--transition-normal);
+}
+
+.floating-actions .whatsapp-float-btn,
+.floating-actions .float {
+  position: static;
+}
+
+.whatsapp-float-btn:hover,
+.float:hover {
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 8px 20px rgba(37, 211, 102, 0.55);
+  color: #ffffff;
+}
+
+.my-float {
+  margin-top: 0;
+}
+
+/* Back to Top Floating Button */
+.back-to-top-btn {
+  position: fixed;
+  bottom: 92px;
+  right: 32px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
   box-shadow: var(--shadow-md);
   cursor: pointer;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(15px);
-  transition: all var(--transition-normal);
-  z-index: 99;
+  transform: translateY(10px) scale(0.85);
+  transition: opacity var(--transition-normal), transform var(--transition-normal), visibility var(--transition-normal), background-color var(--transition-normal), color var(--transition-normal), box-shadow var(--transition-normal);
+  z-index: 999;
+}
+
+.floating-actions .back-to-top-btn {
+  position: absolute;
+  bottom: 64px; /* 52px WhatsApp button + 12px gap */
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%) translateY(10px) scale(0.85);
 }
 
 .back-to-top-btn.show {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
+}
+
+.floating-actions .back-to-top-btn.show {
+  transform: translateX(-50%) translateY(0) scale(1);
 }
 
 .back-to-top-btn:hover {
   background-color: var(--text-primary);
   color: var(--bg-primary);
-  transform: translateY(-3px);
+  transform: translateY(-3px) scale(1.06);
   box-shadow: var(--shadow-lg);
+}
+
+.floating-actions .back-to-top-btn:hover {
+  transform: translateX(-50%) translateY(-3px) scale(1.06);
 }
 
 /* Public Toast Notification */

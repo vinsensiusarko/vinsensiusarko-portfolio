@@ -139,12 +139,26 @@
     justify-content: center;
   }
 
-  .float {
-    width: 52px;
-    height: 52px;
-    bottom: 20px;
-    right: 20px;
+  /* Synchronized Floating Action Buttons on Mobile */
+  .floating-actions {
+    bottom: 18px;
+    right: 18px;
+  }
+
+  .float,
+  .whatsapp-float-btn {
+    width: 48px;
+    height: 48px;
     font-size: 1.5rem;
+    bottom: 18px;
+    right: 18px;
+  }
+
+  .floating-actions .back-to-top-btn {
+    bottom: 58px; /* 48px WhatsApp + 10px gap */
+    width: 40px;
+    height: 40px;
+    font-size: 0.95rem;
   }
 
   /* Privacy Policy Mobile Rules */
