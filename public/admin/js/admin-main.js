@@ -214,8 +214,12 @@ const AdminMain = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    AdminMain.init();
+  });
+} else {
   AdminMain.init();
-});
+}
 
 window.AdminMain = AdminMain;

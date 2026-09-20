@@ -11,8 +11,24 @@ const AdminAuth = {
   init() {
     if (!auth) {
       console.error('Firebase Auth not available');
+      const splashScreen = document.getElementById('auth-splash-screen');
+      if (splashScreen) splashScreen.style.display = 'none';
+      document.documentElement.classList.add('is-unauthenticated');
+      const loginOverlay = document.getElementById('login-screen');
+      if (loginOverlay) loginOverlay.style.display = 'flex';
       return;
     }
+
+    // Safety fallback: Never allow splash screen to hang for more than 1 second
+    setTimeout(() => {
+      const splashScreen = document.getElementById('auth-splash-screen');
+      if (splashScreen && !document.documentElement.classList.contains('is-authenticated')) {
+        splashScreen.style.display = 'none';
+        document.documentElement.classList.add('is-unauthenticated');
+        const loginOverlay = document.getElementById('login-screen');
+        if (loginOverlay) loginOverlay.style.display = 'flex';
+      }
+    }, 1000);
 
     // Ensure persistence is stored locally across tab closes and refreshes
     if (auth.setPersistence && typeof firebase !== 'undefined' && firebase.auth && firebase.auth.Auth) {
@@ -29,13 +45,9 @@ const AdminAuth = {
       const adminApp = document.getElementById('admin-app');
       const userDisplay = document.getElementById('user-email-display');
 
-      // Dismiss the splash screen gracefully
+      // Dismiss the splash screen immediately
       if (splashScreen) {
-        splashScreen.style.opacity = '0';
-        splashScreen.style.visibility = 'hidden';
-        setTimeout(() => {
-          splashScreen.style.display = 'none';
-        }, 250);
+        splashScreen.style.display = 'none';
       }
 
       if (user) {
@@ -97,13 +109,34 @@ const AdminAuth = {
     // Logout Button
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        try { localStorage.removeItem('admin_logged_in'); } catch (e) {}
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          localStorage.removeItem('admin_logged_in');
+        } catch (e) {}
+
+        // Immediately update visual state to login screen
         document.documentElement.classList.remove('is-authenticated');
         document.documentElement.classList.add('is-unauthenticated');
-        auth.signOut().then(() => {
-          AdminMain.showToast('Logged out', 'info');
-        });
+
+        const splashScreen = document.getElementById('auth-splash-screen');
+        const loginOverlay = document.getElementById('login-screen');
+        const adminApp = document.getElementById('admin-app');
+
+        if (splashScreen) splashScreen.style.display = 'none';
+        if (adminApp) adminApp.style.display = 'none';
+        if (loginOverlay) loginOverlay.style.display = 'flex';
+
+        if (window.AdminMain) {
+          AdminMain.showToast('Logged out successfully', 'info');
+        }
+
+        if (auth) {
+          try {
+            await auth.signOut();
+          } catch (err) {
+            console.warn('SignOut error:', err);
+          }
+        }
       });
     }
   }

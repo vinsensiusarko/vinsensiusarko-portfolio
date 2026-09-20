@@ -746,7 +746,7 @@ body {
   right: 0;
   bottom: 0;
   background-color: var(--bg-body);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 9999;
@@ -819,6 +819,10 @@ html.is-unauthenticated .login-screen {
 }
 
 html.is-unauthenticated .auth-splash-screen {
+  display: none !important;
+}
+
+html.is-unauthenticated .admin-app {
   display: none !important;
 }
 
