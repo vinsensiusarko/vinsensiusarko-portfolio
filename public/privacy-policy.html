@@ -23,8 +23,8 @@
       crossorigin="anonymous"
     />
     <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/mediaqueries.css" />
+    <link rel="stylesheet" href="css/style.css?v=2.3" />
+    <link rel="stylesheet" href="css/mediaqueries.css?v=2.3" />
   </head>
   <body>
     <!-- Top Navigation -->
@@ -494,20 +494,34 @@
 
     <!-- Footer -->
     <footer class="policy-footer">
-      <a
-        href="https://api.whatsapp.com/send?phone=6285179793167"
-        class="float"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Chat on WhatsApp"
-      >
-        <i class="fa-brands fa-whatsapp my-float"></i>
-      </a>
       <p>
         Copyright &#169; <span id="current-year">2026</span> Vinsensius Arka. All Rights Reserved.
       </p>
     </footer>
 
-    <script src="js/main.js"></script>
+    <!-- Floating Action Buttons Container (Back to Top & WhatsApp CTA) -->
+    <div class="floating-actions" aria-label="Quick action buttons">
+      <button
+        type="button"
+        id="back-to-top-btn"
+        class="back-to-top-btn"
+        aria-label="Back to top"
+        title="Back to top"
+      >
+        <i class="fa-solid fa-arrow-up"></i>
+      </button>
+      <a
+        href="https://api.whatsapp.com/send?phone=6285179793167"
+        class="float whatsapp-float-btn"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat on WhatsApp"
+        title="Chat on WhatsApp"
+      >
+        <i class="fa-brands fa-whatsapp my-float"></i>
+      </a>
+    </div>
+
+    <script src="js/main.js?v=2.2"></script>
   </body>
 </html>
