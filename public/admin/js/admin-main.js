@@ -32,13 +32,15 @@ const AdminMain = {
   onUserLoggedIn() {
     const savedTab = localStorage.getItem('admin_active_tab') || 'projects';
     this.switchTab(savedTab);
-    if (!window.AdminProjects?.projects?.length) {
+    if (window.AdminProjects && (!window.AdminProjects.projects || !window.AdminProjects.projects.length)) {
       AdminProjects.loadProjects();
     }
-    if (!window.AdminSkills?.skills?.length) {
+    if (window.AdminSkills && (!window.AdminSkills.skills || !window.AdminSkills.skills.length)) {
       AdminSkills.loadSkills();
     }
-    AdminProfile.loadProfile();
+    if (window.AdminProfile && typeof AdminProfile.loadProfile === 'function') {
+      AdminProfile.loadProfile();
+    }
   },
 
   initTheme() {
