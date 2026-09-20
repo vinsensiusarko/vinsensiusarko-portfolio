@@ -41,10 +41,20 @@
     <title>Admin Dashboard — Vinsensius Arka</title>
     <link rel="shortcut icon" href="../assets/favicon.ico" type="image/x-icon" />
 
+    <!-- Performance Preconnect & Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    />
+
     <!-- Font Awesome 6 Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      crossorigin="anonymous"
     />
 
     <!-- Admin Stylesheet -->
@@ -436,6 +446,25 @@
               <button id="seed-btn" class="btn btn-primary" onclick="AdminSeeder.seedAll()">
                 <i class="fa-solid fa-database"></i> Seed Initial Database
               </button>
+            </div>
+
+            <!-- BACKUP & RESTORE CARD -->
+            <div class="card" style="margin-top: 1.5rem;">
+              <h2 class="card-title" style="margin-bottom: 0.5rem;">Database Backup &amp; Disaster Recovery</h2>
+              <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 1.5rem;">
+                Safely export your entire Firestore portfolio database (Projects, Skills, and Profile Settings) into a JSON backup file, or restore data instantly from a previously saved JSON backup.
+              </p>
+
+              <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                <button type="button" id="export-backup-btn" class="btn btn-primary" onclick="AdminSeeder.exportBackup()">
+                  <i class="fa-solid fa-download"></i> Export Database (.json)
+                </button>
+
+                <input type="file" id="backup-file-input" accept=".json" style="display: none;" onchange="AdminSeeder.importBackup(event)" />
+                <button type="button" id="import-backup-btn" class="btn btn-secondary" onclick="document.getElementById('backup-file-input').click()">
+                  <i class="fa-solid fa-upload"></i> Restore from JSON
+                </button>
+              </div>
             </div>
           </section>
         </div>

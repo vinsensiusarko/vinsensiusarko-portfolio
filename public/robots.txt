@@ -1,0 +1,10 @@
+# Robots.txt for Vinsensius Arka Portfolio
+# Website: https://vinsensiusarka.id
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /admin/*
+
+# Sitemap
+Sitemap: https://vinsensiusarka.id/sitemap.xml

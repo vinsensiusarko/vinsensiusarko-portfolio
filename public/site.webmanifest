@@ -1,0 +1,22 @@
+{
+  "name": "Vinsensius Arka — Portfolio",
+  "short_name": "Arka Portfolio",
+  "description": "Professional Web & Mobile Developer Portfolio of Vinsensius Arka",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "assets/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "assets/images/arko-pic.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

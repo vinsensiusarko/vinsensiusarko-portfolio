@@ -21,6 +21,11 @@
     />
     <meta name="author" content="Vinsensius Arka" />
 
+    <!-- Canonical & PWA Meta -->
+    <link rel="canonical" href="https://vinsensiusarka.id/" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#0f172a" />
+
     <!-- Open Graph / Social Media Meta -->
     <meta property="og:title" content="Vinsensius Arka — Web &amp; Mobile Developer" />
     <meta property="og:description" content="Explore projects, skills, and professional portfolio of Vinsensius Arka." />
@@ -29,16 +34,44 @@
     <meta property="og:image" content="https://vinsensiusarka.id/assets/images/arko-pic.png" />
     <meta name="twitter:card" content="summary_large_image" />
 
+    <!-- Performance Preconnect & Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    />
+
     <!-- Font Awesome 6 Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      crossorigin="anonymous"
     />
     <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/mediaqueries.css" />
+
+    <!-- Schema.org JSON-LD for Rich Search Results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Vinsensius Arka",
+      "url": "https://vinsensiusarka.id",
+      "image": "https://vinsensiusarka.id/assets/images/arko-pic.png",
+      "jobTitle": "Web & Mobile Developer",
+      "sameAs": [
+        "https://github.com/vinsensiusarko",
+        "https://www.linkedin.com/in/vinsensiusarko/",
+        "https://www.instagram.com/vinsensiusarko/",
+        "https://x.com/vinsensiusarko"
+      ]
+    }
+    </script>
   </head>
   <body>
     <!-- Skip to Content for Accessibility -->
@@ -315,15 +348,56 @@
       <section id="projects" class="reveal-on-scroll">
         <p class="section__text__p1">Browse My Recent</p>
         <h2 class="title">Projects</h2>
+
+        <!-- Interactive Search & Category Filter Controls -->
+        <div class="project-controls">
+          <div class="project-search-box">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input
+              type="text"
+              id="project-search-input"
+              class="project-search-input"
+              placeholder="Search projects by title or tech stack (e.g. Flutter, React, Laravel)..."
+              aria-label="Search projects"
+            />
+            <button
+              type="button"
+              id="project-search-clear"
+              class="project-search-clear"
+              aria-label="Clear search"
+              style="display: none;"
+            >
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="project-filter-chips" role="tablist" aria-label="Filter projects by category">
+            <button class="filter-chip active" data-filter="all" role="tab" aria-selected="true">All Projects</button>
+            <button class="filter-chip" data-filter="Mobile Application" role="tab" aria-selected="false">Mobile App</button>
+            <button class="filter-chip" data-filter="Web Application" role="tab" aria-selected="false">Web App</button>
+            <button class="filter-chip" data-filter="Web Portal" role="tab" aria-selected="false">Web Portal</button>
+            <button class="filter-chip" data-filter="Backend API" role="tab" aria-selected="false">Backend API</button>
+          </div>
+        </div>
+
+        <div id="projects-empty-state" class="projects-empty-state" style="display: none;">
+          <i class="fa-solid fa-folder-open empty-icon"></i>
+          <h3>No matching projects found</h3>
+          <p>Try searching for a different keyword or choose another category.</p>
+          <button type="button" class="btn btn-color-2 btn-sm" id="reset-filter-btn">Reset Filters</button>
+        </div>
+
         <div class="projects-grid">
           <!-- 1. Chatting App -->
-          <article class="project-card">
-            <div class="project-img-wrapper">
+          <article class="project-card" data-category="Desktop Application" data-tech="Java, Socket, Swing, Networking">
+            <div class="project-img-wrapper" title="Click to view details">
               <img
                 src="assets/images/portfolio-1.png"
                 alt="Chatting App user interface screenshot"
                 loading="lazy"
+                decoding="async"
               />
+              <span class="project-quick-view-badge"><i class="fa-solid fa-expand"></i> Quick View</span>
             </div>
             <div class="project-content">
               <h3 class="project-title">Chatting App</h3>
@@ -347,13 +421,15 @@
           </article>
 
           <!-- 2. Kanisius High School -->
-          <article class="project-card">
-            <div class="project-img-wrapper">
+          <article class="project-card" data-category="Web Application" data-tech="PHP, MySQL, HTML5, CSS3, JavaScript">
+            <div class="project-img-wrapper" title="Click to view details">
               <img
                 src="assets/images/portfolio-2.png"
                 alt="Kanisius High School Yearbook Website preview"
                 loading="lazy"
+                decoding="async"
               />
+              <span class="project-quick-view-badge"><i class="fa-solid fa-expand"></i> Quick View</span>
             </div>
             <div class="project-content">
               <h3 class="project-title">Kanisius High School</h3>
@@ -382,13 +458,15 @@
           </article>
 
           <!-- 3. Kanisius Middle School -->
-          <article class="project-card">
-            <div class="project-img-wrapper">
+          <article class="project-card" data-category="Web Portal" data-tech="WordPress, PHP, MySQL, CMS">
+            <div class="project-img-wrapper" title="Click to view details">
               <img
                 src="assets/images/portfolio-3.png"
                 alt="Kanisius Middle School website preview"
                 loading="lazy"
+                decoding="async"
               />
+              <span class="project-quick-view-badge"><i class="fa-solid fa-expand"></i> Quick View</span>
             </div>
             <div class="project-content">
               <h3 class="project-title">Kanisius Middle School</h3>
@@ -409,13 +487,15 @@
           </article>
 
           <!-- 4. SPMB UNS Solo -->
-          <article class="project-card">
-            <div class="project-img-wrapper">
+          <article class="project-card" data-category="Web Portal" data-tech="Laravel, PHP, MySQL, Bootstrap">
+            <div class="project-img-wrapper" title="Click to view details">
               <img
                 src="assets/images/portfolio-4.png"
                 alt="SPMB UNS Solo admission portal screenshot"
                 loading="lazy"
+                decoding="async"
               />
+              <span class="project-quick-view-badge"><i class="fa-solid fa-expand"></i> Quick View</span>
             </div>
             <div class="project-content">
               <h3 class="project-title">SPMB UNS Solo</h3>
@@ -436,13 +516,15 @@
           </article>
 
           <!-- 5. Arkommerce Frontend -->
-          <article class="project-card">
-            <div class="project-img-wrapper">
+          <article class="project-card" data-category="Web Application" data-tech="React, JavaScript, CSS3, Firebase">
+            <div class="project-img-wrapper" title="Click to view details">
               <img
                 src="assets/images/portfolio-5.png"
                 alt="Arkommerce Frontend Admin dashboard interface"
                 loading="lazy"
+                decoding="async"
               />
+              <span class="project-quick-view-badge"><i class="fa-solid fa-expand"></i> Quick View</span>
             </div>
             <div class="project-content">
               <h3 class="project-title">Arkommerce — Admin FE</h3>
@@ -471,13 +553,15 @@
           </article>
 
           <!-- 6. Arkommerce Backend -->
-          <article class="project-card">
-            <div class="project-img-wrapper">
+          <article class="project-card" data-category="Backend API" data-tech="Node JS, Express, RESTful API, MySQL">
+            <div class="project-img-wrapper" title="Click to view details">
               <img
                 src="assets/images/portfolio-6.png"
                 alt="Arkommerce Backend RESTful API documentation screenshot"
                 loading="lazy"
+                decoding="async"
               />
+              <span class="project-quick-view-badge"><i class="fa-solid fa-expand"></i> Quick View</span>
             </div>
             <div class="project-content">
               <h3 class="project-title">Arkommerce — Admin BE</h3>
@@ -506,13 +590,15 @@
           </article>
 
           <!-- 7. PMI Malang -->
-          <article class="project-card">
-            <div class="project-img-wrapper">
+          <article class="project-card" data-category="Desktop Application" data-tech="Java, MySQL, Database, Reporting">
+            <div class="project-img-wrapper" title="Click to view details">
               <img
                 src="assets/images/portfolio-7.png"
                 alt="PMI Malang extension reporting application"
                 loading="lazy"
+                decoding="async"
               />
+              <span class="project-quick-view-badge"><i class="fa-solid fa-expand"></i> Quick View</span>
             </div>
             <div class="project-content">
               <h3 class="project-title">PMI Malang</h3>
@@ -536,13 +622,15 @@
           </article>
 
           <!-- 8. Mozaic POS App -->
-          <article class="project-card">
-            <div class="project-img-wrapper">
+          <article class="project-card" data-category="Mobile Application" data-tech="Flutter, Dart, Firebase, SQLite">
+            <div class="project-img-wrapper" title="Click to view details">
               <img
                 src="assets/images/portfolio-8.png"
                 alt="Mozaic POS App mobile store listing screenshot"
                 loading="lazy"
+                decoding="async"
               />
+              <span class="project-quick-view-badge"><i class="fa-solid fa-expand"></i> Quick View</span>
             </div>
             <div class="project-content">
               <h3 class="project-title">Mozaic POS App</h3>
@@ -563,13 +651,15 @@
           </article>
 
           <!-- 9. SMArT -->
-          <article class="project-card">
-            <div class="project-img-wrapper">
+          <article class="project-card" data-category="Web Application" data-tech="PHP, MySQL, Bootstrap, Management">
+            <div class="project-img-wrapper" title="Click to view details">
               <img
                 src="assets/images/portfolio-9.png"
                 alt="SMArT integrated administrative system preview"
                 loading="lazy"
+                decoding="async"
               />
+              <span class="project-quick-view-badge"><i class="fa-solid fa-expand"></i> Quick View</span>
             </div>
             <div class="project-content">
               <h3 class="project-title">SMArT</h3>
@@ -609,6 +699,15 @@
               <span class="contact-card-label">Email</span>
               <span class="contact-card-value">me@vinsensiusarka.id</span>
             </div>
+            <button
+              type="button"
+              class="contact-copy-btn"
+              data-copy="me@vinsensiusarka.id"
+              aria-label="Copy email address"
+              title="Copy email to clipboard"
+            >
+              <i class="fa-regular fa-copy"></i>
+            </button>
           </a>
 
           <!-- LinkedIn -->
@@ -725,6 +824,45 @@
         Copyright &#169; <span id="current-year">2026</span> Vinsensius Arka. All Rights Reserved.
       </p>
     </footer>
+
+    <!-- Back to Top Floating Button -->
+    <button
+      type="button"
+      id="back-to-top-btn"
+      class="back-to-top-btn"
+      aria-label="Back to top"
+      title="Back to top"
+    >
+      <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Project Quick View Modal -->
+    <div id="project-detail-modal" class="project-modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="modal-project-title">
+      <div class="project-modal-dialog">
+        <button class="project-modal-close" aria-label="Close project details" id="modal-close-btn">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="project-modal-image-wrapper">
+          <img id="modal-project-img" src="" alt="Project screenshot preview" />
+          <span id="modal-project-category" class="project-category-badge"></span>
+        </div>
+        <div class="project-modal-content">
+          <div class="project-modal-header">
+            <h3 id="modal-project-title"></h3>
+            <div id="modal-project-status"></div>
+          </div>
+          <p id="modal-project-desc"></p>
+          <div class="project-modal-tech">
+            <h4>Technologies Used</h4>
+            <div id="modal-project-tech-list" class="tech-badge-container"></div>
+          </div>
+          <div class="project-modal-actions" id="modal-project-actions"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Public Toast Feedback -->
+    <div id="public-toast" class="public-toast" role="alert" aria-live="polite"></div>
 
     <!-- Scripts -->
     <script src="js/typelighter.min.js"></script>

@@ -2,8 +2,7 @@
    VINSENSIUS ARKA - ADMIN DASHBOARD DESIGN SYSTEM
    Modern, Clean, Responsive & Scalable
    ========================================================================== */
-
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+/* Google Fonts Poppins is preconnected and loaded asynchronously in HTML <head> for zero-waterfall performance */
 
 :root {
   /* --- Light Mode --- */
