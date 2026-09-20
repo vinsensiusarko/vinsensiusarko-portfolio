@@ -31,7 +31,9 @@ const AdminMain = {
 
   onUserLoggedIn() {
     const savedTab = localStorage.getItem('admin_active_tab') || 'projects';
-    this.switchTab(savedTab);
+    if (this.currentTab !== savedTab) {
+      this.switchTab(savedTab);
+    }
     if (window.AdminProjects && (!window.AdminProjects.projects || !window.AdminProjects.projects.length)) {
       AdminProjects.loadProjects();
     }
@@ -114,6 +116,9 @@ const AdminMain = {
   switchTab(tabName) {
     this.currentTab = tabName;
     try { localStorage.setItem('admin_active_tab', tabName); } catch (e) {}
+
+    // Clean up critical initial state attribute once JS takes over
+    document.documentElement.removeAttribute('data-initial-tab');
 
     // Close any open modals and restore scroll if switching tabs
     document.querySelectorAll('.modal-backdrop.show').forEach(m => this.closeModal(m.id));

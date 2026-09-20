@@ -176,6 +176,53 @@ const AdminProjects = {
     }
   },
 
+  formatRichDescription(text) {
+    if (!text) return '';
+    const escapeHtml = (str) => {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+
+    const lines = text.split(/\r?\n/);
+    let html = '';
+    let inOl = false;
+    let inUl = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      if (!line) {
+        if (inOl) { html += '</ol>'; inOl = false; }
+        if (inUl) { html += '</ul>'; inUl = false; }
+        continue;
+      }
+
+      const olMatch = line.match(/^(\d+)[\.\)]\s+(.*)/);
+      const ulMatch = line.match(/^[-*•]\s+(.*)/);
+
+      if (olMatch) {
+        if (inUl) { html += '</ul>'; inUl = false; }
+        if (!inOl) { html += '<ol class="rich-desc-list rich-desc-ol">'; inOl = true; }
+        html += `<li>${escapeHtml(olMatch[2])}</li>`;
+      } else if (ulMatch) {
+        if (inOl) { html += '</ol>'; inOl = false; }
+        if (!inUl) { html += '<ul class="rich-desc-list rich-desc-ul">'; inUl = true; }
+        html += `<li>${escapeHtml(ulMatch[1])}</li>`;
+      } else {
+        if (inOl) { html += '</ol>'; inOl = false; }
+        if (inUl) { html += '</ul>'; inUl = false; }
+        html += `<p class="rich-desc-p">${escapeHtml(line)}</p>`;
+      }
+    }
+
+    if (inOl) html += '</ol>';
+    if (inUl) html += '</ul>';
+    return html;
+  },
+
   renderProjectsList() {
     const container = document.getElementById('projects-list-container');
     if (!container) return;
@@ -206,6 +253,8 @@ const AdminProjects = {
         .map(t => `<span style="display:inline-block; font-size:0.75rem; background:var(--bg-card-alt); border:1px solid var(--border-color); padding:0.15rem 0.5rem; border-radius:1rem; margin-right:0.3rem; margin-bottom:0.3rem;">${t}</span>`)
         .join('');
 
+      const formattedDesc = this.formatRichDescription(proj.description || '');
+
       html += `
         <div class="admin-project-card">
           <div class="admin-project-thumb">
@@ -216,7 +265,7 @@ const AdminProjects = {
               <h3 style="min-width:0; flex:1; word-break:break-word; font-size:1.1rem; font-weight:600; margin:0;">${proj.title}</h3>
               <div style="flex-shrink:0;">${comingSoonBadge}</div>
             </div>
-            <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin-bottom:1rem; flex:1;">${proj.description || ''}</p>
+            <div class="admin-project-desc">${formattedDesc}</div>
             <div style="margin-bottom:1rem;">${techBadges}</div>
             <div class="admin-card-actions">
               <div class="admin-card-reorder">

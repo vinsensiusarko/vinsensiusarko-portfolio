@@ -18,7 +18,28 @@
             document.documentElement.classList.add('is-unauthenticated');
             document.documentElement.classList.remove('is-authenticated');
           }
+
+          // Anti-flicker tab resolver: immediately reflect the saved active tab
+          const activeTab = localStorage.getItem('admin_active_tab') || 'projects';
+          document.documentElement.setAttribute('data-initial-tab', activeTab);
         } catch (e) {}
+
+        document.addEventListener('DOMContentLoaded', () => {
+          try {
+            const savedTab = localStorage.getItem('admin_active_tab') || 'projects';
+            const titleEl = document.getElementById('header-view-title');
+            if (titleEl) {
+              const titles = {
+                projects: 'Projects Management',
+                skills: 'Skills & Tools Management',
+                profile: 'Profile, Bio & CV Resume',
+                contact: 'Contact & Social Channels',
+                database: 'Database & Migration Tools'
+              };
+              titleEl.textContent = titles[savedTab] || 'Dashboard';
+            }
+          } catch (e) {}
+        });
       })();
     </script>
     <style>
@@ -36,6 +57,27 @@
       html.is-unauthenticated #login-screen { display: flex !important; }
       html.is-unauthenticated #admin-app { display: none !important; }
       html.is-unauthenticated #auth-splash-screen { display: none !important; }
+
+      /* Anti-Flicker Tab States: instantly show saved active tab and correct sidebar link */
+      html[data-initial-tab="skills"] #tab-projects { display: none !important; }
+      html[data-initial-tab="skills"] #tab-skills { display: block !important; }
+      html[data-initial-tab="skills"] .sidebar-link[data-tab="projects"] { background-color: transparent !important; color: var(--text-muted) !important; font-weight: 500 !important; }
+      html[data-initial-tab="skills"] .sidebar-link[data-tab="skills"] { background-color: var(--bg-card-alt) !important; color: var(--accent-primary) !important; font-weight: 600 !important; }
+
+      html[data-initial-tab="profile"] #tab-projects { display: none !important; }
+      html[data-initial-tab="profile"] #tab-profile { display: block !important; }
+      html[data-initial-tab="profile"] .sidebar-link[data-tab="projects"] { background-color: transparent !important; color: var(--text-muted) !important; font-weight: 500 !important; }
+      html[data-initial-tab="profile"] .sidebar-link[data-tab="profile"] { background-color: var(--bg-card-alt) !important; color: var(--accent-primary) !important; font-weight: 600 !important; }
+
+      html[data-initial-tab="contact"] #tab-projects { display: none !important; }
+      html[data-initial-tab="contact"] #tab-contact { display: block !important; }
+      html[data-initial-tab="contact"] .sidebar-link[data-tab="projects"] { background-color: transparent !important; color: var(--text-muted) !important; font-weight: 500 !important; }
+      html[data-initial-tab="contact"] .sidebar-link[data-tab="contact"] { background-color: var(--bg-card-alt) !important; color: var(--accent-primary) !important; font-weight: 600 !important; }
+
+      html[data-initial-tab="database"] #tab-projects { display: none !important; }
+      html[data-initial-tab="database"] #tab-database { display: block !important; }
+      html[data-initial-tab="database"] .sidebar-link[data-tab="projects"] { background-color: transparent !important; color: var(--text-muted) !important; font-weight: 500 !important; }
+      html[data-initial-tab="database"] .sidebar-link[data-tab="database"] { background-color: var(--bg-card-alt) !important; color: var(--accent-primary) !important; font-weight: 600 !important; }
     </style>
 
     <title>Admin Dashboard — Vinsensius Arka</title>

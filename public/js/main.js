@@ -435,8 +435,55 @@ function applyProjectFilters() {
 }
 
 /* ==========================================================================
-   8. Project Detail / Quick View Modal
+   8. Rich Description Formatter & Project Quick View Modal
    ========================================================================== */
+function formatRichDescription(text) {
+  if (!text) return '';
+  const escapeHtml = (str) => {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
+
+  const lines = text.split(/\r?\n/);
+  let html = '';
+  let inOl = false;
+  let inUl = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    if (!line) {
+      if (inOl) { html += '</ol>'; inOl = false; }
+      if (inUl) { html += '</ul>'; inUl = false; }
+      continue;
+    }
+
+    const olMatch = line.match(/^(\d+)[\.\)]\s+(.*)/);
+    const ulMatch = line.match(/^[-*•]\s+(.*)/);
+
+    if (olMatch) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      if (!inOl) { html += '<ol class="rich-desc-list rich-desc-ol">'; inOl = true; }
+      html += `<li>${escapeHtml(olMatch[2])}</li>`;
+    } else if (ulMatch) {
+      if (inOl) { html += '</ol>'; inOl = false; }
+      if (!inUl) { html += '<ul class="rich-desc-list rich-desc-ul">'; inUl = true; }
+      html += `<li>${escapeHtml(ulMatch[1])}</li>`;
+    } else {
+      if (inOl) { html += '</ol>'; inOl = false; }
+      if (inUl) { html += '</ul>'; inUl = false; }
+      html += `<p class="rich-desc-p">${escapeHtml(line)}</p>`;
+    }
+  }
+
+  if (inOl) html += '</ol>';
+  if (inUl) html += '</ul>';
+  return html;
+}
+
 function initProjectDetailModal() {
   const modal = document.getElementById('project-detail-modal');
   if (!modal) return;
@@ -459,7 +506,7 @@ function initProjectDetailModal() {
   const openModalForCard = (card) => {
     const imgSrc = card.querySelector('.project-img-wrapper img')?.getAttribute('src') || '';
     const title = card.querySelector('.project-title')?.textContent || 'Project';
-    const desc = card.querySelector('.project-desc')?.textContent || '';
+    const rawDesc = card.getAttribute('data-raw-desc') || card.querySelector('.project-desc')?.textContent || '';
     const category = card.getAttribute('data-category') || 'Project';
     const techRaw = card.getAttribute('data-tech') || '';
     const techArray = techRaw ? techRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -474,7 +521,7 @@ function initProjectDetailModal() {
     }
     if (categoryEl) categoryEl.textContent = category;
     if (titleEl) titleEl.textContent = title;
-    if (descEl) descEl.textContent = desc;
+    if (descEl) descEl.innerHTML = formatRichDescription(rawDesc);
 
     if (statusEl) {
       if (isComingSoon) {
@@ -621,6 +668,7 @@ function renderDynamicProjects(projects) {
     card.className = 'project-card';
     card.setAttribute('data-category', proj.category || 'Web Application');
     card.setAttribute('data-tech', (proj.techStack || []).join(', '));
+    card.setAttribute('data-raw-desc', proj.description || '');
 
     const imgSrc = proj.image || 'assets/images/portfolio-1.png';
     const isComingSoon = !!proj.isComingSoon;
@@ -658,6 +706,8 @@ function renderDynamicProjects(projects) {
       `;
     }
 
+    const formattedDesc = formatRichDescription(proj.description || '');
+
     card.innerHTML = `
       <div class="project-img-wrapper" title="Click to view details">
         <img src="${imgSrc}" alt="${proj.title} preview" loading="lazy" decoding="async" />
@@ -665,7 +715,7 @@ function renderDynamicProjects(projects) {
       </div>
       <div class="project-content">
         <h3 class="project-title">${proj.title}</h3>
-        <p class="project-desc">${proj.description || ''}</p>
+        <div class="project-desc">${formattedDesc}</div>
         <div class="project-btn-container">
           ${actionButtons}
         </div>
