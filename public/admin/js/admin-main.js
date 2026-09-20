@@ -115,6 +115,10 @@ const AdminMain = {
     this.currentTab = tabName;
     try { localStorage.setItem('admin_active_tab', tabName); } catch (e) {}
 
+    // Close any open modals and restore scroll if switching tabs
+    document.querySelectorAll('.modal-backdrop.show').forEach(m => this.closeModal(m.id));
+    document.body.style.overflow = '';
+
     // Update active sidebar link
     document.querySelectorAll('.sidebar-link[data-tab]').forEach(link => {
       link.classList.toggle('active', link.getAttribute('data-tab') === tabName);
@@ -140,25 +144,27 @@ const AdminMain = {
   },
 
   initModals() {
-    // Close modal on close button or backdrop click
+    // Close modal on close button, cancel button, or backdrop click
     document.querySelectorAll('[data-close-modal]').forEach(btn => {
       btn.addEventListener('click', () => {
         const modal = btn.closest('.modal-backdrop');
-        if (modal) modal.classList.remove('show');
+        if (modal) {
+          this.closeModal(modal.id);
+        }
       });
     });
 
     document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
       backdrop.addEventListener('click', (e) => {
         if (e.target === backdrop) {
-          backdrop.classList.remove('show');
+          this.closeModal(backdrop.id);
         }
       });
     });
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-backdrop.show').forEach(m => m.classList.remove('show'));
+        document.querySelectorAll('.modal-backdrop.show').forEach(m => this.closeModal(m.id));
       }
     });
   },
@@ -175,6 +181,10 @@ const AdminMain = {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.remove('show');
+    }
+    // Always check if any modals remain open; if none, restore body scrolling
+    const remainingOpenModals = document.querySelectorAll('.modal-backdrop.show');
+    if (remainingOpenModals.length === 0) {
       document.body.style.overflow = '';
     }
   },

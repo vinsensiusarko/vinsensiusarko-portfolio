@@ -525,14 +525,26 @@ body {
 .compression-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   background-color: var(--accent-success);
   color: #ffffff;
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.25rem 0.6rem;
   border-radius: var(--radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.dropzone-preview .compression-badge {
   margin-top: 0.5rem;
+}
+
+.admin-project-card .compression-badge {
+  margin-top: 0;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+  line-height: 1.2;
 }
 
 /* Grid Project & Skill Items in Admin */
@@ -604,8 +616,23 @@ body {
   border-top: 1px solid var(--border-color);
   padding-top: 0.85rem;
   margin-top: auto;
-  flex-wrap: wrap;
   gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-card-reorder {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.admin-card-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
 }
 
 /* Modals */

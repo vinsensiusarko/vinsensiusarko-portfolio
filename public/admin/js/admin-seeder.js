@@ -39,7 +39,7 @@ const AdminSeeder = {
       githubUrl: "",
       demoUrl: "https://smpkanisiuspati.sch.id",
       demoLabel: "Live Demo",
-      isComingSoon: true,
+      isComingSoon: false,
       order: 3,
       image: "assets/images/portfolio-3.png"
     },
@@ -51,7 +51,7 @@ const AdminSeeder = {
       githubUrl: "",
       demoUrl: "https://spmb.uns.ac.id",
       demoLabel: "Live Demo",
-      isComingSoon: true,
+      isComingSoon: false,
       order: 4,
       image: "assets/images/portfolio-4.png"
     },

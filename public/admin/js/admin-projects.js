@@ -212,18 +212,18 @@ const AdminProjects = {
             <img src="${imgSrc}" alt="${proj.title}" loading="lazy" />
           </div>
           <div class="admin-project-body">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
-              <h3>${proj.title}</h3>
-              ${comingSoonBadge}
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.5rem;">
+              <h3 style="min-width:0; flex:1; word-break:break-word; font-size:1.1rem; font-weight:600; margin:0;">${proj.title}</h3>
+              <div style="flex-shrink:0;">${comingSoonBadge}</div>
             </div>
-            <p>${proj.description || ''}</p>
+            <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin-bottom:1rem; flex:1;">${proj.description || ''}</p>
             <div style="margin-bottom:1rem;">${techBadges}</div>
             <div class="admin-card-actions">
-              <div style="display:flex; gap:0.4rem;">
+              <div class="admin-card-reorder">
                 <button class="btn btn-secondary btn-sm" onclick="AdminProjects.moveProject(${index}, -1)" ${index === 0 ? 'disabled' : ''} title="Move Up"><i class="fa-solid fa-arrow-up"></i></button>
                 <button class="btn btn-secondary btn-sm" onclick="AdminProjects.moveProject(${index}, 1)" ${index === this.projects.length - 1 ? 'disabled' : ''} title="Move Down"><i class="fa-solid fa-arrow-down"></i></button>
               </div>
-              <div style="display:flex; gap:0.5rem;">
+              <div class="admin-card-buttons">
                 <button class="btn btn-secondary btn-sm" onclick="AdminProjects.openEditModal('${proj.id}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                 <button class="btn btn-danger btn-sm" onclick="AdminProjects.deleteProject('${proj.id}', '${proj.title}')"><i class="fa-solid fa-trash"></i></button>
               </div>
