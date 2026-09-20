@@ -58,26 +58,24 @@
       html.is-unauthenticated #admin-app { display: none !important; }
       html.is-unauthenticated #auth-splash-screen { display: none !important; }
 
-      /* Anti-Flicker Tab States: instantly show saved active tab and correct sidebar link */
-      html[data-initial-tab="skills"] #tab-projects { display: none !important; }
+      /* Anti-Flicker Tab States: strictly hide all tabs initially, only show the one matching initial tab */
+      html[data-initial-tab] .tab-view { display: none !important; }
+      html[data-initial-tab="projects"] #tab-projects { display: block !important; }
       html[data-initial-tab="skills"] #tab-skills { display: block !important; }
-      html[data-initial-tab="skills"] .sidebar-link[data-tab="projects"] { background-color: transparent !important; color: var(--text-muted) !important; font-weight: 500 !important; }
-      html[data-initial-tab="skills"] .sidebar-link[data-tab="skills"] { background-color: var(--bg-card-alt) !important; color: var(--accent-primary) !important; font-weight: 600 !important; }
-
-      html[data-initial-tab="profile"] #tab-projects { display: none !important; }
       html[data-initial-tab="profile"] #tab-profile { display: block !important; }
-      html[data-initial-tab="profile"] .sidebar-link[data-tab="projects"] { background-color: transparent !important; color: var(--text-muted) !important; font-weight: 500 !important; }
-      html[data-initial-tab="profile"] .sidebar-link[data-tab="profile"] { background-color: var(--bg-card-alt) !important; color: var(--accent-primary) !important; font-weight: 600 !important; }
-
-      html[data-initial-tab="contact"] #tab-projects { display: none !important; }
       html[data-initial-tab="contact"] #tab-contact { display: block !important; }
-      html[data-initial-tab="contact"] .sidebar-link[data-tab="projects"] { background-color: transparent !important; color: var(--text-muted) !important; font-weight: 500 !important; }
-      html[data-initial-tab="contact"] .sidebar-link[data-tab="contact"] { background-color: var(--bg-card-alt) !important; color: var(--accent-primary) !important; font-weight: 600 !important; }
-
-      html[data-initial-tab="database"] #tab-projects { display: none !important; }
       html[data-initial-tab="database"] #tab-database { display: block !important; }
-      html[data-initial-tab="database"] .sidebar-link[data-tab="projects"] { background-color: transparent !important; color: var(--text-muted) !important; font-weight: 500 !important; }
-      html[data-initial-tab="database"] .sidebar-link[data-tab="database"] { background-color: var(--bg-card-alt) !important; color: var(--accent-primary) !important; font-weight: 600 !important; }
+
+      html[data-initial-tab] .sidebar-link { background-color: transparent !important; color: var(--text-muted) !important; font-weight: 500 !important; }
+      html[data-initial-tab="projects"] .sidebar-link[data-tab="projects"],
+      html[data-initial-tab="skills"] .sidebar-link[data-tab="skills"],
+      html[data-initial-tab="profile"] .sidebar-link[data-tab="profile"],
+      html[data-initial-tab="contact"] .sidebar-link[data-tab="contact"],
+      html[data-initial-tab="database"] .sidebar-link[data-tab="database"] {
+        background-color: var(--bg-card-alt) !important;
+        color: var(--accent-primary) !important;
+        font-weight: 600 !important;
+      }
     </style>
 
     <title>Admin Dashboard — Vinsensius Arka</title>
@@ -100,7 +98,7 @@
     />
 
     <!-- Admin Stylesheet -->
-    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="stylesheet" href="css/admin.css?v=2.2" />
 
     <!-- Firebase SDKs (Compat CDN) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -109,8 +107,8 @@
     <script src="../js/firebase-config.js"></script>
   </head>
   <body>
-    <!-- Auth Splash Screen (Sleek transitional loader, strictly prevents login screen blink) -->
-    <div id="auth-splash-screen" class="auth-splash-screen">
+    <!-- Auth Splash Screen (Hidden permanently to prevent refresh hang) -->
+    <div id="auth-splash-screen" class="auth-splash-screen" style="display: none !important;">
       <div class="splash-card">
         <div class="splash-logo">
           <i class="fa-solid fa-shield-halved"></i>
@@ -179,7 +177,7 @@
 
         <ul class="sidebar-menu">
           <li>
-            <a class="sidebar-link active" data-tab="projects">
+            <a class="sidebar-link" data-tab="projects">
               <i class="fa-solid fa-code-fork"></i>
               <span>Projects</span>
             </a>
@@ -275,7 +273,7 @@
           </div>
 
           <!-- TAB 1: PROJECTS -->
-          <section id="tab-projects" class="tab-view">
+          <section id="tab-projects" class="tab-view" style="display: none;">
             <div class="card">
               <div class="card-header">
                 <div>
@@ -684,11 +682,11 @@
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Admin App Scripts -->
-    <script src="js/admin-auth.js"></script>
-    <script src="js/admin-projects.js"></script>
-    <script src="js/admin-skills.js"></script>
-    <script src="js/admin-profile.js"></script>
-    <script src="js/admin-seeder.js"></script>
-    <script src="js/admin-main.js"></script>
+    <script src="js/admin-auth.js?v=2.2"></script>
+    <script src="js/admin-projects.js?v=2.2"></script>
+    <script src="js/admin-skills.js?v=2.2"></script>
+    <script src="js/admin-profile.js?v=2.2"></script>
+    <script src="js/admin-seeder.js?v=2.2"></script>
+    <script src="js/admin-main.js?v=2.2"></script>
   </body>
 </html>

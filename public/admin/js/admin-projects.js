@@ -188,15 +188,13 @@ const AdminProjects = {
 
     const lines = text.split(/\r?\n/);
     let html = '';
-    let inOl = false;
-    let inUl = false;
+    let inList = false;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
 
       if (!line) {
-        if (inOl) { html += '</ol>'; inOl = false; }
-        if (inUl) { html += '</ul>'; inUl = false; }
+        if (inList) { html += '</div>'; inList = false; }
         continue;
       }
 
@@ -204,22 +202,28 @@ const AdminProjects = {
       const ulMatch = line.match(/^[-*•]\s+(.*)/);
 
       if (olMatch) {
-        if (inUl) { html += '</ul>'; inUl = false; }
-        if (!inOl) { html += '<ol class="rich-desc-list rich-desc-ol">'; inOl = true; }
-        html += `<li>${escapeHtml(olMatch[2])}</li>`;
+        if (!inList) { html += '<div class="rich-list-group">'; inList = true; }
+        html += `
+          <div class="rich-list-item">
+            <span class="rich-number-badge">${olMatch[1]}</span>
+            <span class="rich-item-text">${escapeHtml(olMatch[2])}</span>
+          </div>
+        `;
       } else if (ulMatch) {
-        if (inOl) { html += '</ol>'; inOl = false; }
-        if (!inUl) { html += '<ul class="rich-desc-list rich-desc-ul">'; inUl = true; }
-        html += `<li>${escapeHtml(ulMatch[1])}</li>`;
+        if (!inList) { html += '<div class="rich-list-group">'; inList = true; }
+        html += `
+          <div class="rich-list-item">
+            <span class="rich-check-badge"><i class="fa-solid fa-circle-check"></i></span>
+            <span class="rich-item-text">${escapeHtml(ulMatch[1])}</span>
+          </div>
+        `;
       } else {
-        if (inOl) { html += '</ol>'; inOl = false; }
-        if (inUl) { html += '</ul>'; inUl = false; }
+        if (inList) { html += '</div>'; inList = false; }
         html += `<p class="rich-desc-p">${escapeHtml(line)}</p>`;
       }
     }
 
-    if (inOl) html += '</ol>';
-    if (inUl) html += '</ul>';
+    if (inList) html += '</div>';
     return html;
   },
 
@@ -258,6 +262,7 @@ const AdminProjects = {
       html += `
         <div class="admin-project-card">
           <div class="admin-project-thumb">
+            <div class="admin-project-thumb-bg" style="background-image: url('${imgSrc}');"></div>
             <img src="${imgSrc}" alt="${proj.title}" loading="lazy" />
           </div>
           <div class="admin-project-body">

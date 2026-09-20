@@ -449,15 +449,13 @@ function formatRichDescription(text) {
 
   const lines = text.split(/\r?\n/);
   let html = '';
-  let inOl = false;
-  let inUl = false;
+  let inListGroup = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
 
     if (!line) {
-      if (inOl) { html += '</ol>'; inOl = false; }
-      if (inUl) { html += '</ul>'; inUl = false; }
+      if (inListGroup) { html += '</div>'; inListGroup = false; }
       continue;
     }
 
@@ -465,22 +463,28 @@ function formatRichDescription(text) {
     const ulMatch = line.match(/^[-*•]\s+(.*)/);
 
     if (olMatch) {
-      if (inUl) { html += '</ul>'; inUl = false; }
-      if (!inOl) { html += '<ol class="rich-desc-list rich-desc-ol">'; inOl = true; }
-      html += `<li>${escapeHtml(olMatch[2])}</li>`;
+      if (!inListGroup) { html += '<div class="rich-list-group">'; inListGroup = true; }
+      html += `
+        <div class="rich-list-item rich-numbered-item">
+          <span class="rich-number-badge">${olMatch[1]}</span>
+          <span class="rich-item-text">${escapeHtml(olMatch[2])}</span>
+        </div>
+      `;
     } else if (ulMatch) {
-      if (inOl) { html += '</ol>'; inOl = false; }
-      if (!inUl) { html += '<ul class="rich-desc-list rich-desc-ul">'; inUl = true; }
-      html += `<li>${escapeHtml(ulMatch[1])}</li>`;
+      if (!inListGroup) { html += '<div class="rich-list-group">'; inListGroup = true; }
+      html += `
+        <div class="rich-list-item rich-bullet-item">
+          <span class="rich-check-badge"><i class="fa-solid fa-circle-check"></i></span>
+          <span class="rich-item-text">${escapeHtml(ulMatch[1])}</span>
+        </div>
+      `;
     } else {
-      if (inOl) { html += '</ol>'; inOl = false; }
-      if (inUl) { html += '</ul>'; inUl = false; }
+      if (inListGroup) { html += '</div>'; inListGroup = false; }
       html += `<p class="rich-desc-p">${escapeHtml(line)}</p>`;
     }
   }
 
-  if (inOl) html += '</ol>';
-  if (inUl) html += '</ul>';
+  if (inListGroup) html += '</div>';
   return html;
 }
 
@@ -490,6 +494,7 @@ function initProjectDetailModal() {
 
   const closeBtn = document.getElementById('modal-close-btn');
   const imgEl = document.getElementById('modal-project-img');
+  const backdropBg = document.getElementById('modal-project-backdrop');
   const categoryEl = document.getElementById('modal-project-category');
   const titleEl = document.getElementById('modal-project-title');
   const statusEl = document.getElementById('modal-project-status');
@@ -518,6 +523,9 @@ function initProjectDetailModal() {
     if (imgEl) {
       imgEl.src = imgSrc;
       imgEl.alt = title + ' preview';
+    }
+    if (backdropBg) {
+      backdropBg.style.backgroundImage = imgSrc ? `url('${imgSrc}')` : 'none';
     }
     if (categoryEl) categoryEl.textContent = category;
     if (titleEl) titleEl.textContent = title;
@@ -710,7 +718,8 @@ function renderDynamicProjects(projects) {
 
     card.innerHTML = `
       <div class="project-img-wrapper" title="Click to view details">
-        <img src="${imgSrc}" alt="${proj.title} preview" loading="lazy" decoding="async" />
+        <div class="project-img-backdrop" style="background-image: url('${imgSrc}');"></div>
+        <img src="${imgSrc}" alt="${proj.title} preview" loading="lazy" decoding="async" class="project-img-main" />
         <span class="project-quick-view-badge"><i class="fa-solid fa-expand"></i> Quick View</span>
       </div>
       <div class="project-content">

@@ -577,7 +577,7 @@ body {
   width: 100%;
   height: 180px;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--bg-card-alt) 0%, rgba(0, 0, 0, 0.04) 100%);
+  background-color: #0b1120;
   position: relative;
   display: flex;
   align-items: center;
@@ -585,14 +585,38 @@ body {
   padding: 0.6rem;
 }
 
+.admin-project-thumb-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(20px) saturate(135%) brightness(0.65);
+  transform: scale(1.15);
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme="dark"] .admin-project-thumb-bg {
+  filter: blur(20px) saturate(140%) brightness(0.5);
+  opacity: 0.75;
+}
+
 .admin-project-thumb img {
-  max-width: 100%;
-  max-height: 100%;
+  position: relative;
+  z-index: 2;
+  max-width: 90%;
+  max-height: 88%;
   width: auto;
   height: auto;
   object-fit: contain;
   border-radius: var(--radius-sm);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .admin-project-desc {
@@ -613,28 +637,52 @@ body {
   margin-bottom: 0;
 }
 
-.admin-project-desc .rich-desc-list {
-  margin: 0.4rem 0 0.75rem 0;
-  padding-left: 1.5rem;
+/* Rich Description List & Badges in Admin */
+.admin-project-desc .rich-list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0.5rem 0 0.8rem 0;
+}
+
+.admin-project-desc .rich-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  line-height: 1.5;
+}
+
+.admin-project-desc .rich-number-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  box-shadow: 0 2px 5px rgba(14, 165, 233, 0.35);
+}
+
+.admin-project-desc .rich-check-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.admin-project-desc .rich-item-text {
   color: var(--text-muted);
-  line-height: 1.55;
-}
-
-.admin-project-desc .rich-desc-ol {
-  list-style-type: decimal;
-}
-
-.admin-project-desc .rich-desc-ul {
-  list-style-type: disc;
-}
-
-.admin-project-desc .rich-desc-list li {
-  margin-bottom: 0.25rem;
-  padding-left: 0.2rem;
-}
-
-.admin-project-desc .rich-desc-list li:last-child {
-  margin-bottom: 0;
+  font-size: 0.88rem;
+  flex: 1;
+  word-break: break-word;
 }
 
 .admin-project-body {

@@ -15,22 +15,7 @@ const AdminAuth = {
       return;
     }
 
-    // Safety fallback: Never allow splash screen to hang for more than 1 second
-    setTimeout(() => {
-      const splashScreen = document.getElementById('auth-splash-screen');
-      if (splashScreen && !document.documentElement.classList.contains('is-authenticated')) {
-        this.showUnauthenticated();
-      }
-    }, 1000);
-
-    // Ensure persistence is stored locally across tab closes and refreshes
-    if (auth.setPersistence && typeof firebase !== 'undefined' && firebase.auth && firebase.auth.Auth) {
-      auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((err) => {
-        console.warn('Auth persistence error:', err);
-      });
-    }
-
-    // Observer for authentication changes
+    // Observer for authentication changes with immediate session restoration
     auth.onAuthStateChanged((user) => {
       if (user) {
         this.showAuthenticated(user);
