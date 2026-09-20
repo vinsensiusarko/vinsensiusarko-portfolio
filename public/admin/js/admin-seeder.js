@@ -148,11 +148,11 @@ const AdminSeeder = {
   initialContacts: {
     email: "me@vinsensiusarka.id",
     whatsapp: "6285179793167",
-    linkedin: "https://www.linkedin.com/in/vinsensius-arka-a2185a229/",
-    github: "https://github.com/vinsensiusarko",
-    instagram: "https://www.instagram.com/vinsensiusarka/",
-    facebook: "https://www.facebook.com/vinsensiusarka/",
-    twitter: "https://x.com/vinsensiusarka"
+    linkedin: "https://www.linkedin.com/in/vinsensiusarka/",
+    github: "https://github.com/vinsensiusarko/",
+    instagram: "https://www.instagram.com/vinsensiusarko/",
+    facebook: "https://www.facebook.com/vinsensiusarko/",
+    twitter: "https://x.com/vinsensiusarko/"
   },
 
   async seedAll() {
