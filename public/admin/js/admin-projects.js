@@ -1,6 +1,6 @@
 /**
  * Admin Projects Controller
- * Handles Projects CRUD, Drag-and-Drop Image Compression (HTML5 Canvas Base64)
+ * Handles Projects CRUD, Drag-and-Drop Image Compression (HTML5 Canvas Base64), and Reordering
  */
 
 'use strict';
@@ -9,6 +9,7 @@ const AdminProjects = {
   projects: [],
   currentEditId: null,
   currentBase64Image: null,
+  isReordering: false,
 
   init() {
     this.setupDropzone();
@@ -153,12 +154,14 @@ const AdminProjects = {
     }
   },
 
-  async loadProjects() {
+  async loadProjects(showLoading = true) {
     if (!db) return;
     const container = document.getElementById('projects-list-container');
     if (!container) return;
 
-    container.innerHTML = '<div style="text-align:center; padding: 2rem;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p>Loading projects...</p></div>';
+    if (showLoading) {
+      container.innerHTML = '<div style="text-align:center; padding: 2rem;"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p>Loading projects...</p></div>';
+    }
 
     try {
       const snapshot = await db.collection('projects').orderBy('order', 'asc').get();
@@ -167,12 +170,53 @@ const AdminProjects = {
         this.projects.push({ id: doc.id, ...doc.data() });
       });
 
+      // Self-heal: ensure every project has a sequential, unique 1..N order
+      let needsHeal = false;
+      const seenOrders = new Set();
+      for (let i = 0; i < this.projects.length; i++) {
+        const order = this.projects[i].order;
+        if (order === undefined || order === null || seenOrders.has(order) || order !== i + 1) {
+          needsHeal = true;
+          break;
+        }
+        seenOrders.add(order);
+      }
+
+      if (needsHeal && this.projects.length > 0) {
+        // Auto-heal duplicate or inconsistent orders in the background
+        this.normalizeProjectOrders();
+      }
+
       this.renderProjectsList();
       if (window.AdminMain) AdminMain.updateStats();
     } catch (error) {
       console.error('Error loading projects:', error);
-      container.innerHTML = '<p style="color:var(--accent-danger);">Failed to load projects from Firestore.</p>';
+      if (showLoading) {
+        container.innerHTML = '<p style="color:var(--accent-danger);">Failed to load projects from Firestore.</p>';
+      }
       AdminMain.showToast('Could not load projects: ' + error.message, 'error');
+    }
+  },
+
+  async normalizeProjectOrders() {
+    if (!db || !this.projects.length) return;
+    try {
+      const batch = db.batch();
+      let hasChanges = false;
+      this.projects.forEach((proj, i) => {
+        const correctOrder = i + 1;
+        if (proj.order !== correctOrder) {
+          proj.order = correctOrder;
+          batch.update(db.collection('projects').doc(proj.id), { order: correctOrder });
+          hasChanges = true;
+        }
+      });
+      if (hasChanges) {
+        await batch.commit();
+        console.log('Project orders automatically normalized and synchronized.');
+      }
+    } catch (err) {
+      console.warn('Could not auto-normalize project orders:', err);
     }
   },
 
@@ -258,10 +302,18 @@ const AdminProjects = {
         .join('');
 
       const formattedDesc = this.formatRichDescription(proj.description || '');
+      const orderNumber = index + 1;
+      const isFirst = index === 0;
+      const isLast = index === this.projects.length - 1;
+      const isBusy = this.isReordering;
+
+      // Safe escaped title for single-quoted JS arguments
+      const safeTitle = (proj.title || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
       html += `
-        <div class="admin-project-card">
+        <div class="admin-project-card" data-project-id="${proj.id}">
           <div class="admin-project-thumb">
+            <span class="project-order-badge" style="position: absolute; top: 0.65rem; left: 0.65rem; z-index: 3; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(6px); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: var(--radius-pill); box-shadow: 0 2px 6px rgba(0,0,0,0.35);" title="Project Order: ${orderNumber}">#${orderNumber}</span>
             <div class="admin-project-thumb-bg" style="background-image: url('${imgSrc}');"></div>
             <img src="${imgSrc}" alt="${proj.title}" loading="lazy" />
           </div>
@@ -274,12 +326,12 @@ const AdminProjects = {
             <div style="margin-bottom:1rem;">${techBadges}</div>
             <div class="admin-card-actions">
               <div class="admin-card-reorder">
-                <button class="btn btn-secondary btn-sm" onclick="AdminProjects.moveProject(${index}, -1)" ${index === 0 ? 'disabled' : ''} title="Move Up"><i class="fa-solid fa-arrow-up"></i></button>
-                <button class="btn btn-secondary btn-sm" onclick="AdminProjects.moveProject(${index}, 1)" ${index === this.projects.length - 1 ? 'disabled' : ''} title="Move Down"><i class="fa-solid fa-arrow-down"></i></button>
+                <button class="btn btn-secondary btn-sm" onclick="AdminProjects.moveProject(${index}, -1)" ${isFirst || isBusy ? 'disabled' : ''} title="Move Up"><i class="fa-solid fa-arrow-up"></i></button>
+                <button class="btn btn-secondary btn-sm" onclick="AdminProjects.moveProject(${index}, 1)" ${isLast || isBusy ? 'disabled' : ''} title="Move Down"><i class="fa-solid fa-arrow-down"></i></button>
               </div>
               <div class="admin-card-buttons">
                 <button class="btn btn-secondary btn-sm" onclick="AdminProjects.openEditModal('${proj.id}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-                <button class="btn btn-danger btn-sm" onclick="AdminProjects.deleteProject('${proj.id}', '${proj.title}')"><i class="fa-solid fa-trash"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="AdminProjects.deleteProject('${proj.id}', '${safeTitle}')"><i class="fa-solid fa-trash"></i></button>
               </div>
             </div>
           </div>
@@ -306,6 +358,7 @@ const AdminProjects = {
     const proj = this.projects.find(p => p.id === id);
     if (!proj) return;
 
+    const currentIndex = this.projects.indexOf(proj);
     this.currentEditId = id;
     this.currentBase64Image = proj.image || null;
 
@@ -318,7 +371,7 @@ const AdminProjects = {
     document.getElementById('project-demo-url').value = proj.demoUrl || '';
     document.getElementById('project-demo-label').value = proj.demoLabel || 'Live Demo';
     document.getElementById('project-is-coming-soon').checked = !!proj.isComingSoon;
-    document.getElementById('project-order').value = proj.order || 1;
+    document.getElementById('project-order').value = proj.order || (currentIndex + 1);
 
     const previewContainer = document.getElementById('project-img-preview');
     const previewImg = document.getElementById('preview-img-element');
@@ -344,7 +397,7 @@ const AdminProjects = {
     const demoUrl = document.getElementById('project-demo-url').value.trim();
     const demoLabel = document.getElementById('project-demo-label').value;
     const isComingSoon = document.getElementById('project-is-coming-soon').checked;
-    const order = parseInt(document.getElementById('project-order').value) || 1;
+    const order = parseInt(document.getElementById('project-order').value) || (this.currentEditId ? 1 : this.projects.length + 1);
     const externalUrl = document.getElementById('project-image-url')?.value.trim();
 
     if (!title) {
@@ -384,7 +437,7 @@ const AdminProjects = {
       }
 
       AdminMain.closeModal('project-modal');
-      this.loadProjects();
+      await this.loadProjects();
     } catch (err) {
       console.error('Error saving project:', err);
       AdminMain.showToast('Error saving project: ' + err.message, 'error');
@@ -401,7 +454,12 @@ const AdminProjects = {
       AdminMain.showToast('Deleting project...', 'info');
       await db.collection('projects').doc(id).delete();
       AdminMain.showToast('Project deleted successfully', 'success');
-      this.loadProjects();
+
+      // Remove from local array and re-normalize remaining orders
+      this.projects = this.projects.filter(p => p.id !== id);
+      await this.normalizeProjectOrders();
+      this.renderProjectsList();
+      if (window.AdminMain) AdminMain.updateStats();
     } catch (err) {
       console.error('Error deleting project:', err);
       AdminMain.showToast('Failed to delete: ' + err.message, 'error');
@@ -409,27 +467,47 @@ const AdminProjects = {
   },
 
   async moveProject(index, offset) {
+    if (this.isReordering) return;
+
     const targetIndex = index + offset;
     if (targetIndex < 0 || targetIndex >= this.projects.length) return;
 
-    const current = this.projects[index];
-    const target = this.projects[targetIndex];
+    this.isReordering = true;
 
-    const currentOrder = current.order || index + 1;
-    const targetOrder = target.order || targetIndex + 1;
+    // 1. Instantly swap in memory (Optimistic UI update)
+    const [movedItem] = this.projects.splice(index, 1);
+    this.projects.splice(targetIndex, 0, movedItem);
 
+    // 2. Re-render instantly so the user sees immediate feedback without spinner or screen jumping
+    this.renderProjectsList();
+
+    // 3. Sync all affected orders to Firestore
     try {
-      AdminMain.showToast('Reordering...', 'info');
+      AdminMain.showToast('Saving new order...', 'info');
       const batch = db.batch();
-      batch.update(db.collection('projects').doc(current.id), { order: targetOrder });
-      batch.update(db.collection('projects').doc(target.id), { order: currentOrder });
-      await batch.commit();
+      let hasChanges = false;
 
-      AdminMain.showToast('Order updated!', 'success');
-      this.loadProjects();
+      this.projects.forEach((proj, i) => {
+        const correctOrder = i + 1;
+        if (proj.order !== correctOrder) {
+          proj.order = correctOrder;
+          batch.update(db.collection('projects').doc(proj.id), { order: correctOrder });
+          hasChanges = true;
+        }
+      });
+
+      if (hasChanges) {
+        await batch.commit();
+        AdminMain.showToast('Project order updated!', 'success');
+      }
     } catch (err) {
-      console.error('Error reordering:', err);
+      console.error('Error reordering projects:', err);
       AdminMain.showToast('Failed to reorder: ' + err.message, 'error');
+      // On failure, rollback from Firestore
+      await this.loadProjects(false);
+    } finally {
+      this.isReordering = false;
+      this.renderProjectsList(); // Refresh buttons enabled/disabled states
     }
   }
 };
