@@ -619,6 +619,22 @@ body {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
+.project-order-badge {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  z-index: 3;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
 .admin-project-desc {
   font-size: 0.88rem;
   color: var(--text-muted);

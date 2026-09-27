@@ -34,6 +34,7 @@
                 skills: 'Skills & Tools Management',
                 profile: 'Profile, Bio & CV Resume',
                 contact: 'Contact & Social Channels',
+                privacy: 'Privacy Policy Settings',
                 database: 'Database & Migration Tools'
               };
               titleEl.textContent = titles[savedTab] || 'Dashboard';
@@ -64,6 +65,7 @@
       html[data-initial-tab="skills"] #tab-skills { display: block !important; }
       html[data-initial-tab="profile"] #tab-profile { display: block !important; }
       html[data-initial-tab="contact"] #tab-contact { display: block !important; }
+      html[data-initial-tab="privacy"] #tab-privacy { display: block !important; }
       html[data-initial-tab="database"] #tab-database { display: block !important; }
 
       html[data-initial-tab] .sidebar-link { background-color: transparent !important; color: var(--text-muted) !important; font-weight: 500 !important; }
@@ -71,6 +73,7 @@
       html[data-initial-tab="skills"] .sidebar-link[data-tab="skills"],
       html[data-initial-tab="profile"] .sidebar-link[data-tab="profile"],
       html[data-initial-tab="contact"] .sidebar-link[data-tab="contact"],
+      html[data-initial-tab="privacy"] .sidebar-link[data-tab="privacy"],
       html[data-initial-tab="database"] .sidebar-link[data-tab="database"] {
         background-color: var(--bg-card-alt) !important;
         color: var(--accent-primary) !important;
@@ -198,6 +201,12 @@
             <a class="sidebar-link" data-tab="contact">
               <i class="fa-solid fa-address-book"></i>
               <span>Contacts &amp; Social</span>
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-link" data-tab="privacy">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Privacy Policy</span>
             </a>
           </li>
           <li>
@@ -518,7 +527,209 @@
             </div>
           </section>
 
-          <!-- TAB 5: DATABASE SEEDER -->
+          <!-- TAB 5: PRIVACY POLICY SETTINGS -->
+          <section id="tab-privacy" class="tab-view" style="display: none;">
+            <div class="card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                <div>
+                  <h2 class="card-title" style="margin-bottom: 0.4rem;">Privacy Policy Settings</h2>
+                  <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Manage your developer privacy policy, compliance metadata, highlight cards, and legal terms displayed on the public policy page.
+                  </p>
+                </div>
+                <div style="display: flex; gap: 0.6rem; align-items: center;">
+                  <a href="../privacy-policy.html" target="_blank" class="btn btn-secondary btn-sm">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> View Live Policy
+                  </a>
+                  <button type="button" id="reset-privacy-defaults-btn" class="btn btn-secondary btn-sm" title="Reset all fields to template text">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Defaults
+                  </button>
+                </div>
+              </div>
+
+              <form id="privacy-form">
+                <!-- Section A: Metadata & Header Badges -->
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <i class="fa-solid fa-sliders" style="color: var(--accent-primary);"></i> Page Header &amp; Metadata
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+                  Displayed at the top of the privacy policy page and on compliance badges.
+                </p>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="privacy-title">Document Title</label>
+                    <input type="text" id="privacy-title" class="form-input" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="privacy-subtitle">Subtitle / Category</label>
+                    <input type="text" id="privacy-subtitle" class="form-input" required />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="privacy-last-updated" style="display: flex; justify-content: space-between; align-items: center;">
+                      <span>Last Updated Date</span>
+                      <button type="button" id="set-privacy-today-btn" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;">
+                        <i class="fa-solid fa-calendar-day"></i> Set to Today
+                      </button>
+                    </label>
+                    <input type="text" id="privacy-last-updated" class="form-input" placeholder="e.g. September 28, 2026" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="privacy-compliance-badge">Compliance Badge Text</label>
+                    <input type="text" id="privacy-compliance-badge" class="form-input" placeholder="e.g. Google Play Store Compliant" required />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="privacy-developer-name">Developer / Publisher Name</label>
+                    <input type="text" id="privacy-developer-name" class="form-input" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="privacy-contact-email">Support &amp; Inquiries Email</label>
+                    <input type="email" id="privacy-contact-email" class="form-input" required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="privacy-contact-website">Website URL</label>
+                    <input type="url" id="privacy-contact-website" class="form-input" placeholder="https://vinsensiusarka.id" required />
+                  </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;" />
+
+                <!-- Section B: 3 Highlight Cards -->
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <i class="fa-solid fa-table-columns" style="color: var(--accent-primary);"></i> 3 Key Highlights Cards
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">
+                  The three cards showcased directly below the header on the public policy page.
+                </p>
+
+                <!-- Card 1 -->
+                <div style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem; margin-bottom: 1rem;">
+                  <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-user-shield" style="color: var(--accent-success);"></i> Highlight Card 1 (Privacy First)
+                  </h4>
+                  <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" for="privacy-highlight-1-title">Card 1 Title</label>
+                      <input type="text" id="privacy-highlight-1-title" class="form-input" required />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" for="privacy-highlight-1-desc">Card 1 Description</label>
+                      <input type="text" id="privacy-highlight-1-desc" class="form-input" required />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem; margin-bottom: 1rem;">
+                  <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-lock" style="color: var(--accent-info);"></i> Highlight Card 2 (Security)
+                  </h4>
+                  <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" for="privacy-highlight-2-title">Card 2 Title</label>
+                      <input type="text" id="privacy-highlight-2-title" class="form-input" required />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" for="privacy-highlight-2-desc">Card 2 Description</label>
+                      <input type="text" id="privacy-highlight-2-desc" class="form-input" required />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div style="background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem; margin-bottom: 1rem;">
+                  <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-trash-can" style="color: var(--accent-danger);"></i> Highlight Card 3 (Data Rights)
+                  </h4>
+                  <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" for="privacy-highlight-3-title">Card 3 Title</label>
+                      <input type="text" id="privacy-highlight-3-title" class="form-input" required />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label" for="privacy-highlight-3-desc">Card 3 Description</label>
+                      <input type="text" id="privacy-highlight-3-desc" class="form-input" required />
+                    </div>
+                  </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;" />
+
+                <!-- Section C: Core Policy Sections -->
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <i class="fa-solid fa-file-contract" style="color: var(--accent-primary);"></i> Policy Sections Content
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">
+                  Adjust key policy clauses, covered applications, permissions, and data deletion procedures.
+                </p>
+
+                <div class="form-group">
+                  <label class="form-label" for="privacy-section-scope">
+                    <strong>Section 1: Scope &amp; Covered Applications</strong>
+                  </label>
+                  <textarea id="privacy-section-scope" class="form-textarea" rows="4" required></textarea>
+                  <small style="color: var(--text-muted); font-size: 0.8rem;">
+                    Specify which mobile applications (e.g. Mozaic POS App, Satus Mobile) and services are covered under this policy.
+                  </small>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="privacy-section-collection">
+                    <strong>Section 2: Data Collection Summary</strong>
+                  </label>
+                  <textarea id="privacy-section-collection" class="form-textarea" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="privacy-section-permissions">
+                    <strong>Section 3: Device Permissions Explained</strong>
+                  </label>
+                  <textarea id="privacy-section-permissions" class="form-textarea" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="privacy-section-third-party">
+                    <strong>Section 5: Third-Party SDKs &amp; Services</strong>
+                  </label>
+                  <textarea id="privacy-section-third-party" class="form-textarea" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="privacy-section-deletion">
+                    <strong>Section 7: User Rights &amp; Data Deletion Instructions</strong>
+                  </label>
+                  <textarea id="privacy-section-deletion" class="form-textarea" rows="3" required></textarea>
+                  <small style="color: var(--text-muted); font-size: 0.8rem;">
+                    Google Play requires clear instructions for users on how to request complete account &amp; data deletion.
+                  </small>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="privacy-section-contact">
+                    <strong>Section 11: Contact &amp; Support Statement</strong>
+                  </label>
+                  <textarea id="privacy-section-contact" class="form-textarea" rows="3" required></textarea>
+                </div>
+
+                <div style="margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                  <button type="submit" id="save-privacy-btn" class="btn btn-primary">
+                    <i class="fa-solid fa-shield-halved"></i> Save Privacy Policy Settings
+                  </button>
+                  <a href="../privacy-policy.html" target="_blank" class="btn btn-secondary">
+                    <i class="fa-solid fa-eye"></i> View Live Policy
+                  </a>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <!-- TAB 6: DATABASE SEEDER -->
           <section id="tab-database" class="tab-view" style="display: none;">
             <div class="card">
               <h2 class="card-title" style="margin-bottom: 0.5rem;">Database Migration &amp; Seeder</h2>
@@ -734,11 +945,12 @@
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Admin App Scripts -->
-    <script src="js/admin-auth.js?v=2.4"></script>
-    <script src="js/admin-projects.js?v=2.5"></script>
-    <script src="js/admin-skills.js?v=2.4"></script>
-    <script src="js/admin-profile.js?v=2.4"></script>
-    <script src="js/admin-seeder.js?v=2.4"></script>
-    <script src="js/admin-main.js?v=2.4"></script>
+    <script src="js/admin-auth.js?v=2.6"></script>
+    <script src="js/admin-projects.js?v=2.6"></script>
+    <script src="js/admin-skills.js?v=2.6"></script>
+    <script src="js/admin-profile.js?v=2.6"></script>
+    <script src="js/admin-privacy.js?v=2.6"></script>
+    <script src="js/admin-seeder.js?v=2.6"></script>
+    <script src="js/admin-main.js?v=2.6"></script>
   </body>
 </html>

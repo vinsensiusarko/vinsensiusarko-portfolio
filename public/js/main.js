@@ -336,6 +336,120 @@ function initFirestoreSync() {
   }, (error) => {
     console.warn('Firestore contact listener (using fallback):', error);
   });
+
+  // 5. Privacy Policy Real-Time Listener (Active on Privacy Policy page)
+  const isPrivacyPage = document.querySelector('.policy-wrapper') !== null;
+  if (isPrivacyPage) {
+    db.collection('settings').doc('privacy_policy').onSnapshot((doc) => {
+      if (!doc.exists) return;
+      const p = doc.data();
+
+      // Titles & Badges
+      if (p.title) {
+        const titleEl = document.getElementById('policy-title');
+        if (titleEl) titleEl.textContent = p.title;
+        document.title = `${p.title} - ${p.developerName || 'Vinsensius Arka'}`;
+      }
+      if (p.subtitle) {
+        const subEl = document.getElementById('policy-subtitle');
+        if (subEl) subEl.textContent = p.subtitle;
+      }
+      if (p.complianceBadge) {
+        const badgeEl = document.getElementById('badge-compliance');
+        if (badgeEl) badgeEl.innerHTML = `<i class="fa-solid fa-shield-halved"></i> ${p.complianceBadge}`;
+      }
+      if (p.lastUpdated) {
+        const dateEl = document.getElementById('badge-last-updated');
+        if (dateEl) dateEl.innerHTML = `<i class="fa-regular fa-calendar-check"></i> Last Updated: ${p.lastUpdated}`;
+      }
+      if (p.developerName) {
+        const devEl = document.getElementById('badge-developer');
+        if (devEl) devEl.innerHTML = `<i class="fa-solid fa-code"></i> Developer: ${p.developerName}`;
+        const contactDev = document.getElementById('contact-dev-name');
+        if (contactDev) contactDev.textContent = p.developerName;
+      }
+
+      // Highlights
+      if (p.highlight1Title) {
+        const el = document.getElementById('highlight-1-title');
+        if (el) el.textContent = p.highlight1Title;
+      }
+      if (p.highlight1Desc) {
+        const el = document.getElementById('highlight-1-desc');
+        if (el) el.textContent = p.highlight1Desc;
+      }
+      if (p.highlight2Title) {
+        const el = document.getElementById('highlight-2-title');
+        if (el) el.textContent = p.highlight2Title;
+      }
+      if (p.highlight2Desc) {
+        const el = document.getElementById('highlight-2-desc');
+        if (el) el.textContent = p.highlight2Desc;
+      }
+      if (p.highlight3Title) {
+        const el = document.getElementById('highlight-3-title');
+        if (el) el.textContent = p.highlight3Title;
+      }
+      if (p.highlight3Desc) {
+        const el = document.getElementById('highlight-3-desc');
+        if (el) el.textContent = p.highlight3Desc;
+      }
+
+      // Core Sections
+      if (p.sectionScope) {
+        const el = document.getElementById('section-1-p1');
+        if (el) el.textContent = p.sectionScope;
+      }
+      if (p.sectionDataCollection) {
+        const el = document.getElementById('section-2-intro');
+        if (el) el.textContent = p.sectionDataCollection;
+      }
+      if (p.sectionPermissions) {
+        const el = document.getElementById('section-3-intro');
+        if (el) el.textContent = p.sectionPermissions;
+      }
+      if (p.sectionThirdParty) {
+        const el = document.getElementById('section-5-intro');
+        if (el) el.textContent = p.sectionThirdParty;
+      }
+      if (p.sectionDataDeletion) {
+        const el = document.getElementById('section-7-p1');
+        if (el) el.textContent = p.sectionDataDeletion;
+      }
+      if (p.sectionContact) {
+        const el = document.getElementById('section-11-contact');
+        if (el) el.textContent = p.sectionContact;
+      }
+
+      // Email links & text
+      if (p.contactEmail) {
+        const delLink = document.getElementById('deletion-email-link');
+        if (delLink) delLink.href = `mailto:${p.contactEmail}?subject=Data%20Deletion%20Request`;
+        const delText = document.getElementById('deletion-email-text');
+        if (delText) delText.textContent = p.contactEmail;
+
+        const contactEmailLink = document.getElementById('contact-email-link');
+        if (contactEmailLink) {
+          contactEmailLink.href = `mailto:${p.contactEmail}`;
+          contactEmailLink.textContent = p.contactEmail;
+        }
+
+        const bottomContactBtn = document.getElementById('bottom-contact-btn');
+        if (bottomContactBtn) bottomContactBtn.href = `mailto:${p.contactEmail}`;
+      }
+
+      // Website link
+      if (p.contactWebsite) {
+        const contactWebLink = document.getElementById('contact-website-link');
+        if (contactWebLink) {
+          contactWebLink.href = p.contactWebsite;
+          contactWebLink.textContent = p.contactWebsite.replace(/^https?:\/\//, '').replace(/\/$/, '');
+        }
+      }
+    }, (error) => {
+      console.warn('Firestore privacy policy listener (using fallback):', error);
+    });
+  }
 }
 
 /* ==========================================================================

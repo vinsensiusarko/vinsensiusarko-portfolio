@@ -97,16 +97,16 @@
     <main class="policy-wrapper">
       <!-- Header Section -->
       <header class="policy-header-section">
-        <p class="section__text__p1">Developer Policies &amp; User Data</p>
-        <h1 class="title">Privacy Policy</h1>
+        <p class="section__text__p1" id="policy-subtitle">Developer Policies &amp; User Data</p>
+        <h1 class="title" id="policy-title">Privacy Policy</h1>
         <div class="policy-meta-badges">
-          <span class="policy-pill-badge">
+          <span class="policy-pill-badge" id="badge-compliance">
             <i class="fa-solid fa-shield-halved"></i> Google Play Store Compliant
           </span>
-          <span class="policy-pill-badge">
+          <span class="policy-pill-badge" id="badge-last-updated">
             <i class="fa-regular fa-calendar-check"></i> Last Updated: September 10, 2026
           </span>
-          <span class="policy-pill-badge">
+          <span class="policy-pill-badge" id="badge-developer">
             <i class="fa-solid fa-code"></i> Developer: Vinsensius Arka
           </span>
         </div>
@@ -116,22 +116,22 @@
       <div class="about-containers policy-highlight-grid">
         <div class="details-container color-container">
           <i class="fa-solid fa-user-shield policy-card-icon"></i>
-          <h3>Privacy First</h3>
-          <p>
+          <h3 id="highlight-1-title">Privacy First</h3>
+          <p id="highlight-1-desc">
             We do not sell, rent, or trade your personal information to any third parties.
           </p>
         </div>
         <div class="details-container color-container">
           <i class="fa-solid fa-lock policy-card-icon"></i>
-          <h3>Secure &amp; Encrypted</h3>
-          <p>
+          <h3 id="highlight-2-title">Secure &amp; Encrypted</h3>
+          <p id="highlight-2-desc">
             HTTPS encryption and standard security protections across all app features.
           </p>
         </div>
         <div class="details-container color-container">
           <i class="fa-solid fa-trash-can policy-card-icon"></i>
-          <h3>Data Deletion</h3>
-          <p>
+          <h3 id="highlight-3-title">Data Deletion</h3>
+          <p id="highlight-3-desc">
             Full rights to request complete deletion of your account and records anytime.
           </p>
         </div>
@@ -160,7 +160,7 @@
         <!-- 1. Introduction & Scope -->
         <div id="section-1" class="policy-block">
           <h2><span>1</span> Introduction &amp; Scope</h2>
-          <p>
+          <p id="section-1-p1">
             Welcome to the Privacy Policy of <strong>Vinsensius Arka</strong> ("Developer", "we", "us", or "our"). This Privacy Policy applies to all mobile applications, software, tools, and digital services published and maintained under our developer account on the <strong>Google Play Store</strong> (including but not limited to <em>Mozaic POS App</em> and subsequent releases), as well as our official developer portfolio website.
           </p>
           <p>
@@ -171,7 +171,7 @@
         <!-- 2. Information We Collect -->
         <div id="section-2" class="policy-block">
           <h2><span>2</span> Information We Collect</h2>
-          <p>
+          <p id="section-2-intro">
             We collect only the minimum necessary information required to operate, maintain, and provide the services you request:
           </p>
 
@@ -205,7 +205,7 @@
         <!-- 3. Device Permissions -->
         <div id="section-3" class="policy-block">
           <h2><span>3</span> Application Device Permissions</h2>
-          <p>
+          <p id="section-3-intro">
             Our applications request only runtime system permissions that are strictly necessary for specific user-initiated features. Each permission is requested with an in-app explanation:
           </p>
 
@@ -288,7 +288,7 @@
         <!-- 5. Third-Party Services -->
         <div id="section-5" class="policy-block">
           <h2><span>5</span> Third-Party Service Providers</h2>
-          <p>
+          <p id="section-5-intro">
             Our applications utilize industry-standard SDKs provided by Google to handle infrastructure, analytics, and diagnostics. Below are the third-party providers with links to their respective privacy policies:
           </p>
 
@@ -370,7 +370,7 @@
         <!-- 7. Data Deletion (Google Play Compliance) -->
         <div id="section-7" class="policy-block">
           <h2><span>7</span> User Rights &amp; Data Deletion (Google Play Compliance)</h2>
-          <p>
+          <p id="section-7-p1">
             In accordance with Google Play's User Data &amp; Account Deletion policies, and global privacy frameworks (such as GDPR and CCPA), you have full control over your personal data:
           </p>
           <ul>
@@ -387,8 +387,8 @@
               To request permanent deletion of your account and any personal data associated with our applications, please send an email to:
             </p>
             <div class="email-highlight">
-              <a href="mailto:me@vinsensiusarka.id?subject=Data%20Deletion%20Request">
-                <i class="fa-solid fa-paper-plane"></i> me@vinsensiusarka.id
+              <a id="deletion-email-link" href="mailto:me@vinsensiusarka.id?subject=Data%20Deletion%20Request">
+                <i class="fa-solid fa-paper-plane"></i> <span id="deletion-email-text">me@vinsensiusarka.id</span>
               </a>
             </div>
             <ul class="deletion-steps">
@@ -426,7 +426,7 @@
         <!-- 11. Contact Info -->
         <div id="section-11" class="policy-block">
           <h2><span>11</span> Developer Contact Information</h2>
-          <p>
+          <p id="section-11-contact">
             If you have questions, comments, or concerns regarding this Privacy Policy, our data practices, or our mobile applications, please contact us:
           </p>
 
@@ -435,14 +435,14 @@
               <i class="fa-solid fa-user"></i>
               <div>
                 <span class="label">Developer</span>
-                <span class="val">Vinsensius Arka</span>
+                <span class="val" id="contact-dev-name">Vinsensius Arka</span>
               </div>
             </div>
             <div class="dev-item">
               <i class="fa-solid fa-envelope"></i>
               <div>
                 <span class="label">Email</span>
-                <a class="val" href="mailto:me@vinsensiusarka.id"
+                <a class="val" id="contact-email-link" href="mailto:me@vinsensiusarka.id"
                   >me@vinsensiusarka.id</a
                 >
               </div>
@@ -453,6 +453,7 @@
                 <span class="label">Website</span>
                 <a
                   class="val"
+                  id="contact-website-link"
                   href="https://vinsensiusarka.id"
                   target="_blank"
                   >vinsensiusarka.id</a
@@ -484,6 +485,7 @@
           <i class="fa-solid fa-arrow-left"></i> Back to Portfolio
         </a>
         <a
+          id="bottom-contact-btn"
           href="mailto:me@vinsensiusarka.id"
           class="btn btn-color-2 btn-wide"
         >
@@ -522,6 +524,10 @@
       </a>
     </div>
 
-    <script src="js/main.js?v=2.2"></script>
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js?v=2.6"></script>
   </body>
 </html>

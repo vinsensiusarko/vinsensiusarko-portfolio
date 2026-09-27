@@ -20,6 +20,7 @@ const AdminMain = {
       if (window.AdminProjects) AdminProjects.loadProjects();
       if (window.AdminSkills) AdminSkills.loadSkills();
       if (window.AdminProfile) AdminProfile.loadProfile();
+      if (window.AdminPrivacy) AdminPrivacy.loadPrivacyPolicy();
     }
 
     // Initialize sub-controllers
@@ -27,6 +28,7 @@ const AdminMain = {
     if (window.AdminProjects) AdminProjects.init();
     if (window.AdminSkills) AdminSkills.init();
     if (window.AdminProfile) AdminProfile.init();
+    if (window.AdminPrivacy) AdminPrivacy.init();
   },
 
   onUserLoggedIn() {
@@ -42,6 +44,9 @@ const AdminMain = {
     }
     if (window.AdminProfile && typeof AdminProfile.loadProfile === 'function') {
       AdminProfile.loadProfile();
+    }
+    if (window.AdminPrivacy && typeof AdminPrivacy.loadPrivacyPolicy === 'function') {
+      AdminPrivacy.loadPrivacyPolicy();
     }
   },
 
@@ -142,6 +147,7 @@ const AdminMain = {
         skills: 'Skills & Tools Management',
         profile: 'Profile, Bio & CV Resume',
         contact: 'Contact & Social Channels',
+        privacy: 'Privacy Policy Settings',
         database: 'Database & Migration Tools'
       };
       titleEl.textContent = titles[tabName] || 'Dashboard';

@@ -183,8 +183,8 @@ const AdminProjects = {
       }
 
       if (needsHeal && this.projects.length > 0) {
-        // Auto-heal duplicate or inconsistent orders in the background
-        this.normalizeProjectOrders();
+        // Auto-heal duplicate or inconsistent orders synchronously before enabling UI
+        await this.normalizeProjectOrders();
       }
 
       this.renderProjectsList();
@@ -307,13 +307,10 @@ const AdminProjects = {
       const isLast = index === this.projects.length - 1;
       const isBusy = this.isReordering;
 
-      // Safe escaped title for single-quoted JS arguments
-      const safeTitle = (proj.title || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-
       html += `
         <div class="admin-project-card" data-project-id="${proj.id}">
           <div class="admin-project-thumb">
-            <span class="project-order-badge" style="position: absolute; top: 0.65rem; left: 0.65rem; z-index: 3; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(6px); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: var(--radius-pill); box-shadow: 0 2px 6px rgba(0,0,0,0.35);" title="Project Order: ${orderNumber}">#${orderNumber}</span>
+            <span class="project-order-badge" title="Project Order: ${orderNumber}">#${orderNumber}</span>
             <div class="admin-project-thumb-bg" style="background-image: url('${imgSrc}');"></div>
             <img src="${imgSrc}" alt="${proj.title}" loading="lazy" />
           </div>
@@ -331,7 +328,7 @@ const AdminProjects = {
               </div>
               <div class="admin-card-buttons">
                 <button class="btn btn-secondary btn-sm" onclick="AdminProjects.openEditModal('${proj.id}')"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-                <button class="btn btn-danger btn-sm" onclick="AdminProjects.deleteProject('${proj.id}', '${safeTitle}')"><i class="fa-solid fa-trash"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="AdminProjects.deleteProject('${proj.id}')"><i class="fa-solid fa-trash"></i></button>
               </div>
             </div>
           </div>
@@ -447,7 +444,9 @@ const AdminProjects = {
     }
   },
 
-  async deleteProject(id, title) {
+  async deleteProject(id) {
+    const proj = this.projects.find(p => p.id === id);
+    const title = proj ? proj.title : 'this project';
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
 
     try {
@@ -473,6 +472,7 @@ const AdminProjects = {
     if (targetIndex < 0 || targetIndex >= this.projects.length) return;
 
     this.isReordering = true;
+    const previousProjects = this.projects.map(p => ({ ...p }));
 
     // 1. Instantly swap in memory (Optimistic UI update)
     const [movedItem] = this.projects.splice(index, 1);
@@ -503,8 +503,8 @@ const AdminProjects = {
     } catch (err) {
       console.error('Error reordering projects:', err);
       AdminMain.showToast('Failed to reorder: ' + err.message, 'error');
-      // On failure, rollback from Firestore
-      await this.loadProjects(false);
+      // Instant in-memory rollback without relying on failed network
+      this.projects = previousProjects;
     } finally {
       this.isReordering = false;
       this.renderProjectsList(); // Refresh buttons enabled/disabled states
