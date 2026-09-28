@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "vinsensiusarko",
     "public": "public",
     "cleanUrls": true,
     "ignore": [
