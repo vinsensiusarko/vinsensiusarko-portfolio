@@ -12,21 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Ensure Firebase Hosting site exists (On-demand provisioning)
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_VINSENSIUSARKO }}
-        run: |
-          echo "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/service_account.json"
-          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/service_account.json"
-          echo "Checking and provisioning Firebase Hosting site if needed..."
-          npx --yes firebase-tools hosting:sites:create vinsensiusarko --project vinsensiusarko || true
-          rm -f "$RUNNER_TEMP/service_account.json"
-
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_VINSENSIUSARKO }}'
           channelId: live
           projectId: vinsensiusarko
-          target: vinsensiusarko
