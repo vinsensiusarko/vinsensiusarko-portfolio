@@ -1,0 +1,287 @@
+/* ==========================================================================
+   SEASONAL & THEME CSS CUSTOM PROPERTIES
+   ========================================================================== */
+
+:root,
+html[data-season="spring"] {
+  --season-accent: #ec4899;
+  --season-accent-soft: rgba(236, 72, 153, 0.12);
+  --season-glow: rgba(244, 114, 182, 0.25);
+  --season-badge-bg: #fdf2f8;
+  --season-badge-text: #be185d;
+  --season-badge-border: rgba(236, 72, 153, 0.3);
+}
+
+html[data-theme="dark"][data-season="spring"] {
+  --season-accent: #f472b6;
+  --season-accent-soft: rgba(244, 114, 182, 0.16);
+  --season-glow: rgba(244, 114, 182, 0.3);
+  --season-badge-bg: rgba(131, 24, 67, 0.45);
+  --season-badge-text: #fbcfe8;
+  --season-badge-border: rgba(244, 114, 182, 0.35);
+}
+
+html[data-season="summer"] {
+  --season-accent: #f59e0b;
+  --season-accent-soft: rgba(245, 158, 11, 0.12);
+  --season-glow: rgba(251, 191, 36, 0.25);
+  --season-badge-bg: #fffbeb;
+  --season-badge-text: #b45309;
+  --season-badge-border: rgba(245, 158, 11, 0.35);
+}
+
+html[data-theme="dark"][data-season="summer"] {
+  --season-accent: #fbbf24;
+  --season-accent-soft: rgba(251, 191, 36, 0.16);
+  --season-glow: rgba(251, 191, 36, 0.3);
+  --season-badge-bg: rgba(120, 53, 15, 0.45);
+  --season-badge-text: #fde68a;
+  --season-badge-border: rgba(251, 191, 36, 0.35);
+}
+
+html[data-season="autumn"] {
+  --season-accent: #ea580c;
+  --season-accent-soft: rgba(234, 88, 12, 0.12);
+  --season-glow: rgba(249, 115, 22, 0.25);
+  --season-badge-bg: #fff7ed;
+  --season-badge-text: #c2410c;
+  --season-badge-border: rgba(234, 88, 12, 0.35);
+}
+
+html[data-theme="dark"][data-season="autumn"] {
+  --season-accent: #fb923c;
+  --season-accent-soft: rgba(251, 146, 60, 0.16);
+  --season-glow: rgba(251, 146, 60, 0.3);
+  --season-badge-bg: rgba(124, 45, 18, 0.45);
+  --season-badge-text: #fed7aa;
+  --season-badge-border: rgba(251, 146, 60, 0.35);
+}
+
+html[data-season="winter"] {
+  --season-accent: #0284c7;
+  --season-accent-soft: rgba(2, 132, 199, 0.12);
+  --season-glow: rgba(56, 189, 248, 0.25);
+  --season-badge-bg: #f0f9ff;
+  --season-badge-text: #0369a1;
+  --season-badge-border: rgba(2, 132, 199, 0.35);
+}
+
+html[data-theme="dark"][data-season="winter"] {
+  --season-accent: #38bdf8;
+  --season-accent-soft: rgba(56, 189, 248, 0.16);
+  --season-glow: rgba(56, 189, 248, 0.3);
+  --season-badge-bg: rgba(12, 74, 110, 0.45);
+  --season-badge-text: #bae6fd;
+  --season-badge-border: rgba(56, 189, 248, 0.35);
+}
+
+/* ==========================================================================
+   SEASON SWITCHER & SEASONAL HERO BADGE STYLES
+   ========================================================================== */
+
+.season-switcher {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.season-switcher-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.85rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--season-badge-border);
+  background: var(--season-badge-bg);
+  color: var(--season-badge-text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.season-switcher-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--season-glow);
+}
+
+.season-chevron {
+  font-size: 0.7rem;
+  transition: transform var(--transition-fast);
+}
+
+.season-chevron.open {
+  transform: rotate(180deg);
+}
+
+.season-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  width: 250px;
+  background: var(--bg-primary);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 0.75rem;
+  z-index: 1200;
+}
+
+.season-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.55rem;
+  padding: 0 0.25rem;
+}
+
+.season-auto-tag {
+  background: var(--season-badge-bg);
+  color: var(--season-badge-text);
+  border: 1px solid var(--season-badge-border);
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+}
+
+.season-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+
+.season-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--bg-card-border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.season-option-btn:hover {
+  border-color: var(--season-accent);
+}
+
+.season-option-btn.active {
+  background: var(--season-badge-bg);
+  border-color: var(--season-accent);
+  color: var(--season-badge-text);
+}
+
+.season-option-emoji {
+  font-size: 1.15rem;
+}
+
+.season-option-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.season-option-text strong {
+  font-size: 0.8rem;
+}
+
+.season-option-text small {
+  font-size: 0.68rem;
+  opacity: 0.8;
+}
+
+.season-dropdown-footer {
+  border-top: 1px solid var(--border-light);
+  padding-top: 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.season-toggle-particles-btn,
+.season-reset-auto-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.42rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: var(--bg-card-alt);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.season-reset-auto-btn {
+  justify-content: center;
+  gap: 0.4rem;
+  color: var(--season-accent);
+  background: transparent;
+}
+
+.season-status-pill {
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.season-status-pill.on {
+  background: var(--season-badge-bg);
+  color: var(--season-badge-text);
+}
+
+.season-status-pill.off {
+  background: var(--bg-card-border);
+  color: var(--text-muted);
+}
+
+.hero-season-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.85rem;
+  margin-bottom: 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--season-badge-bg);
+  color: var(--season-badge-text);
+  border: 1px solid var(--season-badge-border);
+  box-shadow: 0 2px 10px var(--season-glow);
+}
+
+/* Subtle seasonal accents on active filter chip and hero image ring */
+#profile .section__pic-container img {
+  box-shadow: 0 12px 32px var(--season-glow);
+  border: 3px solid var(--season-badge-border);
+  transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+}
+
+.filter-chip.active {
+  border-color: var(--season-accent) !important;
+  box-shadow: 0 4px 14px var(--season-glow);
+}
+
+main,
+nav,
+footer,
+.floating-actions,
+.project-modal-backdrop {
+  position: relative;
+  z-index: 2;
+}
