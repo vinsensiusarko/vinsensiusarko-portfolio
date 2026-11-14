@@ -15,11 +15,12 @@ export function HeroSection({ siteSettings, contactSettings }) {
 
   useEffect(() => {
     const currentRole = roles[roleIndex % roles.length];
-    const typeSpeed = isDeleting ? 45 : 95;
+    const isPauseAtEnd = !isDeleting && displayText === currentRole;
+    const delay = isPauseAtEnd ? 1600 : isDeleting ? 45 : 95;
 
     const timer = setTimeout(() => {
-      if (!isDeleting && displayText === currentRole) {
-        setTimeout(() => setIsDeleting(true), 1600);
+      if (isPauseAtEnd) {
+        setIsDeleting(true);
       } else if (isDeleting && displayText === '') {
         setIsDeleting(false);
         setRoleIndex((prev) => (prev + 1) % roles.length);
@@ -28,7 +29,7 @@ export function HeroSection({ siteSettings, contactSettings }) {
           currentRole.substring(0, displayText.length + (isDeleting ? -1 : 1))
         );
       }
-    }, typeSpeed);
+    }, delay);
 
     return () => clearTimeout(timer);
   }, [displayText, isDeleting, roleIndex, roles]);

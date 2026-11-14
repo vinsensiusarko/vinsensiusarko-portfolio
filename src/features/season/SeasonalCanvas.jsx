@@ -239,11 +239,24 @@ export function SeasonalCanvas() {
       height = canvas.height = window.innerHeight;
     };
 
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+      } else if (!animationFrameId) {
+        animationFrameId = requestAnimationFrame(renderLoop);
+      }
+    };
+
     window.addEventListener('resize', handleResize, { passive: true });
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     animationFrameId = requestAnimationFrame(renderLoop);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
   }, [season, particlesEnabled, seasonMeta, theme]);

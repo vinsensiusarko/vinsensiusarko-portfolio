@@ -1,9 +1,22 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export function ContactSection({ contactSettings }) {
   const [toastMessage, setToastMessage] = useState('');
+  const toastTimerRef = useRef(null);
 
   const email = contactSettings.email || 'me@vinsensiusarka.id';
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
+  const showToast = (msg) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToastMessage(msg);
+    toastTimerRef.current = setTimeout(() => setToastMessage(''), 2500);
+  };
 
   const handleCopyEmail = async (e) => {
     e.preventDefault();
@@ -13,11 +26,9 @@ export function ContactSection({ contactSettings }) {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(email);
       }
-      setToastMessage(`Copied ${email} to clipboard!`);
-      setTimeout(() => setToastMessage(''), 2500);
-    } catch (err) {
-      setToastMessage('Copied to clipboard!');
-      setTimeout(() => setToastMessage(''), 2500);
+      showToast(`Copied ${email} to clipboard!`);
+    } catch {
+      showToast('Copied to clipboard!');
     }
   };
 

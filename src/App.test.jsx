@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { AppRoutes } from './App';
 import { ThemeProvider } from './context/ThemeContext';
@@ -29,6 +29,15 @@ describe('App routing integration', () => {
     renderRoute('/privacy-policy');
     expect(screen.getByRole('heading', { level: 1, name: /Privacy Policy/i })).toBeInTheDocument();
     expect(screen.getByText(/Google Play Store Compliant/i)).toBeInTheDocument();
+  });
+
+  it('renders AdminPage at /admin', async () => {
+    renderRoute('/admin');
+    await waitFor(() => {
+      const hasPortal = screen.queryByRole('heading', { name: /Admin Portal/i });
+      const hasSplash = screen.queryByText(/Verifying Admin Session/i);
+      expect(hasPortal || hasSplash).toBeTruthy();
+    });
   });
 
   it('renders NotFoundPage at unknown routes', () => {
