@@ -1,6 +1,35 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+if (
+  typeof window !== 'undefined' &&
+  (!window.localStorage || typeof window.localStorage.clear !== 'function')
+) {
+  let store = {};
+  const storageMock = {
+    getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
+    setItem: (key, value) => {
+      store[key] = String(value);
+    },
+    removeItem: (key) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    }
+  };
+  Object.defineProperty(window, 'localStorage', {
+    value: storageMock,
+    configurable: true,
+    writable: true
+  });
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: storageMock,
+    configurable: true,
+    writable: true
+  });
+}
+
 if (typeof window !== 'undefined' && !window.matchMedia) {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
