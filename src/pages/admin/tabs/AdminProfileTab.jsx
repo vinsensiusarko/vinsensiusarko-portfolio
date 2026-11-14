@@ -367,34 +367,40 @@ export function AdminProfileTab({ showToast }) {
                     Default fallback: <code>/assets/images/arko-pic.png</code>
                   </p>
 
-                  {heroImage && !heroImageRemoved && (
-                    <div className="dropzone-preview">
-                      <img
-                        src={heroImage}
-                        alt="Hero Preview"
-                        style={{
-                          width: '120px',
-                          height: '120px',
-                          objectFit: 'cover',
-                          borderRadius: '50%'
-                        }}
-                      />
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.5rem',
-                          marginTop: '0.5rem',
-                          flexWrap: 'wrap'
-                        }}
-                      >
-                        <span className="compression-badge" style={{ marginTop: 0 }}>
-                          <i className="fa-solid fa-bolt"></i>{' '}
-                          {heroCompressedKB
-                            ? `Compressed (${heroCompressedKB} KB)`
-                            : 'Stored in Firestore'}
-                        </span>
+                  <div className="dropzone-preview">
+                    <img
+                      src={
+                        heroImage && !heroImageRemoved
+                          ? heroImage
+                          : '/assets/images/arko-pic.png'
+                      }
+                      alt="Hero Preview"
+                      style={{
+                        width: '120px',
+                        height: '120px',
+                        objectFit: 'cover',
+                        borderRadius: '50%'
+                      }}
+                    />
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        marginTop: '0.5rem',
+                        flexWrap: 'wrap'
+                      }}
+                    >
+                      <span className="compression-badge" style={{ marginTop: 0 }}>
+                        <i className="fa-solid fa-bolt"></i>{' '}
+                        {heroCompressedKB
+                          ? `Compressed (${heroCompressedKB} KB)`
+                          : heroImage && !heroImageRemoved
+                          ? 'Stored in Firestore'
+                          : 'Default Static Photo'}
+                      </span>
+                      {heroImage && !heroImageRemoved && (
                         <button
                           type="button"
                           className="btn btn-danger btn-sm"
@@ -411,9 +417,9 @@ export function AdminProfileTab({ showToast }) {
                         >
                           <i className="fa-solid fa-rotate-left"></i> Reset Default
                         </button>
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 
@@ -453,37 +459,43 @@ export function AdminProfileTab({ showToast }) {
                     Click or Drop About Photo Here
                   </p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Default fallback: <code>/assets/images/about-pic.png</code>
+                    Default fallback: <code>/assets/images/arko-about.jpg</code>
                   </p>
 
-                  {aboutImage && !aboutImageRemoved && (
-                    <div className="dropzone-preview">
-                      <img
-                        src={aboutImage}
-                        alt="About Preview"
-                        style={{
-                          width: '120px',
-                          height: '120px',
-                          objectFit: 'cover',
-                          borderRadius: '1rem'
-                        }}
-                      />
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.5rem',
-                          marginTop: '0.5rem',
-                          flexWrap: 'wrap'
-                        }}
-                      >
-                        <span className="compression-badge" style={{ marginTop: 0 }}>
-                          <i className="fa-solid fa-bolt"></i>{' '}
-                          {aboutCompressedKB
-                            ? `Compressed (${aboutCompressedKB} KB)`
-                            : 'Stored in Firestore'}
-                        </span>
+                  <div className="dropzone-preview">
+                    <img
+                      src={
+                        aboutImage && !aboutImageRemoved
+                          ? aboutImage
+                          : '/assets/images/arko-about.jpg'
+                      }
+                      alt="About Preview"
+                      style={{
+                        width: '120px',
+                        height: '120px',
+                        objectFit: 'cover',
+                        borderRadius: '1rem'
+                      }}
+                    />
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        marginTop: '0.5rem',
+                        flexWrap: 'wrap'
+                      }}
+                    >
+                      <span className="compression-badge" style={{ marginTop: 0 }}>
+                        <i className="fa-solid fa-bolt"></i>{' '}
+                        {aboutCompressedKB
+                          ? `Compressed (${aboutCompressedKB} KB)`
+                          : aboutImage && !aboutImageRemoved
+                          ? 'Stored in Firestore'
+                          : 'Default Static Photo'}
+                      </span>
+                      {aboutImage && !aboutImageRemoved && (
                         <button
                           type="button"
                           className="btn btn-danger btn-sm"
@@ -500,9 +512,9 @@ export function AdminProfileTab({ showToast }) {
                         >
                           <i className="fa-solid fa-rotate-left"></i> Reset Default
                         </button>
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>

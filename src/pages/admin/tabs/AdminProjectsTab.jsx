@@ -11,6 +11,7 @@ import {
 import { db } from '../../../services/firebase';
 import { formatRichDescription } from '../../../utils/formatDescription';
 import { compressImageToBase64 } from '../../../utils/imageCompressor';
+import { resolveProjectImage } from '../../../utils/resolveProjectImage';
 
 const INITIAL_FORM = {
   title: '',
@@ -25,14 +26,6 @@ const INITIAL_FORM = {
   demoLabel: 'Live Demo',
   isComingSoon: false
 };
-
-function normalizePublicAssetPath(url) {
-  if (!url) return '';
-  if (url.startsWith('data:') || url.startsWith('http') || url.startsWith('/')) {
-    return url;
-  }
-  return `/${url}`;
-}
 
 export function AdminProjectsTab({ projects, setProjects, reloadProjects, showToast }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -57,14 +50,18 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
   const openEditModal = (project) => {
     setEditingId(project.id);
     setCompressedKB(null);
+
+    const rawImg = project.image || project.imageBase64 || project.imageUrl || '';
+    const isDataUri = String(rawImg).startsWith('data:');
+
     setFormData({
       title: project.title || '',
       category: project.category || 'Mobile Application',
       order: project.order || 1,
       description: project.description || '',
       techStack: Array.isArray(project.techStack) ? project.techStack.join(', ') : '',
-      imageUrl: project.imageUrl || '',
-      imageBase64: project.imageBase64 || '',
+      imageUrl: isDataUri ? '' : rawImg,
+      imageBase64: isDataUri ? rawImg : '',
       githubUrl: project.githubUrl || '',
       demoUrl: project.demoUrl || '',
       demoLabel: project.demoLabel || 'Live Demo',
@@ -81,7 +78,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
     try {
       showToast('Compressing image via Canvas...', 'info');
       const { dataUrl, sizeKB } = await compressImageToBase64(file, 800, 0.8);
-      setFormData((prev) => ({ ...prev, imageBase64: dataUrl }));
+      setFormData((prev) => ({ ...prev, imageBase64: dataUrl, imageUrl: '' }));
       setCompressedKB(sizeKB);
       showToast(`Image compressed to ${sizeKB} KB!`, 'success');
     } catch (err) {
@@ -165,6 +162,11 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
     if (!db) return;
     setSaving(true);
 
+    const finalImage =
+      formData.imageBase64 ||
+      formData.imageUrl.trim() ||
+      '/assets/images/portfolio-1.png';
+
     const payload = {
       title: formData.title.trim(),
       category: formData.category.trim(),
@@ -178,8 +180,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       demoUrl: formData.demoUrl.trim(),
       demoLabel: formData.demoLabel.trim() || 'Live Demo',
       isComingSoon: Boolean(formData.isComingSoon),
-      imageUrl: formData.imageUrl.trim(),
-      imageBase64: formData.imageBase64 || null,
+      image: finalImage,
       updatedAt: serverTimestamp()
     };
 
@@ -202,8 +203,13 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
     }
   };
 
-  const previewImgSrc =
-    formData.imageBase64 || normalizePublicAssetPath(formData.imageUrl);
+  const hasPreview = Boolean(formData.imageBase64 || formData.imageUrl.trim());
+  const previewImgSrc = hasPreview
+    ? resolveProjectImage({
+        imageBase64: formData.imageBase64,
+        imageUrl: formData.imageUrl
+      })
+    : '';
 
   return (
     <section id="tab-projects" className="tab-section">
@@ -239,11 +245,8 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
             </div>
           ) : (
             projects.map((project, index) => {
-              const imgSrc =
-                project.imageBase64 ||
-                normalizePublicAssetPath(project.imageUrl) ||
-                '/assets/images/project-1.png';
-              const isBase64 = Boolean(project.imageBase64);
+              const imgSrc = resolveProjectImage(project);
+              const isBase64 = imgSrc.startsWith('data:');
               const isFirst = index === 0;
               const isLast = index === projects.length - 1;
               const descHtml = formatRichDescription(project.description || '');
@@ -258,7 +261,15 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                     <span className="project-order-badge" title="Display Order">
                       #{index + 1}
                     </span>
-                    <img src={imgSrc} alt={project.title} loading="lazy" />
+                    <img
+                      src={imgSrc}
+                      alt={project.title}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = '/assets/images/portfolio-1.png';
+                      }}
+                    />
                   </div>
                   <div className="admin-project-body">
                     <div
@@ -281,15 +292,28 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                       >
                         {project.category || 'Uncategorized'}
                       </span>
-                      {isBase64 ? (
-                        <span className="compression-badge">
-                          <i className="fa-solid fa-bolt"></i> Base64
-                        </span>
-                      ) : (
-                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                          Static URL
-                        </span>
-                      )}
+                      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                        {project.isComingSoon ? (
+                          <span
+                            className="compression-badge"
+                            style={{ backgroundColor: 'var(--accent-warning)' }}
+                          >
+                            <i className="fa-solid fa-clock"></i> Coming Soon
+                          </span>
+                        ) : (
+                          <span
+                            className="compression-badge"
+                            style={{ backgroundColor: 'var(--accent-success)' }}
+                          >
+                            <i className="fa-solid fa-check"></i> Live
+                          </span>
+                        )}
+                        {isBase64 && (
+                          <span className="compression-badge">
+                            <i className="fa-solid fa-bolt"></i> Base64
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <h3>{project.title}</h3>
                     <div
@@ -512,7 +536,14 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
 
                   {previewImgSrc && (
                     <div className="dropzone-preview">
-                      <img src={previewImgSrc} alt="Preview" />
+                      <img
+                        src={previewImgSrc}
+                        alt="Preview"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/assets/images/portfolio-1.png';
+                        }}
+                      />
                       <div>
                         <span className="compression-badge">
                           <i className="fa-solid fa-bolt"></i>{' '}
@@ -520,7 +551,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                             ? `Compressed (${compressedKB} KB)`
                             : formData.imageBase64
                             ? 'Stored as Base64'
-                            : 'Static Asset Path'}
+                            : 'Current Image Loaded'}
                         </span>
                       </div>
                     </div>
@@ -536,9 +567,11 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                   type="text"
                   id="project-image-url"
                   className="form-input"
-                  placeholder="assets/images/project-1.png or https://..."
+                  placeholder="/assets/images/portfolio-1.png or https://..."
                   value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, imageUrl: e.target.value, imageBase64: '' })
+                  }
                 />
               </div>
 

@@ -1,13 +1,14 @@
 import { useState, useMemo } from 'react';
 import { formatRichDescription } from '../../utils/formatDescription';
+import { resolveProjectImage } from '../../utils/resolveProjectImage';
 import { ProjectModal } from './ProjectModal';
 
 const FILTER_CHIPS = [
-  { label: 'All Projects', value: 'all' },
-  { label: 'Mobile App', value: 'Mobile Application' },
-  { label: 'Web App', value: 'Web Application' },
-  { label: 'Web Portal', value: 'Web Portal' },
-  { label: 'Backend API', value: 'Backend API' }
+  { label: 'All Projects', value: 'all', icon: 'fa-solid fa-border-all' },
+  { label: 'Mobile App', value: 'Mobile Application', icon: 'fa-solid fa-mobile-screen-button' },
+  { label: 'Web App', value: 'Web Application', icon: 'fa-solid fa-laptop-code' },
+  { label: 'Web Portal', value: 'Web Portal', icon: 'fa-solid fa-globe' },
+  { label: 'Backend API', value: 'Backend API', icon: 'fa-solid fa-server' }
 ];
 
 function matchesProjectFilter(project, categoryFilter, searchQuery) {
@@ -128,7 +129,7 @@ export function ProjectsSection({ projects }) {
                 aria-selected={isActive}
                 onClick={() => setCategoryFilter(chip.value)}
               >
-                {chip.label}
+                <i className={chip.icon} aria-hidden="true"></i> {chip.label}
               </button>
             );
           })}
@@ -152,20 +153,23 @@ export function ProjectsSection({ projects }) {
       ) : (
         <div className="projects-grid">
           {filteredProjects.map((proj) => {
-            const imgSrc = proj.image || '/assets/images/portfolio-1.png';
+            const imgSrc = resolveProjectImage(proj);
             const isComingSoon = Boolean(proj.isComingSoon);
             const isPlayStore =
               proj.demoLabel === 'Play Store' ||
               String(proj.demoUrl || '').includes('play.google.com');
+            const techStack = Array.isArray(proj.techStack) ? proj.techStack : [];
 
             return (
               <article
                 key={proj.id || proj.title}
                 className="project-card"
                 data-category={proj.category || 'Web Application'}
-                data-tech={(proj.techStack || []).join(', ')}
+                data-tech={techStack.join(', ')}
                 onClick={(e) => {
-                  if (e.target.closest('.project-btn-container a')) return;
+                  if (e.target.closest('.project-btn-container a, .project-btn-container button')) {
+                    return;
+                  }
                   setSelectedProject(proj);
                 }}
               >
@@ -174,12 +178,19 @@ export function ProjectsSection({ projects }) {
                     className="project-img-backdrop"
                     style={{ backgroundImage: `url('${imgSrc}')` }}
                   ></div>
+                  <span className="project-card-category-pill">
+                    {proj.category || 'Application'}
+                  </span>
                   <img
                     src={imgSrc}
                     alt={`${proj.title} preview`}
                     loading="lazy"
                     decoding="async"
                     className="project-img-main"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = '/assets/images/portfolio-1.png';
+                    }}
                   />
                   <span className="project-quick-view-badge">
                     <i className="fa-solid fa-expand"></i> Quick View
@@ -194,6 +205,22 @@ export function ProjectsSection({ projects }) {
                       __html: formatRichDescription(proj.description || '')
                     }}
                   />
+
+                  {techStack.length > 0 && (
+                    <div className="project-card-tech-list">
+                      {techStack.slice(0, 4).map((tech) => (
+                        <span key={tech} className="project-card-tech-tag">
+                          {tech}
+                        </span>
+                      ))}
+                      {techStack.length > 4 && (
+                        <span className="project-card-tech-tag project-card-tech-more">
+                          +{techStack.length - 4}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   <div className="project-btn-container">
                     {proj.githubUrl && (
                       <a
@@ -235,6 +262,17 @@ export function ProjectsSection({ projects }) {
                         </span>
                       )
                     )}
+
+                    <button
+                      type="button"
+                      className="btn btn-color-2 btn-sm project-detail-trigger"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedProject(proj);
+                      }}
+                    >
+                      <i className="fa-solid fa-circle-info"></i> Details
+                    </button>
                   </div>
                 </div>
               </article>

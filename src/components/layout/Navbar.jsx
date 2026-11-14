@@ -7,13 +7,28 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('profile');
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+
+      if (variant !== 'home') return;
+      const sections = ['profile', 'about', 'experience', 'projects', 'contact'];
+      const scrollPos = window.scrollY + 180;
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i]);
+        if (el && el.offsetTop <= scrollPos) {
+          setActiveSection(sections[i]);
+          break;
+        }
+      }
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [variant]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -62,16 +77,36 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
           ) : (
             <ul className="nav-links">
               <li>
-                <a href="#about">About</a>
+                <a
+                  href="#about"
+                  className={activeSection === 'about' ? 'active-nav-link' : ''}
+                >
+                  About
+                </a>
               </li>
               <li>
-                <a href="#experience">Experience</a>
+                <a
+                  href="#experience"
+                  className={activeSection === 'experience' ? 'active-nav-link' : ''}
+                >
+                  Experience
+                </a>
               </li>
               <li>
-                <a href="#projects">Projects</a>
+                <a
+                  href="#projects"
+                  className={activeSection === 'projects' ? 'active-nav-link' : ''}
+                >
+                  Projects
+                </a>
               </li>
               <li>
-                <a href="#contact">Contact</a>
+                <a
+                  href="#contact"
+                  className={activeSection === 'contact' ? 'active-nav-link' : ''}
+                >
+                  Contact
+                </a>
               </li>
             </ul>
           )}

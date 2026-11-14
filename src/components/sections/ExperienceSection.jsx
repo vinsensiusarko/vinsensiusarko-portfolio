@@ -22,38 +22,49 @@ export function ExperienceSection({ skills }) {
   const languages = skills.filter((s) => s.category === 'language');
   const tools = skills.filter((s) => s.category === 'framework_tool');
 
+  const renderSkillCard = (skill) => {
+    const level = skill.level || 'Experienced';
+    const isExperienced = level.toLowerCase() === 'experienced';
+
+    return (
+      <div className="skill-item" key={skill.id || skill.name}>
+        <div className="skill-icon-box">
+          <SkillIcon skill={skill} />
+        </div>
+        <div className="skill-info">
+          <h3>{skill.name}</h3>
+          <span
+            className={`skill-level-badge ${
+              isExperienced ? 'experienced' : 'intermediate'
+            }`}
+          >
+            {level}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <section id="experience" className="reveal-on-scroll">
       <p className="section__text__p1">Explore My</p>
       <h2 className="title">Experience &amp; Skills</h2>
       <div className="experience-details-container">
         <div className="experience-box">
-          <h3 className="experience-sub-title">Programming Languages</h3>
+          <h3 className="experience-sub-title">
+            <i className="fa-solid fa-code"></i> Programming Languages
+          </h3>
           <div className="article-container">
-            {languages.map((skill) => (
-              <div className="skill-item" key={skill.id || skill.name}>
-                <SkillIcon skill={skill} />
-                <div className="skill-info">
-                  <h3>{skill.name}</h3>
-                  <p>{skill.level || 'Experienced'}</p>
-                </div>
-              </div>
-            ))}
+            {languages.map(renderSkillCard)}
           </div>
         </div>
 
         <div className="experience-box">
-          <h3 className="experience-sub-title">Frameworks &amp; Tools</h3>
+          <h3 className="experience-sub-title">
+            <i className="fa-solid fa-cubes"></i> Frameworks &amp; Tools
+          </h3>
           <div className="article-container">
-            {tools.map((skill) => (
-              <div className="skill-item" key={skill.id || skill.name}>
-                <SkillIcon skill={skill} />
-                <div className="skill-info">
-                  <h3>{skill.name}</h3>
-                  <p>{skill.level || 'Experienced'}</p>
-                </div>
-              </div>
-            ))}
+            {tools.map(renderSkillCard)}
           </div>
         </div>
       </div>

@@ -34,28 +34,44 @@ export function HeroSection({ siteSettings, contactSettings }) {
     return () => clearTimeout(timer);
   }, [displayText, isDeleting, roleIndex, roles]);
 
-  const cvHref = siteSettings.cvBase64 || siteSettings.cvUrl || '/assets/docs/cv-vinsensiusarka.pdf';
+  const cvHref =
+    siteSettings.cvBase64 ||
+    siteSettings.cvUrl ||
+    '/assets/docs/cv-vinsensiusarka.pdf';
   const isBase64Cv = Boolean(siteSettings.cvBase64);
 
   return (
     <section id="profile">
       <div className="section__pic-container">
+        <div className="hero-avatar-glow" aria-hidden="true"></div>
         <img
           id="hero-img"
           src={siteSettings.heroImage || '/assets/images/arko-pic.png'}
           alt={`Portrait of ${siteSettings.name || 'Vinsensius Arka'}`}
           width="380"
           height="380"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = '/assets/images/arko-pic.png';
+          }}
         />
       </div>
       <div className="section__text">
-        <div className="hero-season-badge" aria-label={`Active season: ${seasonMeta.labelEn}`}>
+        <div
+          className="hero-season-badge"
+          aria-label={`Active season: ${seasonMeta.labelEn}`}
+        >
           <span>{seasonMeta.badgeText}</span>
         </div>
-        <p className="section__text__p1">{siteSettings.heroGreeting || "Hello, I'm"}</p>
+        <p className="section__text__p1">
+          {siteSettings.heroGreeting || "Hello, I'm"}
+        </p>
         <h1 className="title">{siteSettings.name || 'Vinsensius Arka'}</h1>
         <p className="section__text__p2">
           <span className="typeWriter">{displayText || roles[0]}</span>
+          <span className="cursor" aria-hidden="true">
+            |
+          </span>
         </p>
         <div className="btn-container">
           <a
@@ -65,8 +81,14 @@ export function HeroSection({ siteSettings, contactSettings }) {
                 ? siteSettings.cvFileName || 'CV-VinsensiusArka.pdf'
                 : undefined
             }
-            target={!isBase64Cv && cvHref.startsWith('http') ? '_blank' : undefined}
-            rel={!isBase64Cv && cvHref.startsWith('http') ? 'noopener noreferrer' : undefined}
+            target={
+              !isBase64Cv && cvHref.startsWith('http') ? '_blank' : undefined
+            }
+            rel={
+              !isBase64Cv && cvHref.startsWith('http')
+                ? 'noopener noreferrer'
+                : undefined
+            }
             className="btn btn-color-2"
           >
             <i className="fa-solid fa-file-arrow-down"></i> Download CV
@@ -77,22 +99,50 @@ export function HeroSection({ siteSettings, contactSettings }) {
         </div>
         <div id="socials-container">
           <a
-            href={contactSettings.linkedin || 'https://www.linkedin.com/in/vinsensiusarka/'}
+            href={
+              contactSettings.linkedin ||
+              'https://www.linkedin.com/in/vinsensiusarka/'
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="social-link"
             aria-label="LinkedIn Profile"
+            title="LinkedIn"
           >
             <i className="fa-brands fa-linkedin"></i>
           </a>
           <a
-            href={contactSettings.github || 'https://github.com/vinsensiusarko'}
+            href={
+              contactSettings.github || 'https://github.com/vinsensiusarko'
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="social-link"
             aria-label="GitHub Profile"
+            title="GitHub"
           >
             <i className="fa-brands fa-github"></i>
+          </a>
+          <a
+            href={
+              contactSettings.instagram ||
+              'https://www.instagram.com/vinsensiusarko/'
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+            className="social-link"
+            aria-label="Instagram Profile"
+            title="Instagram"
+          >
+            <i className="fa-brands fa-instagram"></i>
+          </a>
+          <a
+            href={`mailto:${contactSettings.email || 'me@vinsensiusarka.id'}`}
+            className="social-link"
+            aria-label="Send Email"
+            title="Email Me"
+          >
+            <i className="fa-solid fa-envelope"></i>
           </a>
         </div>
       </div>

@@ -132,9 +132,11 @@
   }
 
   .project-btn-container .btn,
-  .project-btn-container .badge-coming-soon {
+  .project-btn-container .badge-coming-soon,
+  .project-btn-container .project-detail-trigger {
     width: 100%;
     max-width: none;
+    margin-left: 0;
     text-align: center;
     justify-content: center;
   }

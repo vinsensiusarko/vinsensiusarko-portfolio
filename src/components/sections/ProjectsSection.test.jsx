@@ -2,8 +2,20 @@ import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ProjectsSection } from './ProjectsSection';
 import { FALLBACK_PROJECTS } from '../../data/fallbackData';
+import { resolveProjectImage } from '../../utils/resolveProjectImage';
 
 describe('ProjectsSection & ProjectModal', () => {
+  it('resolves project image paths from image, imageBase64, and relative assets paths', () => {
+    expect(resolveProjectImage({ image: 'assets/images/portfolio-1.png' })).toBe(
+      '/assets/images/portfolio-1.png'
+    );
+    expect(resolveProjectImage({ image: '../assets/images/portfolio-2.png' })).toBe(
+      '/assets/images/portfolio-2.png'
+    );
+    expect(resolveProjectImage({ image: 'data:image/webp;base64,ABC' })).toBe(
+      'data:image/webp;base64,ABC'
+    );
+  });
   it('filters projects by category (including technology-inferred matches) and resets empty search results (Review Focus #4)', () => {
     render(<ProjectsSection projects={FALLBACK_PROJECTS} />);
 

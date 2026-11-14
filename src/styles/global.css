@@ -1485,7 +1485,8 @@ footer p {
 
 .reveal-on-scroll.revealed {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
+  will-change: auto;
 }
 
 /* Prefers-reduced-motion accessibility */
@@ -1756,13 +1757,14 @@ footer p {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(6px);
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 1.5rem;
+  z-index: 2000;
+  padding: 1.25rem;
   opacity: 0;
   visibility: hidden;
   transition: all var(--transition-normal);

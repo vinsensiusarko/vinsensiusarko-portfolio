@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { formatRichDescription } from '../../utils/formatDescription';
+import { resolveProjectImage } from '../../utils/resolveProjectImage';
 
 export function ProjectModal({ project, onClose }) {
   useEffect(() => {
@@ -20,19 +22,21 @@ export function ProjectModal({ project, onClose }) {
 
   if (!project) return null;
 
-  const imgSrc = project.image || '/assets/images/portfolio-1.png';
-  const isComingSoon = Boolean(project.isComingSoon) || (!project.demoUrl && !project.githubUrl);
+  const imgSrc = resolveProjectImage(project);
+  const isComingSoon =
+    Boolean(project.isComingSoon) || (!project.demoUrl && !project.githubUrl);
   const techList = Array.isArray(project.techStack) ? project.techStack : [];
   const isPlayStore =
     project.demoLabel === 'Play Store' ||
     String(project.demoUrl || '').includes('play.google.com');
 
-  return (
+  const modalNode = (
     <div
       id="project-detail-modal"
       className="project-modal-backdrop show"
       aria-hidden="false"
       role="dialog"
+      aria-modal="true"
       aria-labelledby="modal-project-title"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -55,9 +59,17 @@ export function ProjectModal({ project, onClose }) {
             className="project-modal-backdrop-bg"
             style={{ backgroundImage: `url('${imgSrc}')` }}
           ></div>
-          <img id="modal-project-img" src={imgSrc} alt={`${project.title} preview`} />
+          <img
+            id="modal-project-img"
+            src={imgSrc}
+            alt={`${project.title} preview`}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = '/assets/images/portfolio-1.png';
+            }}
+          />
           <span id="modal-project-category" className="project-category-badge">
-            {project.category || 'Project'}
+            <i className="fa-solid fa-layer-group"></i> {project.category || 'Project'}
           </span>
         </div>
 
@@ -70,11 +82,8 @@ export function ProjectModal({ project, onClose }) {
                   <i className="fa-solid fa-clock"></i> Coming Soon
                 </span>
               ) : (
-                <span
-                  className="badge-coming-soon"
-                  style={{ color: '#10b981', borderColor: '#10b981' }}
-                >
-                  <i className="fa-solid fa-check"></i> Live Project
+                <span className="badge-live-project">
+                  <i className="fa-solid fa-circle-check"></i> Live Project
                 </span>
               )}
             </div>
@@ -88,16 +97,20 @@ export function ProjectModal({ project, onClose }) {
             }}
           />
 
-          <div className="project-modal-tech">
-            <h4>Technologies Used</h4>
-            <div id="modal-project-tech-list" className="tech-badge-container">
-              {techList.map((tech) => (
-                <span className="tech-pill" key={tech}>
-                  {tech}
-                </span>
-              ))}
+          {techList.length > 0 && (
+            <div className="project-modal-tech">
+              <h4>
+                <i className="fa-solid fa-microchip"></i> Technologies Used
+              </h4>
+              <div id="modal-project-tech-list" className="tech-badge-container">
+                {techList.map((tech) => (
+                  <span className="tech-pill" key={tech}>
+                    {tech}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="project-modal-actions" id="modal-project-actions">
             {project.githubUrl && (
@@ -127,9 +140,22 @@ export function ProjectModal({ project, onClose }) {
                 {project.demoLabel || 'Live Demo'}
               </a>
             )}
+            <button
+              type="button"
+              className="btn btn-color-2 btn-sm project-modal-footer-close"
+              onClick={onClose}
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
+
+  if (typeof document !== 'undefined' && document.body) {
+    return createPortal(modalNode, document.body);
+  }
+
+  return modalNode;
 }

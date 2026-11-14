@@ -265,16 +265,188 @@ html[data-theme="dark"][data-season="winter"] {
   box-shadow: 0 2px 10px var(--season-glow);
 }
 
-/* Subtle seasonal accents on active filter chip and hero image ring */
+/* Subtle seasonal accents on active filter chip, nav links, hero ring, and cards */
+.hero-avatar-glow {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--season-glow) 0%, transparent 70%);
+  filter: blur(18px);
+  z-index: 0;
+  pointer-events: none;
+  animation: pulseSeasonalGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes pulseSeasonalGlow {
+  0% {
+    opacity: 0.65;
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
 #profile .section__pic-container img {
+  position: relative;
+  z-index: 1;
   box-shadow: 0 12px 32px var(--season-glow);
   border: 3px solid var(--season-badge-border);
-  transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+  transition: transform var(--transition-slow), box-shadow var(--transition-normal), border-color var(--transition-normal);
+}
+
+.nav-links a.active-nav-link {
+  color: var(--season-accent);
+  font-weight: 600;
+}
+
+.nav-links a.active-nav-link::after {
+  width: 100%;
+  background-color: var(--season-accent);
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 
 .filter-chip.active {
   border-color: var(--season-accent) !important;
   box-shadow: 0 4px 14px var(--season-glow);
+}
+
+/* Upgraded Experience & Skill Cards */
+.experience-sub-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.experience-sub-title i {
+  color: var(--season-accent);
+}
+
+.skill-item {
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-card-alt);
+  border: 1px solid var(--border-light);
+  align-items: center !important;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.skill-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--season-badge-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.skill-icon-box {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.75rem;
+  background: var(--season-badge-bg);
+  color: var(--season-badge-text);
+  border: 1px solid var(--season-badge-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.skill-icon-box .skill-icon,
+.skill-icon-box svg.skill-icon {
+  margin: 0;
+  color: var(--season-badge-text);
+  font-size: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.skill-level-badge {
+  display: inline-block;
+  font-size: 0.73rem;
+  font-weight: 600;
+  padding: 0.12rem 0.55rem;
+  border-radius: var(--radius-pill);
+  margin-top: 0.15rem;
+}
+
+.skill-level-badge.experienced {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.skill-level-badge.intermediate {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Upgraded Project Card Category Pill, Tech Stack Tags & Modal Status */
+.project-card-category-pill {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 3;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+}
+
+.project-card-tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.15rem;
+}
+
+.project-card-tech-tag {
+  font-size: 0.74rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-card-alt);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+
+.project-card-tech-more {
+  background: var(--season-badge-bg);
+  color: var(--season-badge-text);
+  border-color: var(--season-badge-border);
+  font-weight: 600;
+}
+
+.project-detail-trigger {
+  margin-left: auto;
+}
+
+.badge-live-project {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.project-modal-footer-close {
+  margin-left: auto;
 }
 
 main,
