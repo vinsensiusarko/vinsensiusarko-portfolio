@@ -6,7 +6,15 @@ export default defineConfig({
   publicDir: 'public',
   build: {
     outDir: 'dist',
-    emptyOutDir: true
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router'],
+          firebase: ['firebase/app', 'firebase/firestore']
+        }
+      }
+    }
   },
   test: {
     globals: true,

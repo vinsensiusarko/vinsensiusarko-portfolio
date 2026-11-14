@@ -31,6 +31,7 @@ if (
 }
 
 if (typeof window !== 'undefined' && !window.matchMedia) {
+  window.scrollTo = vi.fn();
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation((query) => ({
