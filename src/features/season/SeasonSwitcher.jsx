@@ -41,13 +41,13 @@ export function SeasonSwitcher() {
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-label={`Pilih musim (saat ini: ${seasonMeta.labelId})`}
-        title={`Tema Musim: ${seasonMeta.labelId} (${seasonMeta.labelEn})`}
+        aria-label={`Select season (current: ${seasonMeta.labelEn})`}
+        title={`Season Theme: ${seasonMeta.labelEn} (${seasonMeta.description})`}
       >
         <span className="season-emoji" aria-hidden="true">
           {seasonMeta.emoji}
         </span>
-        <span className="season-label">{seasonMeta.labelId}</span>
+        <span className="season-label">{seasonMeta.labelEn}</span>
         <i
           className={`fa-solid fa-chevron-down season-chevron ${open ? 'open' : ''}`}
           aria-hidden="true"
@@ -55,9 +55,9 @@ export function SeasonSwitcher() {
       </button>
 
       {open && (
-        <div className="season-dropdown-menu" role="menu" aria-label="Pilihan Musim">
+        <div className="season-dropdown-menu" role="menu" aria-label="Season Selector">
           <div className="season-dropdown-header">
-            <span>Suasana Musim</span>
+            <span>Season Theme</span>
             {isAutoSeason && <span className="season-auto-tag">Auto</span>}
           </div>
 
@@ -77,8 +77,8 @@ export function SeasonSwitcher() {
                 >
                   <span className="season-option-emoji">{item.emoji}</span>
                   <div className="season-option-text">
-                    <strong>{item.labelId}</strong>
-                    <small>{item.labelEn}</small>
+                    <strong>{item.labelEn}</strong>
+                    <small>{item.description}</small>
                   </div>
                 </button>
               );
@@ -92,7 +92,7 @@ export function SeasonSwitcher() {
               onClick={toggleParticles}
             >
               <span>
-                <i className="fa-solid fa-wand-magic-sparkles"></i> Efek Animasi
+                <i className="fa-solid fa-wand-magic-sparkles"></i> Particle Effects
               </span>
               <span className={`season-status-pill ${particlesEnabled ? 'on' : 'off'}`}>
                 {particlesEnabled ? 'ON' : 'OFF'}
@@ -108,7 +108,7 @@ export function SeasonSwitcher() {
                   setOpen(false);
                 }}
               >
-                <i className="fa-solid fa-rotate-left"></i> Ikuti Kalender Otomatis
+                <i className="fa-solid fa-rotate-left"></i> Auto by Calendar
               </button>
             )}
           </div>

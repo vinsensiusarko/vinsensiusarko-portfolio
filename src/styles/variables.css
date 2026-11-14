@@ -278,10 +278,7 @@ html[data-theme="dark"][data-season="winter"] {
 }
 
 main,
-nav,
-footer,
-.floating-actions,
-.project-modal-backdrop {
+footer {
   position: relative;
   z-index: 2;
 }

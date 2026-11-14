@@ -3,13 +3,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyA2d2w-kfcL4fV5sI1m7V_N_l-H36rK02s',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyBXMcjGa-20keXC67MIwiaG3seex-_DDNw',
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'vinsensiusarko.firebaseapp.com',
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'vinsensiusarko',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'vinsensiusarko.firebasestorage.app',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'vinsensiusarko.appspot.com',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '639316523712',
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:639316523712:web:2a379691ff732f8c8a0b25',
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || 'G-5N5E36E73R'
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || 'G-VV3XL63SER'
 };
 
 let app = null;

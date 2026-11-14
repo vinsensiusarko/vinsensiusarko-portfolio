@@ -18,7 +18,7 @@ describe('SeasonSwitcher & SeasonalCanvas', () => {
     localStorage.clear();
   });
 
-  it('opens dropdown, switches between Semi, Panas, Gugur, Dingin, and toggles particles', () => {
+  it('opens dropdown, switches between Spring, Summer, Autumn, Winter, and toggles particles', () => {
     renderWithProviders(
       <>
         <SeasonSwitcher />
@@ -26,18 +26,18 @@ describe('SeasonSwitcher & SeasonalCanvas', () => {
       </>
     );
 
-    const trigger = screen.getByRole('button', { name: /musim|season/i });
+    const trigger = screen.getByRole('button', { name: /Select season/i });
     fireEvent.click(trigger);
 
-    const autumnOption = screen.getByRole('menuitem', { name: /Gugur/i });
+    const autumnOption = screen.getByRole('menuitem', { name: /Autumn/i });
     fireEvent.click(autumnOption);
 
     expect(document.documentElement.getAttribute('data-season')).toBe('autumn');
-    expect(trigger.textContent).toContain('Gugur');
+    expect(trigger.textContent).toContain('Autumn');
 
     // Reopen dropdown to toggle particles
     fireEvent.click(trigger);
-    const particleBtn = screen.getByRole('button', { name: /Efek Animasi/i });
+    const particleBtn = screen.getByRole('button', { name: /Particle Effects/i });
     fireEvent.click(particleBtn);
 
     expect(localStorage.getItem('season_particles')).toBe('false');

@@ -78,7 +78,7 @@ describe('SeasonContext', () => {
 
     fireEvent.click(screen.getByText('Set Winter'));
     expect(screen.getByTestId('season').textContent).toBe('winter');
-    expect(screen.getByTestId('label').textContent).toBe('Dingin');
+    expect(screen.getByTestId('label').textContent).toBe('Winter');
     expect(screen.getByTestId('auto').textContent).toBe('false');
     expect(localStorage.getItem('season')).toBe('winter');
     expect(document.documentElement.getAttribute('data-season')).toBe('winter');

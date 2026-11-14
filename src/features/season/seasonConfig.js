@@ -1,7 +1,8 @@
 export const SEASONS = {
   spring: {
     id: 'spring',
-    labelId: 'Semi',
+    label: 'Spring',
+    labelId: 'Spring',
     labelEn: 'Spring',
     emoji: '🌸',
     badgeText: '🌸 Spring Edition',
@@ -12,33 +13,36 @@ export const SEASONS = {
   },
   summer: {
     id: 'summer',
-    labelId: 'Panas',
+    label: 'Summer',
+    labelId: 'Summer',
     labelEn: 'Summer',
     emoji: '☀️',
     badgeText: '☀️ Summer Edition',
-    description: 'Golden Sunbeams & Fireflies',
+    description: 'Golden Fireflies',
     colors: ['#fde047', '#f59e0b', '#fef08a'],
     particleCountDesktop: 30,
     particleCountMobile: 15
   },
   autumn: {
     id: 'autumn',
-    labelId: 'Gugur',
+    label: 'Autumn',
+    labelId: 'Autumn',
     labelEn: 'Autumn',
     emoji: '🍂',
     badgeText: '🍂 Autumn Edition',
-    description: 'Falling Maple Leaves',
+    description: 'Maple Leaves',
     colors: ['#ea580c', '#d97706', '#b45309', '#dc2626'],
     particleCountDesktop: 32,
     particleCountMobile: 15
   },
   winter: {
     id: 'winter',
-    labelId: 'Dingin',
+    label: 'Winter',
+    labelId: 'Winter',
     labelEn: 'Winter',
     emoji: '❄️',
     badgeText: '❄️ Winter Edition',
-    description: 'Soft Snowflakes',
+    description: 'Snowflakes',
     colors: ['#bae6fd', '#7dd3fc', '#e0f2fe', '#ffffff'],
     particleCountDesktop: 42,
     particleCountMobile: 20
