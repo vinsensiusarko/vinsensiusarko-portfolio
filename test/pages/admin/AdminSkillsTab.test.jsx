@@ -135,5 +135,50 @@ describe('AdminSkillsTab Drag and Drop Reordering', () => {
     // Click Flutter preset chip -> sets skill name and icon
     fireEvent.click(flutterChip);
     expect(screen.getByLabelText(/Skill Name/i)).toHaveValue('Flutter');
+
+    // Click Dart preset chip -> sets Dart
+    const dartChip = screen.getByRole('button', { name: /Dart/i });
+    expect(dartChip).toBeInTheDocument();
+    fireEvent.click(dartChip);
+    expect(screen.getByLabelText(/Skill Name/i)).toHaveValue('Dart');
+
+    // Click Arko CMS preset chip -> sets Arko CMS
+    const arkoChip = screen.getByRole('button', { name: /Arko CMS/i });
+    expect(arkoChip).toBeInTheDocument();
+    fireEvent.click(arkoChip);
+    expect(screen.getByLabelText(/Skill Name/i)).toHaveValue('Arko CMS');
+  });
+
+  it('switches between Font Awesome and Upload PNG/SVG icon source tabs', () => {
+    render(
+      <ConfirmProvider>
+        <AdminSkillsTab
+          skills={mockSkills}
+          reloadSkills={vi.fn()}
+          showToast={vi.fn()}
+        />
+      </ConfirmProvider>
+    );
+
+    // Click Add Skill button
+    fireEvent.click(screen.getByRole('button', { name: /Add Skill/i }));
+
+    // Switch to Upload tab
+    const uploadTabBtn = screen.getByRole('button', { name: /Upload PNG \/ SVG/i });
+    expect(uploadTabBtn).toBeInTheDocument();
+    fireEvent.click(uploadTabBtn);
+
+    // File input and Arko favicon shortcut should be present
+    expect(screen.getByLabelText(/Upload Skill Icon/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Pakai Asset Favicon Arko/i })).toBeInTheDocument();
+
+    // Click Pakai Favicon shortcut
+    fireEvent.click(screen.getByRole('button', { name: /Pakai Asset Favicon Arko/i }));
+    expect(screen.getByLabelText(/Skill Name/i)).toHaveValue('Arko CMS');
+
+    // Switch back to Font Awesome tab
+    const faTabBtn = screen.getByRole('button', { name: /Font Awesome \/ Auto SVG/i });
+    fireEvent.click(faTabBtn);
+    expect(screen.getByLabelText(/Font Awesome Class or Tech Name/i)).toBeInTheDocument();
   });
 });

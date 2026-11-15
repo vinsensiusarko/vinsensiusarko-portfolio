@@ -19,13 +19,16 @@ const INITIAL_SKILL_FORM = {
   level: 'Experienced',
   iconType: 'fontawesome',
   iconClass: 'fa-solid fa-code',
+  iconUrl: '',
   order: 1
 };
 
 const PRESET_ICONS = [
   { name: 'Flutter', category: 'language', iconType: 'svg', iconClass: 'fa-brands fa-flutter' },
-  { name: 'Dart', category: 'language', iconType: 'svg', iconClass: 'fa-brands fa-flutter' },
+  { name: 'Dart', category: 'language', iconType: 'svg', iconClass: 'fa-brands fa-dart' },
+  { name: 'Arko CMS', category: 'framework_tool', iconType: 'image', iconUrl: '/assets/favicon.png', iconClass: 'fa-solid fa-bolt' },
   { name: 'React', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-react' },
+  { name: 'Next.js', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-solid fa-n' },
   { name: 'Vue.js', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-vuejs' },
   { name: 'JavaScript', category: 'language', iconType: 'fontawesome', iconClass: 'fa-brands fa-js' },
   { name: 'TypeScript', category: 'language', iconType: 'fontawesome', iconClass: 'fa-brands fa-js' },
@@ -43,7 +46,9 @@ const PRESET_ICONS = [
   { name: 'WordPress', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-wordpress' },
   { name: 'Android', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-android' },
   { name: 'Linux', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-linux' },
-  { name: 'AWS', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-aws' }
+  { name: 'AWS', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-aws' },
+  { name: 'Tailwind CSS', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-solid fa-wind' },
+  { name: 'Firebase', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-solid fa-fire' }
 ];
 
 export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = false }) {
@@ -153,11 +158,61 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
       name: skill.name || '',
       category: skill.category || 'language',
       level: skill.level || 'Experienced',
-      iconType: skill.iconType || 'fontawesome',
+      iconType: skill.iconType || (skill.iconUrl ? 'upload' : 'fontawesome'),
       iconClass: skill.iconClass || '',
+      iconUrl: skill.iconUrl || '',
       order: skill.order || 1
     });
     setModalOpen(true);
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.includes('image/') && !file.name.endsWith('.svg')) {
+      showToast('Hanya file gambar (PNG, SVG, WebP) yang didukung.', 'error');
+      return;
+    }
+
+    if (file.size > 1024 * 1024) {
+      showToast('Ukuran file terlalu besar! Maksimal 1 MB.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+      const base64 = loadEvent.target.result;
+      setFormData((prev) => ({
+        ...prev,
+        iconType: 'upload',
+        iconUrl: base64
+      }));
+      showToast(`Icon "${file.name}" berhasil diunggah!`, 'success');
+    };
+    reader.onerror = () => {
+      showToast('Gagal membaca file gambar.', 'error');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleUseFavicon = () => {
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name || 'Arko CMS',
+      iconType: 'upload',
+      iconUrl: '/assets/favicon.png'
+    }));
+    showToast('Asset Favicon Arko berhasil dipilih!', 'info');
+  };
+
+  const handleRemoveUploadedIcon = () => {
+    setFormData((prev) => ({
+      ...prev,
+      iconType: 'fontawesome',
+      iconUrl: '',
+      iconClass: prev.iconClass || 'fa-solid fa-code'
+    }));
   };
 
   const handleToggleLevel = async (skill) => {
@@ -206,8 +261,9 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
       name: formData.name.trim(),
       category: formData.category,
       level: formData.level,
-      iconType: formData.iconType,
+      iconType: formData.iconType || (formData.iconUrl ? 'upload' : 'fontawesome'),
       iconClass: formData.iconClass.trim() || 'fa-solid fa-code',
+      iconUrl: formData.iconUrl || '',
       order: parseInt(formData.order, 10) || 1,
       updatedAt: serverTimestamp()
     };
@@ -451,101 +507,170 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
                 </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="skill-icon-type">
-                    Icon Type
-                  </label>
-                  <select
-                    id="skill-icon-type"
-                    className="form-select"
-                    value={formData.iconType}
-                    onChange={(e) => setFormData({ ...formData, iconType: e.target.value })}
-                  >
-                    <option value="fontawesome">Font Awesome Icon</option>
-                    <option value="svg">Custom SVG (e.g. Flutter)</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="skill-order">
-                    Display Order
-                  </label>
-                  <input
-                    type="number"
-                    id="skill-order"
-                    className="form-input"
-                    min="1"
-                    value={formData.order}
-                    onChange={(e) => setFormData({ ...formData, order: e.target.value })}
-                  />
-                </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="skill-order">
+                  Display Order
+                </label>
+                <input
+                  type="number"
+                  id="skill-order"
+                  className="form-input"
+                  min="1"
+                  value={formData.order}
+                  onChange={(e) => setFormData({ ...formData, order: e.target.value })}
+                />
               </div>
 
+              {/* ICON SOURCE TABS */}
               <div className="form-group">
                 <label className="form-label">
-                  <i className="fa-solid fa-wand-magic-sparkles"></i> Preset Icons (Click to autofill)
+                  <i className="fa-solid fa-palette"></i> Icon Source &amp; Format
                 </label>
-                <div className="preset-icons-container">
-                  {PRESET_ICONS.map((preset) => (
-                    <button
-                      key={preset.name}
-                      type="button"
-                      className="preset-icon-chip"
-                      onClick={() => {
-                        setFormData({
-                          ...formData,
-                          name: preset.name,
-                          category: preset.category,
-                          iconType: preset.iconType,
-                          iconClass: preset.iconClass
-                        });
-                      }}
-                    >
-                      <SkillIcon skill={preset} size="0.95rem" />
-                      <span>{preset.name}</span>
-                    </button>
-                  ))}
+                <div className="icon-source-tabs">
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${formData.iconType !== 'upload' ? 'btn-primary' : 'btn-secondary'}`}
+                    onClick={() => setFormData({ ...formData, iconType: 'fontawesome' })}
+                  >
+                    <i className="fa-solid fa-icons"></i> Font Awesome / Auto SVG
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${formData.iconType === 'upload' ? 'btn-primary' : 'btn-secondary'}`}
+                    onClick={() => setFormData({ ...formData, iconType: 'upload' })}
+                  >
+                    <i className="fa-solid fa-cloud-arrow-up"></i> Upload PNG / SVG
+                  </button>
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="skill-icon-class">
-                  Font Awesome Class (e.g. fa-brands fa-react or fa-brands fa-flutter)
-                </label>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                  <input
-                    type="text"
-                    id="skill-icon-class"
-                    className="form-input"
-                    placeholder="e.g. fa-brands fa-react or fa-brands fa-flutter"
-                    value={formData.iconClass}
-                    onChange={(e) => setFormData({ ...formData, iconClass: e.target.value })}
-                  />
-                  <div
-                    className="skill-icon-box"
-                    title="Live Icon Preview"
-                  >
-                    <SkillIcon
-                      skill={{
-                        name: formData.name,
-                        iconClass: formData.iconClass,
-                        iconType: formData.iconType
-                      }}
-                      size="1.25rem"
-                    />
+              {formData.iconType !== 'upload' ? (
+                <>
+                  <div className="form-group">
+                    <label className="form-label">
+                      <i className="fa-solid fa-wand-magic-sparkles"></i> Preset Icons (Click to autofill)
+                    </label>
+                    <div className="preset-icons-container">
+                      {PRESET_ICONS.map((preset) => (
+                        <button
+                          key={preset.name}
+                          type="button"
+                          className="preset-icon-chip"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              name: preset.name,
+                              category: preset.category,
+                              iconType: preset.iconType,
+                              iconClass: preset.iconClass,
+                              iconUrl: preset.iconUrl || ''
+                            });
+                          }}
+                        >
+                          <SkillIcon skill={preset} size="0.95rem" />
+                          <span>{preset.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="skill-icon-class">
+                      Font Awesome Class or Tech Name
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        id="skill-icon-class"
+                        className="form-input"
+                        placeholder="e.g. fa-brands fa-react, fa-brands fa-dart-lang, or fa-brands fa-flutter"
+                        value={formData.iconClass}
+                        onChange={(e) => setFormData({ ...formData, iconClass: e.target.value })}
+                      />
+                      <div
+                        className="skill-icon-box"
+                        title="Live Icon Preview"
+                      >
+                        <SkillIcon
+                          skill={{
+                            name: formData.name,
+                            iconClass: formData.iconClass,
+                            iconType: formData.iconType,
+                            iconUrl: formData.iconUrl
+                          }}
+                          size="1.25rem"
+                        />
+                      </div>
+                    </div>
+                    <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.35rem', display: 'block', lineHeight: 1.4 }}>
+                      💡 <strong>Auto-renders official SVG:</strong> Flutter, Dart (misal <code>fa-brands fa-dart-lang</code>), &amp; Arko CMS otomatis menyesuaikan tema. Browse icon lainnya di{' '}
+                      <a
+                        href="https://fontawesome.com/icons"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        fontawesome.com
+                      </a>.
+                    </small>
+                  </div>
+                </>
+              ) : (
+                <div className="form-group">
+                  <label className="form-label">
+                    Upload Custom Icon (PNG / SVG)
+                  </label>
+                  <div className="skill-upload-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                      <div className="skill-icon-box" title="Live Preview">
+                        <SkillIcon
+                          skill={{
+                            name: formData.name,
+                            iconClass: formData.iconClass,
+                            iconType: 'upload',
+                            iconUrl: formData.iconUrl
+                          }}
+                          size="1.25rem"
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <input
+                          type="file"
+                          id="skill-icon-file"
+                          aria-label="Upload Skill Icon"
+                          accept="image/png,image/svg+xml,image/webp,image/jpeg,.png,.svg"
+                          className="form-input"
+                          style={{ padding: '0.4rem 0.6rem' }}
+                          onChange={handleFileUpload}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={handleUseFavicon}
+                        title="Gunakan asset resmi Favicon Arko"
+                      >
+                        <i className="fa-solid fa-gem"></i> Pakai Asset Favicon Arko (/assets/favicon.png)
+                      </button>
+                      {formData.iconUrl && (
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          style={{ color: 'var(--danger)' }}
+                          onClick={handleRemoveUploadedIcon}
+                        >
+                          <i className="fa-solid fa-trash"></i> Reset Icon
+                        </button>
+                      )}
+                    </div>
+                    <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                      Mendukung file PNG, SVG, atau WebP transparan (Maksimal 1 MB). Otomatis menyesuaikan tema dark mode &amp; light mode.
+                    </small>
                   </div>
                 </div>
-                <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                  Flutter auto-renders as official SVG. Browse other icons at{' '}
-                  <a
-                    href="https://fontawesome.com/icons"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    fontawesome.com
-                  </a>
-                </small>
-              </div>
+              )}
             </div>
             <div className="modal-footer">
               <button

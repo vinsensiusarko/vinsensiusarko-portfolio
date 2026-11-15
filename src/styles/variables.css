@@ -358,12 +358,30 @@ html[data-theme="dark"][data-season="winter"] {
 }
 
 .skill-icon-box .skill-icon,
-.skill-icon-box svg.skill-icon {
+.skill-icon-box svg.skill-icon,
+.skill-icon-box img.skill-icon-img {
   margin: 0;
   color: var(--season-badge-text);
   font-size: 1.25rem;
   width: 1.25rem;
   height: 1.25rem;
+  max-width: 1.25rem;
+  max-height: 1.25rem;
+  object-fit: contain;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skill-icon-box .brand-logo-img,
+.skill-icon-box img.brand-logo-img {
+  transition: filter 0.25s ease;
+  filter: brightness(0.2);
+}
+
+[data-theme="dark"] .skill-icon-box .brand-logo-img,
+[data-theme="dark"] .skill-icon-box img.brand-logo-img {
+  filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255, 255, 255, 0.45));
 }
 
 .skill-level-badge {
