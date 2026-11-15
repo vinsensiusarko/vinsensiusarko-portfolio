@@ -30,12 +30,12 @@
 - Modify: `src/pages/HomePage.jsx`
 - Modify: `src/components/sections/HeroSection.jsx`
 
-- [ ] **Step 1: Write unit tests for `visitorTracker.js`**
-- [ ] **Step 2: Run test to verify it fails**
-- [ ] **Step 3: Implement `visitorTracker.js`**
-- [ ] **Step 4: Run test to verify it passes**
-- [ ] **Step 5: Integrate tracker in `HomePage.jsx` and `HeroSection.jsx`**
-- [ ] **Step 6: Commit**
+- [x] **Step 1: Write unit tests for `visitorTracker.js`**
+- [x] **Step 2: Run test to verify it fails**
+- [x] **Step 3: Implement `visitorTracker.js`**
+- [x] **Step 4: Run test to verify it passes**
+- [x] **Step 5: Integrate tracker in `HomePage.jsx` and `HeroSection.jsx`**
+- [x] **Step 6: Commit**
 
 ---
 
@@ -47,13 +47,13 @@
 - Modify: `src/pages/admin/AdminPage.jsx`
 - Modify: `src/styles/admin.css`
 
-- [ ] **Step 1: Write test for `AdminAnalyticsTab.jsx`**
-- [ ] **Step 2: Run test to verify it fails**
-- [ ] **Step 3: Implement `AdminAnalyticsTab.jsx` with KPI cards, 7-day chart, and distribution bars**
-- [ ] **Step 4: Add analytics styles to `src/styles/admin.css`**
-- [ ] **Step 5: Register analytics tab in `AdminPage.jsx`**
-- [ ] **Step 6: Run test to verify it passes**
-- [ ] **Step 7: Commit**
+- [x] **Step 1: Write test for `AdminAnalyticsTab.jsx`**
+- [x] **Step 2: Run test to verify it fails**
+- [x] **Step 3: Implement `AdminAnalyticsTab.jsx` with KPI cards, 7-day chart, and distribution bars**
+- [x] **Step 4: Add analytics styles to `src/styles/admin.css`**
+- [x] **Step 5: Register analytics tab in `AdminPage.jsx`**
+- [x] **Step 6: Run test to verify it passes**
+- [x] **Step 7: Commit**
 
 ---
 
@@ -63,9 +63,9 @@
 - Modify: `firestore.rules`
 - Modify: `src/components/sections/HeroSection.jsx`
 
-- [ ] **Step 1: Update `firestore.rules` for analytics isolation**
-- [ ] **Step 2: Add `fetchpriority="high"` to Hero portrait**
-- [ ] **Step 3: Commit**
+- [x] **Step 1: Update `firestore.rules` for analytics isolation**
+- [x] **Step 2: Add `fetchpriority="high"` to Hero portrait**
+- [x] **Step 3: Commit**
 
 ---
 
@@ -75,7 +75,7 @@
 - Test: All files in `test/`
 - Build: `dist/`
 
-- [ ] **Step 1: Run full unit test suite (`npx vitest run`)**
-- [ ] **Step 2: Run production build (`npm run build`)**
-- [ ] **Step 3: Senior Code Reviewer Subagent verification**
-- [ ] **Step 4: Commit**
+- [x] **Step 1: Run full unit test suite (`npx vitest run`)**
+- [x] **Step 2: Run production build (`npm run build`)**
+- [x] **Step 3: Senior Code Reviewer Subagent verification**
+- [x] **Step 4: Commit**
