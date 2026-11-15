@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { useTheme } from '../../context/ThemeContext';
 import { SeasonSwitcher } from '../../features/season/SeasonSwitcher';
+import { CommandPalette } from '../common/CommandPalette';
 
 export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('profile');
+  const [paletteOpen, setPaletteOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -116,6 +118,17 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
             </ul>
           )}
 
+          <button
+            type="button"
+            className="nav-search-btn"
+            onClick={() => setPaletteOpen(true)}
+            title="Search / Command Palette (Ctrl + K)"
+            aria-label="Open Command Palette"
+          >
+            <i className="fa-solid fa-magnifying-glass"></i>
+            <span className="nav-search-kbd">Ctrl K</span>
+          </button>
+
           <SeasonSwitcher />
 
           <button
@@ -141,6 +154,17 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
         </div>
 
         <div className="hamburger-menu">
+          <button
+            type="button"
+            className="nav-search-btn"
+            onClick={() => setPaletteOpen(true)}
+            title="Search / Command Palette (Ctrl + K)"
+            aria-label="Open Command Palette"
+          >
+            <i className="fa-solid fa-magnifying-glass"></i>
+            <span className="nav-search-kbd">Ctrl K</span>
+          </button>
+
           <SeasonSwitcher />
 
           <button
@@ -236,6 +260,8 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
           </ul>
         </div>
       </nav>
+
+      <CommandPalette isOpen={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </>
   );
 }
