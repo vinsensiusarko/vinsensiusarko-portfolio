@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useSound } from '../../context/SoundContext';
 
 export function FloatingActions({ whatsapp = '6285179793167' }) {
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const { isMuted, toggleMute, playClick } = useSound();
 
   useEffect(() => {
     const handleScroll = () => setShowBackToTop(window.scrollY > 400);
@@ -14,6 +16,19 @@ export function FloatingActions({ whatsapp = '6285179793167' }) {
 
   return (
     <div className="floating-actions" aria-label="Quick action buttons">
+      <button
+        type="button"
+        id="sound-toggle-btn"
+        className={`sound-toggle-btn ${!isMuted ? 'active' : ''}`}
+        onClick={() => {
+          toggleMute();
+          if (isMuted) playClick();
+        }}
+        aria-label={isMuted ? 'Enable Sound Effects' : 'Mute Sound Effects'}
+        title={isMuted ? 'Sound Effects: Muted (Click to enable)' : 'Sound Effects: Active (Click to mute)'}
+      >
+        <i className={`fa-solid ${isMuted ? 'fa-volume-xmark' : 'fa-volume-high'}`}></i>
+      </button>
       <button
         type="button"
         id="back-to-top-btn"
