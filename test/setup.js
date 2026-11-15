@@ -30,8 +30,14 @@ if (
   });
 }
 
-if (typeof window !== 'undefined' && !window.matchMedia) {
+if (typeof window !== 'undefined') {
   window.scrollTo = vi.fn();
+  if (typeof window.HTMLElement !== 'undefined') {
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+  }
+}
+
+if (typeof window !== 'undefined' && !window.matchMedia) {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation((query) => ({

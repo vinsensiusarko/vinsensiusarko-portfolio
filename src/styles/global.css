@@ -911,6 +911,47 @@ svg.skill-icon {
   margin-top: auto;
 }
 
+.projects-show-more-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.btn-show-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-medium);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.btn-show-more:hover {
+  transform: translateY(-3px);
+  background: var(--bg-elevated);
+  border-color: var(--primary-accent, #3b82f6);
+  box-shadow: 0 8px 24px -4px rgba(59, 130, 246, 0.25);
+}
+
+.btn-show-more i {
+  transition: transform var(--transition-normal);
+  font-size: 0.85rem;
+}
+
+.btn-show-more:hover i {
+  transform: scale(1.15);
+}
+
 /* ==========================================================================
    11. Contact Section (#contact)
    ========================================================================== */

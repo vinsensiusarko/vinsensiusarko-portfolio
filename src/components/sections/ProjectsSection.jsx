@@ -65,9 +65,12 @@ function matchesProjectFilter(project, categoryFilter, searchQuery) {
   return matchesCategory && matchesSearch;
 }
 
+const INITIAL_LIMIT = 6;
+
 export function ProjectsSection({ projects }) {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
 
   const filteredProjects = useMemo(() => {
@@ -80,6 +83,7 @@ export function ProjectsSection({ projects }) {
   const resetFilters = () => {
     setCategoryFilter('all');
     setSearchQuery('');
+    setIsExpanded(false);
   };
 
   return (
@@ -97,7 +101,10 @@ export function ProjectsSection({ projects }) {
             placeholder="Search projects by title or tech stack (e.g. Flutter, React, Laravel)..."
             aria-label="Search projects"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setIsExpanded(false);
+            }}
           />
           {searchQuery.length > 0 && (
             <button
@@ -127,7 +134,10 @@ export function ProjectsSection({ projects }) {
                 data-filter={chip.value}
                 role="tab"
                 aria-selected={isActive}
-                onClick={() => setCategoryFilter(chip.value)}
+                onClick={() => {
+                  setCategoryFilter(chip.value);
+                  setIsExpanded(false);
+                }}
               >
                 <i className={chip.icon} aria-hidden="true"></i> {chip.label}
               </button>
@@ -151,8 +161,9 @@ export function ProjectsSection({ projects }) {
           </button>
         </div>
       ) : (
-        <div className="projects-grid">
-          {filteredProjects.map((proj) => {
+        <>
+          <div className="projects-grid">
+            {(isExpanded ? filteredProjects : filteredProjects.slice(0, INITIAL_LIMIT)).map((proj) => {
             const imgSrc = resolveProjectImage(proj);
             const isComingSoon = Boolean(proj.isComingSoon);
             const isPlayStore =
@@ -279,6 +290,34 @@ export function ProjectsSection({ projects }) {
             );
           })}
         </div>
+
+        {filteredProjects.length > INITIAL_LIMIT && (
+          <div className="projects-show-more-wrapper">
+            <button
+              type="button"
+              className="btn btn-show-more"
+              onClick={() => {
+                if (isExpanded) {
+                  setIsExpanded(false);
+                  const el = document.getElementById('projects');
+                  if (typeof el?.scrollIntoView === 'function') {
+                    el.scrollIntoView({ behavior: 'smooth' });
+                  }
+                } else {
+                  setIsExpanded(true);
+                }
+              }}
+            >
+              <span>
+                {isExpanded
+                  ? 'Show Less'
+                  : `Show More Projects (${filteredProjects.length - INITIAL_LIMIT} more)`}
+              </span>
+              <i className={`fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
+            </button>
+          </div>
+        )}
+      </>
       )}
 
       <div className="arrow">

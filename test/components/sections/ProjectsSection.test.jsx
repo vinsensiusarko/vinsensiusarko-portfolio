@@ -7,8 +7,8 @@ describe('ProjectsSection & ProjectModal', () => {
   it('filters projects by category (including technology-inferred matches) and resets empty search results', () => {
     render(<ProjectsSection projects={FALLBACK_PROJECTS} />);
 
-    // Initially all 9 fallback projects are rendered
-    expect(screen.getAllByRole('article')).toHaveLength(9);
+    // Initially capped at 6 projects (Show More present)
+    expect(screen.getAllByRole('article')).toHaveLength(6);
 
     // Filter by Mobile App -> Mozaic POS App (Flutter)
     fireEvent.click(screen.getByRole('tab', { name: /Mobile App/i }));
@@ -25,7 +25,43 @@ describe('ProjectsSection & ProjectModal', () => {
 
     // Click Reset Filters button
     fireEvent.click(screen.getByRole('button', { name: /Reset Filters/i }));
+    expect(screen.getAllByRole('article')).toHaveLength(6);
+  });
+
+  it('limits initial display to 6 projects and toggles show more/less (Review Focus #2)', () => {
+    render(<ProjectsSection projects={FALLBACK_PROJECTS} />);
+
+    // Initial display: only 6 project articles
+    expect(screen.getAllByRole('article')).toHaveLength(6);
+
+    // Click Show More Projects
+    const toggleBtn = screen.getByRole('button', { name: /Show More Projects/i });
+    expect(toggleBtn).toBeInTheDocument();
+    fireEvent.click(toggleBtn);
+
+    // All 9 projects now displayed
     expect(screen.getAllByRole('article')).toHaveLength(9);
+    expect(screen.getByRole('button', { name: /Show Less/i })).toBeInTheDocument();
+
+    // Click Show Less -> collapses back to 6
+    fireEvent.click(screen.getByRole('button', { name: /Show Less/i }));
+    expect(screen.getAllByRole('article')).toHaveLength(6);
+  });
+
+  it('resets expansion state to 6 when category tab or search query changes', () => {
+    render(<ProjectsSection projects={FALLBACK_PROJECTS} />);
+
+    // Expand to 9
+    fireEvent.click(screen.getByRole('button', { name: /Show More Projects/i }));
+    expect(screen.getAllByRole('article')).toHaveLength(9);
+
+    // Switch category to Mobile App
+    fireEvent.click(screen.getByRole('tab', { name: /Mobile App/i }));
+    expect(screen.getAllByRole('article')).toHaveLength(1);
+
+    // Switch category back to All -> resets to 6
+    fireEvent.click(screen.getByRole('tab', { name: /All/i }));
+    expect(screen.getAllByRole('article')).toHaveLength(6);
   });
 
   it('opens Quick View modal on card click, closes on Escape, and does NOT open modal when clicking external GitHub/Live Demo links', () => {
