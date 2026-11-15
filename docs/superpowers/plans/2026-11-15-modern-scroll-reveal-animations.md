@@ -27,11 +27,11 @@
 - Create: `src/hooks/useScrollReveal.js`
 - Create: `test/hooks/useScrollReveal.test.jsx`
 
-- [ ] **Step 1: Write failing test for `useScrollReveal`**
-- [ ] **Step 2: Run test to verify it fails**
-- [ ] **Step 3: Implement `useScrollReveal` hook**
-- [ ] **Step 4: Run test to verify it passes**
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write failing test for `useScrollReveal`**
+- [x] **Step 2: Run test to verify it fails**
+- [x] **Step 3: Implement `useScrollReveal` hook**
+- [x] **Step 4: Run test to verify it passes**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -40,9 +40,9 @@
 **Files:**
 - Modify: `src/styles/global.css`
 
-- [ ] **Step 1: Implement CSS classes and keyframes in `global.css`**
-- [ ] **Step 2: Verify `prefers-reduced-motion` overrides**
-- [ ] **Step 3: Commit**
+- [x] **Step 1: Implement CSS classes and keyframes in `global.css`**
+- [x] **Step 2: Verify `prefers-reduced-motion` overrides**
+- [x] **Step 3: Commit**
 
 ---
 
@@ -54,11 +54,11 @@
 - Modify: `src/components/sections/ProjectsSection.jsx`
 - Create: `test/features/animations/ScrollRevealIntegration.test.jsx`
 
-- [ ] **Step 1: Write integration test for scroll reveal attributes**
-- [ ] **Step 2: Run test to verify it fails**
-- [ ] **Step 3: Integrate `useScrollReveal` and classes into components**
-- [ ] **Step 4: Run test to verify it passes**
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write integration test for scroll reveal attributes**
+- [x] **Step 2: Run test to verify it fails**
+- [x] **Step 3: Integrate `useScrollReveal` and classes into components**
+- [x] **Step 4: Run test to verify it passes**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -68,7 +68,7 @@
 - Test: All files in `test/`
 - Build: `dist/`
 
-- [ ] **Step 1: Run full unit test suite (`npx vitest run`)**
-- [ ] **Step 2: Run production build (`npm run build`)**
-- [ ] **Step 3: Senior Code Reviewer Subagent verification**
-- [ ] **Step 4: Commit**
+- [x] **Step 1: Run full unit test suite (`npx vitest run`)**
+- [x] **Step 2: Run production build (`npm run build`)**
+- [x] **Step 3: Senior Code Reviewer Subagent verification**
+- [x] **Step 4: Commit**
