@@ -547,16 +547,18 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                   </p>
 
                   {previewImgSrc && (
-                    <div className="dropzone-preview">
-                      <img
-                        src={previewImgSrc}
-                        alt="Preview"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = '/assets/images/portfolio-1.png';
-                        }}
-                      />
-                      <div>
+                    <div className="dropzone-preview" onClick={(e) => e.stopPropagation()}>
+                      <div className="dropzone-img-box" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <img
+                          src={previewImgSrc}
+                          alt="Preview"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/assets/images/portfolio-1.png';
+                          }}
+                        />
+                      </div>
+                      <div style={{ marginTop: '0.65rem' }}>
                         <span className="compression-badge">
                           <i className="fa-solid fa-bolt"></i>{' '}
                           {compressedKB

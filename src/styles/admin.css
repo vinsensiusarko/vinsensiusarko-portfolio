@@ -557,9 +557,15 @@
 .admin-shell .dropzone-preview {
   margin-top: 1rem;
   position: relative;
-  max-width: 320px;
+  max-width: 340px;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .admin-shell .dropzone-preview img {
@@ -567,8 +573,11 @@
   height: auto;
   max-height: 220px;
   object-fit: contain;
+  object-position: center center;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
+  margin: 0 auto;
+  display: block;
 }
 
 .admin-shell .compression-badge {
@@ -664,6 +673,9 @@
   width: auto;
   height: auto;
   object-fit: contain;
+  object-position: center center;
+  margin: auto;
+  display: block;
   border-radius: var(--radius-sm);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
