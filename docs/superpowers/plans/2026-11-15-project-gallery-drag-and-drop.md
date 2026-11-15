@@ -40,7 +40,7 @@
 - Input: `project: { id, title, image, imageBase64, gallery?: string[], ... }`
 - State: `activeImageIndex: number`
 
-- [ ] **Step 1: Write failing test for `ProjectModal` gallery**
+- [x] **Step 1: Write failing test for `ProjectModal` gallery**
 
 ```javascript
 // test/components/sections/ProjectModal.test.jsx
@@ -117,12 +117,12 @@ describe('ProjectModal Gallery', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run test/components/sections/ProjectModal.test.jsx`
 Expected: FAIL with missing gallery elements
 
-- [ ] **Step 3: Implement multi-image detail gallery in `ProjectModal.jsx`**
+- [x] **Step 3: Implement multi-image detail gallery in `ProjectModal.jsx`**
 
 In `src/components/sections/ProjectModal.jsx`:
 - Add `const [activeImageIndex, setActiveImageIndex] = useState(0);`.
@@ -142,12 +142,12 @@ In `src/components/sections/ProjectModal.jsx`:
   - Render `<div className="project-modal-gallery-strip" role="region" aria-label="Image Gallery Thumbnails">` below the hero image with active glowing border.
 - In `src/styles/global.css`: Add styles for `.project-modal-gallery-strip`, `.gallery-thumb-btn`, `.gallery-nav-btn`, `.gallery-counter-badge`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run test/components/sections/ProjectModal.test.jsx`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/sections/ProjectModal.jsx src/styles/global.css test/components/sections/ProjectModal.test.jsx
@@ -167,7 +167,7 @@ git commit -m "feat(gallery): add interactive multi-image project gallery to Qui
 - Field: `formData.gallery: string[]`
 - Upload handler: `handleGalleryFiles(FileList) => Promise<void>`
 
-- [ ] **Step 1: Write test for Admin gallery management**
+- [x] **Step 1: Write test for Admin gallery management**
 
 ```javascript
 // test/pages/admin/AdminProjectsTab.test.jsx
@@ -201,12 +201,12 @@ describe('AdminProjectsTab Gallery & Management', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run test/pages/admin/AdminProjectsTab.test.jsx`
 Expected: FAIL with "Unable to find an element with title: /Drag to reorder/i"
 
-- [ ] **Step 3: Implement gallery upload & management in `AdminProjectsTab.jsx`**
+- [x] **Step 3: Implement gallery upload & management in `AdminProjectsTab.jsx`**
 
 - In `INITIAL_FORM`: add `gallery: []`.
 - When opening edit modal: load `gallery: Array.isArray(project.gallery) ? project.gallery : []`.
@@ -217,12 +217,12 @@ Expected: FAIL with "Unable to find an element with title: /Drag to reorder/i"
 - In `handleSubmit`: include `gallery: formData.gallery` in payload.
 - In `src/styles/admin.css`: Add styles for `.admin-gallery-grid`, `.admin-gallery-item`, `.gallery-item-delete`, `.gallery-item-cover`.
 
-- [ ] **Step 4: Run test and verify progress**
+- [x] **Step 4: Run test and verify progress**
 
 Run: `npx vitest run test/pages/admin/AdminProjectsTab.test.jsx`
 Expected: Progressing towards Task 3 completion.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/pages/admin/tabs/AdminProjectsTab.jsx src/styles/admin.css
@@ -242,7 +242,7 @@ git commit -m "feat(admin): add multi-image screenshot gallery management in pro
 - Drag state: `draggedProjectId: string | null`, `dragOverProjectId: string | null`
 - Drag handlers: `onDragStart`, `onDragEnter`, `onDragOver`, `onDragLeave`, `onDrop`, `onDragEnd`
 
-- [ ] **Step 1: Implement HTML5 Drag and Drop logic on `.admin-project-card`**
+- [x] **Step 1: Implement HTML5 Drag and Drop logic on `.admin-project-card`**
 
 In `src/pages/admin/tabs/AdminProjectsTab.jsx`:
 - Add `const [draggedId, setDraggedId] = useState(null);` and `const [dragOverId, setDragOverId] = useState(null);`.
@@ -263,12 +263,12 @@ In `src/pages/admin/tabs/AdminProjectsTab.jsx`:
   - Show success toast: `showToast('Project order updated!', 'success');`.
 - In `src/styles/admin.css`: Add styles for `.admin-project-card.is-dragging`, `.admin-project-card.drag-target`, `.admin-card-drag-handle`.
 
-- [ ] **Step 2: Run test to verify it passes**
+- [x] **Step 2: Run test to verify it passes**
 
 Run: `npx vitest run test/pages/admin/AdminProjectsTab.test.jsx`
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/pages/admin/tabs/AdminProjectsTab.jsx src/styles/admin.css test/pages/admin/AdminProjectsTab.test.jsx
@@ -288,7 +288,7 @@ git commit -m "feat(admin): implement native HTML5 drag-and-drop reordering for 
 - Drag state: `draggedSkillId: string | null`, `dragOverSkillId: string | null`
 - Drag handlers on `.skill-item-row`
 
-- [ ] **Step 1: Write test for Admin skills drag-and-drop**
+- [x] **Step 1: Write test for Admin skills drag-and-drop**
 
 ```javascript
 // test/pages/admin/AdminSkillsTab.test.jsx
@@ -321,12 +321,12 @@ describe('AdminSkillsTab Drag and Drop Reordering', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run test/pages/admin/AdminSkillsTab.test.jsx`
 Expected: FAIL with "Unable to find an element with title: /Drag to reorder/i"
 
-- [ ] **Step 3: Implement HTML5 Drag and Drop on `.skill-item-row`**
+- [x] **Step 3: Implement HTML5 Drag and Drop on `.skill-item-row`**
 
 In `src/pages/admin/tabs/AdminSkillsTab.jsx`:
 - Add `const [draggedSkillId, setDraggedSkillId] = useState(null);` and `const [dragOverSkillId, setDragOverSkillId] = useState(null);`.
@@ -336,12 +336,12 @@ In `src/pages/admin/tabs/AdminSkillsTab.jsx`:
   - In `onDrop`: check that dragged skill belongs to the same category (`language` or `framework_tool`). Splice array, apply batch update to Firestore, show toast.
 - In `src/styles/admin.css`: Add styles for `.skill-item-row.is-dragging`, `.skill-item-row.drag-target`, `.skill-drag-handle`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run test/pages/admin/AdminSkillsTab.test.jsx`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/pages/admin/tabs/AdminSkillsTab.jsx src/styles/admin.css test/pages/admin/AdminSkillsTab.test.jsx
@@ -356,17 +356,17 @@ git commit -m "feat(skills): implement native HTML5 drag-and-drop reordering for
 - Test: All files in `test/`
 - Build: `dist/`
 
-- [ ] **Step 1: Run full unit test suite**
+- [x] **Step 1: Run full unit test suite**
 
 Run: `npx vitest run`
 Expected: PASS across all 15 test suites and 45+ tests.
 
-- [ ] **Step 2: Run production build**
+- [x] **Step 2: Run production build**
 
 Run: `npm run build`
 Expected: SUCCESS with zero warnings, zero bundle errors.
 
-- [ ] **Step 3: Commit verification and progress update**
+- [x] **Step 3: Commit verification and progress update**
 
 ```bash
 git commit --allow-empty -m "chore: verify Sub-Project 2 test suite and production build"
