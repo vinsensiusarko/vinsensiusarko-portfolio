@@ -1,8 +1,18 @@
 import { useEffect } from 'react';
 
-export function useScrollReveal() {
+/**
+ * Custom React hook to observe elements matching a CSS selector and
+ * add the 'revealed' class when they enter the viewport.
+ * Automatically respects prefers-reduced-motion and unobserves after revealing.
+ *
+ * @param {string} selector - CSS selector to observe (default: '.reveal-on-scroll')
+ * @param {Array} deps - Dependency list to re-run observation when content changes
+ */
+export function useScrollReveal(selector = '.reveal-on-scroll', deps = []) {
   useEffect(() => {
-    const elements = document.querySelectorAll('.reveal-on-scroll');
+    if (typeof document === 'undefined') return;
+
+    const elements = document.querySelectorAll(selector);
     if (!elements.length) return;
 
     const prefersReducedMotion =
@@ -17,10 +27,11 @@ export function useScrollReveal() {
 
     const observer = new IntersectionObserver(
       (entries, obs) => {
+        const self = obs || observer;
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('revealed');
-            obs.unobserve(entry.target);
+            self?.unobserve?.(entry.target);
           }
         });
       },
@@ -30,5 +41,6 @@ export function useScrollReveal() {
     elements.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selector, ...deps]);
 }
