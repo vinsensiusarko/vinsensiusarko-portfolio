@@ -162,7 +162,7 @@ export function ProjectsSection({ projects }) {
         </div>
       ) : (
         <>
-          <div className="projects-grid">
+          <div id="projects-grid" className="projects-grid">
             {(isExpanded ? filteredProjects : filteredProjects.slice(0, INITIAL_LIMIT)).map((proj) => {
             const imgSrc = resolveProjectImage(proj);
             const isComingSoon = Boolean(proj.isComingSoon);
@@ -296,6 +296,8 @@ export function ProjectsSection({ projects }) {
             <button
               type="button"
               className="btn btn-show-more"
+              aria-expanded={isExpanded}
+              aria-controls="projects-grid"
               onClick={() => {
                 if (isExpanded) {
                   setIsExpanded(false);
