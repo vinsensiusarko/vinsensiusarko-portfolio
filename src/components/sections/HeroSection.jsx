@@ -57,6 +57,10 @@ export function HeroSection({ siteSettings, contactSettings }) {
         />
       </div>
       <div className="section__text">
+        <div className="availability-status-badge" role="status" aria-label="Available for work">
+          <span className="availability-pulse-dot" aria-hidden="true"></span>
+          <span>Available for New Opportunities</span>
+        </div>
         <div
           className="hero-season-badge"
           aria-label={`Active season: ${seasonMeta.labelEn}`}

@@ -14,7 +14,7 @@ import { ContactSection } from '../components/sections/ContactSection';
 export function HomePage() {
   const { projects, skills, siteSettings, contactSettings } = usePortfolioData();
   const { hash } = useLocation();
-  useScrollReveal();
+  useScrollReveal('.reveal-on-scroll', [projects.length, skills.length]);
 
   useEffect(() => {
     document.title = `${siteSettings.name || 'Vinsensius Arka'} — Web & Mobile Developer`;

@@ -162,8 +162,8 @@ export function ProjectsSection({ projects }) {
         </div>
       ) : (
         <>
-          <div id="projects-grid" className="projects-grid">
-            {(isExpanded ? filteredProjects : filteredProjects.slice(0, INITIAL_LIMIT)).map((proj) => {
+          <div id="projects-grid" className="projects-grid reveal-stagger">
+            {(isExpanded ? filteredProjects : filteredProjects.slice(0, INITIAL_LIMIT)).map((proj, index) => {
             const imgSrc = resolveProjectImage(proj);
             const isComingSoon = Boolean(proj.isComingSoon);
             const isPlayStore =
@@ -174,7 +174,8 @@ export function ProjectsSection({ projects }) {
             return (
               <article
                 key={proj.id || proj.title}
-                className="project-card"
+                className="project-card reveal-on-scroll"
+                style={{ '--stagger-idx': index % 6 }}
                 data-category={proj.category || 'Web Application'}
                 data-tech={techStack.join(', ')}
                 onClick={(e) => {
