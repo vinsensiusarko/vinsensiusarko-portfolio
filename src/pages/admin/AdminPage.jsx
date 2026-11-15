@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db } from '../../services/firebase';
 import { useTheme } from '../../context/ThemeContext';
+import { BrandLogo } from '../../components/common/BrandLogo';
 import { AdminLogin } from './AdminLogin';
 import { AdminDashboardSkeleton, AdminStatsShimmer } from './AdminShimmer';
 import { AdminProjectsTab } from './tabs/AdminProjectsTab';
@@ -184,8 +185,8 @@ export function AdminPage() {
           {/* SIDEBAR */}
           <aside id="admin-sidebar" className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-brand">
-              <i className="fa-solid fa-bolt"></i>
-              <span>Arka CMS</span>
+              <BrandLogo size={26} />
+              <span>Arko</span>
             </div>
 
             <ul className="sidebar-menu">

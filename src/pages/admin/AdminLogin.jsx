@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../services/firebase';
+import { BrandLogo } from '../../components/common/BrandLogo';
 
 export function AdminLogin({ showToast }) {
   const [email, setEmail] = useState('');
@@ -36,10 +37,10 @@ export function AdminLogin({ showToast }) {
   return (
     <div id="login-screen" className="login-screen">
       <div className="login-card">
-        <div className="logo">
-          <i className="fa-solid fa-shield-halved"></i>
+        <div className="logo" style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
+          <BrandLogo size={52} />
         </div>
-        <h2>Admin Portal</h2>
+        <h2>Arko Admin Portal</h2>
         <p>Sign in with your Firebase Administrator credentials to manage portfolio content.</p>
 
         <form id="login-form" onSubmit={handleSubmit}>
