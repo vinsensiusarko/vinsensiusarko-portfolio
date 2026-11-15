@@ -112,25 +112,33 @@
 }
 
 .admin-shell .sidebar-collapse-btn {
-  background: transparent;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  width: 1.85rem;
-  height: 1.85rem;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
   margin-left: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .admin-shell .sidebar-collapse-btn:hover {
-  background: var(--bg-card-alt);
-  color: var(--text-main);
-  border-color: var(--border-focus);
+  background: var(--season-badge-bg, var(--bg-card-alt));
+  color: var(--season-primary, var(--text-main));
+  border-color: var(--season-badge-border, var(--border-focus));
+  transform: scale(1.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-shell .sidebar-collapse-btn i {
+  transition: transform 0.25s ease;
+  font-size: 0.8rem;
 }
 
 .admin-shell .sidebar-brand {
@@ -1361,16 +1369,30 @@
 
   .admin-shell .admin-sidebar.collapsed .sidebar-collapse-btn {
     position: absolute;
-    right: -11px;
-    top: 22px;
-    background: var(--bg-sidebar);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
+    right: -13px;
+    top: 20px;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
     z-index: 101;
     border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    font-size: 0.65rem;
+    width: 26px;
+    height: 26px;
+    font-size: 0.72rem;
+    color: var(--season-primary, var(--text-main));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .admin-shell .admin-sidebar.collapsed .sidebar-collapse-btn:hover {
+    background: var(--season-primary, #3b82f6);
+    color: #ffffff;
+    border-color: transparent;
+    transform: scale(1.15);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
   }
 
   .admin-shell .admin-sidebar.collapsed .sidebar-menu {
