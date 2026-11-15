@@ -5,6 +5,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  writeBatch,
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
@@ -27,9 +28,88 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(INITIAL_SKILL_FORM);
   const [saving, setSaving] = useState(false);
+  const [draggedSkillId, setDraggedSkillId] = useState(null);
+  const [dragOverSkillId, setDragOverSkillId] = useState(null);
 
   const languages = skills.filter((s) => s.category === 'language');
   const frameworks = skills.filter((s) => s.category === 'framework_tool');
+
+  const handleSkillDragStart = (e, skill) => {
+    e.dataTransfer.setData('text/plain', skill.id);
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggedSkillId(skill.id);
+  };
+
+  const handleSkillDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleSkillDragEnter = (skill) => {
+    if (draggedSkillId && draggedSkillId !== skill.id) {
+      setDragOverSkillId(skill.id);
+    }
+  };
+
+  const handleSkillDragLeave = (skill) => {
+    if (dragOverSkillId === skill.id) {
+      setDragOverSkillId(null);
+    }
+  };
+
+  const handleSkillDragEnd = () => {
+    setDraggedSkillId(null);
+    setDragOverSkillId(null);
+  };
+
+  const handleSkillDrop = async (e, targetSkill) => {
+    e.preventDefault();
+    const sourceId = draggedSkillId || e.dataTransfer.getData('text/plain');
+    setDraggedSkillId(null);
+    setDragOverSkillId(null);
+
+    if (!sourceId || sourceId === targetSkill.id || !db) return;
+
+    const sourceSkill = skills.find((s) => s.id === sourceId);
+    if (!sourceSkill) return;
+
+    // Review Focus #5: Category isolation check
+    if (sourceSkill.category !== targetSkill.category) {
+      showToast('Cannot move skills across different categories.', 'warning');
+      return;
+    }
+
+    const categorySkills = skills.filter((s) => s.category === targetSkill.category);
+    const sourceIdx = categorySkills.findIndex((s) => s.id === sourceId);
+    const targetIdx = categorySkills.findIndex((s) => s.id === targetSkill.id);
+    if (sourceIdx === -1 || targetIdx === -1) return;
+
+    const reorderedCategory = [...categorySkills];
+    const [moved] = reorderedCategory.splice(sourceIdx, 1);
+    reorderedCategory.splice(targetIdx, 0, moved);
+
+    const normalized = reorderedCategory.map((s, idx) => ({
+      ...s,
+      order: idx + 1
+    }));
+
+    try {
+      const batch = writeBatch(db);
+      normalized.forEach((s) => {
+        batch.update(doc(db, 'skills', s.id), {
+          order: s.order,
+          updatedAt: serverTimestamp()
+        });
+      });
+      await batch.commit();
+      showToast(`Reordered "${moved.name}" to position #${targetIdx + 1}!`, 'success');
+      await reloadSkills();
+    } catch (err) {
+      console.error('Error reordering skills via DnD:', err);
+      showToast('Failed to update skill order: ' + err.message, 'error');
+      await reloadSkills();
+    }
+  };
 
   const openAddModal = () => {
     setEditingId(null);
@@ -127,8 +207,21 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
   const renderSkillRow = (skill) => {
     const isExperienced = skill.level === 'Experienced';
     return (
-      <div className="skill-item-row" key={skill.id}>
+      <div
+        className={`skill-item-row ${draggedSkillId === skill.id ? 'is-dragging' : ''} ${dragOverSkillId === skill.id ? 'drag-target' : ''}`}
+        key={skill.id}
+        draggable={true}
+        onDragStart={(e) => handleSkillDragStart(e, skill)}
+        onDragOver={handleSkillDragOver}
+        onDragEnter={() => handleSkillDragEnter(skill)}
+        onDragLeave={() => handleSkillDragLeave(skill)}
+        onDragEnd={handleSkillDragEnd}
+        onDrop={(e) => handleSkillDrop(e, skill)}
+      >
         <div className="skill-item-info">
+          <div className="skill-drag-handle" title="Drag to reorder">
+            <i className="fa-solid fa-grip-vertical"></i>
+          </div>
           <div className="skill-item-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <SkillIcon skill={skill} size="1.25rem" />
           </div>
