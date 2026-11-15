@@ -1,11 +1,22 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Anyone can read portfolio content (projects, skills, profile, contacts)
-    // Only authenticated admin (user created in Firebase Authentication) can write
+    // Portfolio content collections (projects, skills, site_settings, contacts, privacy_policy)
+    // Anyone can read, but only authenticated admin can create, update, or delete
     match /{document=**} {
       allow read: if true;
       allow write: if request.auth != null;
+    }
+
+    // Public anonymous visitors can record page views & analytics counters
+    // Admin has full read & write access
+    match /analytics_summary/{docId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /analytics_daily/{date} {
+      allow read: if true;
+      allow write: if true;
     }
   }
 }

@@ -51,6 +51,7 @@ export function HeroSection({ siteSettings, contactSettings }) {
           alt={`Portrait of ${siteSettings.name || 'Vinsensius Arka'}`}
           width="380"
           height="380"
+          fetchPriority="high"
           onError={(e) => {
             e.currentTarget.onerror = null;
             e.currentTarget.src = '/assets/images/arko-pic.png';
