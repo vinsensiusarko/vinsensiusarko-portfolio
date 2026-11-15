@@ -261,7 +261,11 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
         </div>
       </nav>
 
-      <CommandPalette isOpen={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <CommandPalette
+        isOpen={paletteOpen}
+        onOpen={() => setPaletteOpen(true)}
+        onClose={() => setPaletteOpen(false)}
+      />
     </>
   );
 }

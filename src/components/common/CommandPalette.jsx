@@ -4,7 +4,7 @@ import { useSeason } from '../../context/SeasonContext';
 import { useSound } from '../../context/SoundContext';
 import { useTheme } from '../../context/ThemeContext';
 
-export function CommandPalette({ isOpen: controlledIsOpen, onClose, customActions = [] }) {
+export function CommandPalette({ isOpen: controlledIsOpen, onOpen, onClose, customActions = [] }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -19,6 +19,8 @@ export function CommandPalette({ isOpen: controlledIsOpen, onClose, customAction
 
   const inputRef = useRef(null);
   const listRef = useRef(null);
+  const selectedIndexRef = useRef(0);
+  selectedIndexRef.current = selectedIndex;
 
   // Global Ctrl+K / Cmd+K key listener
   useEffect(() => {
@@ -27,7 +29,7 @@ export function CommandPalette({ isOpen: controlledIsOpen, onClose, customAction
         e.preventDefault();
         if (isControlled) {
           if (isOpen) onClose?.();
-          else onClose?.(true);
+          else onOpen?.();
         } else {
           setInternalOpen((prev) => !prev);
         }
@@ -36,7 +38,31 @@ export function CommandPalette({ isOpen: controlledIsOpen, onClose, customAction
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isControlled, isOpen, onClose]);
+  }, [isControlled, isOpen, onOpen, onClose]);
+
+  // Prevent background scroll bleed when palette is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
+  // Window-level Escape listener
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleGlobalKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   // Focus input and sound on open
   useEffect(() => {
@@ -129,7 +155,42 @@ export function CommandPalette({ isOpen: controlledIsOpen, onClose, customAction
         }
       },
 
-      // Quick Actions
+      // Project Filter Shortcuts
+      {
+        id: 'filter-all',
+        label: 'Filter Projects: All Projects',
+        category: 'Projects',
+        icon: 'fa-solid fa-border-all',
+        onSelect: () => {
+          scrollToSection('projects');
+          const chip = document.querySelector('.filter-chip[data-filter="all"]');
+          chip?.click();
+        }
+      },
+      {
+        id: 'filter-mobile',
+        label: 'Filter Projects: Mobile App',
+        category: 'Projects',
+        icon: 'fa-solid fa-mobile-screen-button',
+        onSelect: () => {
+          scrollToSection('projects');
+          const chip = document.querySelector('.filter-chip[data-filter="Mobile Application"]');
+          chip?.click();
+        }
+      },
+      {
+        id: 'filter-web',
+        label: 'Filter Projects: Web App',
+        category: 'Projects',
+        icon: 'fa-solid fa-laptop-code',
+        onSelect: () => {
+          scrollToSection('projects');
+          const chip = document.querySelector('.filter-chip[data-filter="Web Application"]');
+          chip?.click();
+        }
+      },
+
+      // Quick Actions & Preferences
       {
         id: 'action-theme',
         label: `Switch Theme to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`,
@@ -147,8 +208,8 @@ export function CommandPalette({ isOpen: controlledIsOpen, onClose, customAction
         category: 'Preferences',
         icon: isMuted ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark',
         onSelect: () => {
+          if (isMuted) playClick({ force: true });
           toggleMute();
-          playClick();
           handleClose();
         }
       },
@@ -232,19 +293,28 @@ export function CommandPalette({ isOpen: controlledIsOpen, onClose, customAction
   const handleKeyDown = (e) => {
     if (e.key === 'Escape') {
       e.preventDefault();
+      e.stopPropagation();
       handleClose();
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex((prev) => (filteredActions.length ? (prev + 1) % filteredActions.length : 0));
+      e.stopPropagation();
+      const next = filteredActions.length
+        ? Math.min(filteredActions.length - 1, selectedIndexRef.current + 1)
+        : 0;
+      selectedIndexRef.current = next;
+      setSelectedIndex(next);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex((prev) =>
-        filteredActions.length ? (prev - 1 + filteredActions.length) % filteredActions.length : 0
-      );
+      e.stopPropagation();
+      const next = filteredActions.length ? Math.max(0, selectedIndexRef.current - 1) : 0;
+      selectedIndexRef.current = next;
+      setSelectedIndex(next);
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (filteredActions[selectedIndex]) {
-        filteredActions[selectedIndex].onSelect();
+      e.stopPropagation();
+      const currentAction = filteredActions[selectedIndexRef.current];
+      if (currentAction) {
+        currentAction.onSelect();
       }
     }
   };
@@ -274,6 +344,7 @@ export function CommandPalette({ isOpen: controlledIsOpen, onClose, customAction
             placeholder="Type a command or search sections (Esc to exit)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
           <kbd className="command-palette-kbd">ESC</kbd>
         </div>

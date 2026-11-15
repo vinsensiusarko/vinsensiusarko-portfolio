@@ -56,8 +56,8 @@ describe('CommandPalette component', () => {
       isOpen: true,
       onClose: vi.fn(),
       customActions: [
-        { id: 'act-1', label: 'Action One', category: 'General', onSelect: onSelectAction },
-        { id: 'act-2', label: 'Action Two', category: 'General', onSelect: vi.fn() }
+        { id: 'act-1', label: 'Action One', category: 'General', onSelect: vi.fn() },
+        { id: 'act-2', label: 'Action Two', category: 'General', onSelect: onSelectAction }
       ]
     });
 
@@ -67,8 +67,51 @@ describe('CommandPalette component', () => {
     fireEvent.keyDown(input, { key: 'ArrowDown' });
     // Press Enter on item
     fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onSelectAction).toHaveBeenCalled();
+  });
 
-    // Item was triggered
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  it('triggers onOpen when Ctrl+K is pressed while closed in controlled mode', () => {
+    const onOpen = vi.fn();
+    const onClose = vi.fn();
+    renderPalette({ isOpen: false, onOpen, onClose });
+
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    expect(onOpen).toHaveBeenCalled();
+  });
+
+  it('locks body overflow while open and restores on unmount', () => {
+    const { unmount } = renderPalette({ isOpen: true, onClose: vi.fn() });
+    expect(document.body.style.overflow).toBe('hidden');
+
+    unmount();
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('clamps arrow key navigation to bounds without wrapping', () => {
+    const onSelectFirst = vi.fn();
+    const onSelectLast = vi.fn();
+    renderPalette({
+      isOpen: true,
+      onClose: vi.fn(),
+      customActions: [
+        { id: 'act-1', label: 'SpecialTest Alpha', category: 'Custom', onSelect: onSelectFirst },
+        { id: 'act-2', label: 'SpecialTest Beta', category: 'Custom', onSelect: onSelectLast }
+      ]
+    });
+
+    const input = screen.getByPlaceholderText(/Type a command or search/i);
+    fireEvent.change(input, { target: { value: 'SpecialTest' } });
+
+    // ArrowUp on first item should stay at first item (clamped, not wrap to end)
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onSelectFirst).toHaveBeenCalled();
+
+    // ArrowDown several times should clamp to last item (SpecialTest Beta)
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onSelectLast).toHaveBeenCalled();
   });
 });

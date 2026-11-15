@@ -55,8 +55,8 @@ export function SoundProvider({ children }) {
   }, []);
 
   // 1. Subtle click pop (e.g. for button taps & filter chips)
-  const playClick = useCallback(() => {
-    if (isMuted) return;
+  const playClick = useCallback((options = {}) => {
+    if (isMuted && !options.force) return;
     try {
       const ctx = getAudioContext();
       if (!ctx) return;

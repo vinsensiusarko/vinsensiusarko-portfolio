@@ -21,8 +21,10 @@ export function FloatingActions({ whatsapp = '6285179793167' }) {
         id="sound-toggle-btn"
         className={`sound-toggle-btn ${!isMuted ? 'active' : ''}`}
         onClick={() => {
+          if (isMuted) {
+            playClick({ force: true });
+          }
           toggleMute();
-          if (isMuted) playClick();
         }}
         aria-label={isMuted ? 'Enable Sound Effects' : 'Mute Sound Effects'}
         title={isMuted ? 'Sound Effects: Muted (Click to enable)' : 'Sound Effects: Active (Click to mute)'}
