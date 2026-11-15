@@ -302,9 +302,23 @@ export function ProjectsSection({ projects }) {
               onClick={() => {
                 if (isExpanded) {
                   setIsExpanded(false);
-                  const el = document.getElementById('projects');
-                  if (typeof el?.scrollIntoView === 'function') {
-                    el.scrollIntoView({ behavior: 'smooth' });
+                  const targetEl =
+                    document.querySelector('.project-controls') ||
+                    document.getElementById('projects-grid') ||
+                    document.getElementById('projects');
+                  if (targetEl) {
+                    if (typeof window?.scrollTo === 'function') {
+                      const headerOffset = 110;
+                      const elementPosition = targetEl.getBoundingClientRect?.()?.top ?? 0;
+                      const offsetPosition =
+                        elementPosition + (window.pageYOffset || window.scrollY || 0) - headerOffset;
+                      window.scrollTo({
+                        top: Math.max(0, offsetPosition),
+                        behavior: 'smooth'
+                      });
+                    } else if (typeof targetEl.scrollIntoView === 'function') {
+                      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
                   }
                 } else {
                   setIsExpanded(true);
