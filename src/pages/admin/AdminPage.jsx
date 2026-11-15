@@ -21,6 +21,7 @@ import { AdminAnalyticsTab } from './tabs/AdminAnalyticsTab';
 import { AdminProfileTab } from './tabs/AdminProfileTab';
 import { AdminContactTab } from './tabs/AdminContactTab';
 import { AdminPrivacyTab } from './tabs/AdminPrivacyTab';
+import { AdminSeoTab } from './tabs/AdminSeoTab';
 import { AdminDatabaseTab } from './tabs/AdminDatabaseTab';
 import '../../styles/admin.css';
 
@@ -31,7 +32,8 @@ const TABS = [
   { id: 'profile', label: 'Profile & Bio', title: 'Profile, Bio & CV Resume', icon: 'fa-solid fa-id-card' },
   { id: 'contact', label: 'Contact & Socials', title: 'Contact & Social Channels', icon: 'fa-solid fa-address-book' },
   { id: 'privacy', label: 'Privacy Policy', title: 'Privacy Policy Settings', icon: 'fa-solid fa-shield-halved' },
-  { id: 'database', label: 'Database Seeder', title: 'Database & Migration Tools', icon: 'fa-solid fa-database' }
+  { id: 'seo', label: 'SEO & OpenGraph', title: 'SEO Meta & OpenGraph Card Generator', icon: 'fa-solid fa-share-nodes' },
+  { id: 'database', label: 'Backup & Database', title: 'Database Backup & Migration Utility', icon: 'fa-solid fa-database' }
 ];
 
 const ACTIVE_TAB_KEY = 'admin_active_tab';
@@ -386,6 +388,7 @@ function AdminDashboardContent() {
               {activeTab === 'profile' && <AdminProfileTab showToast={showToast} />}
               {activeTab === 'contact' && <AdminContactTab showToast={showToast} />}
               {activeTab === 'privacy' && <AdminPrivacyTab showToast={showToast} />}
+              {activeTab === 'seo' && <AdminSeoTab showToast={showToast} />}
               {activeTab === 'database' && (
                 <AdminDatabaseTab reloadAll={reloadAll} showToast={showToast} />
               )}

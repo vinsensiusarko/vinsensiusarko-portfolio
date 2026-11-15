@@ -22,8 +22,23 @@ export function HomePage() {
   }, []);
 
   useEffect(() => {
-    document.title = `${siteSettings.name || 'Vinsensius Arka'} — Web & Mobile Developer`;
-  }, [siteSettings.name]);
+    const pageTitle =
+      siteSettings.ogTitle || `${siteSettings.name || 'Vinsensius Arka'} — Web & Mobile Developer`;
+    document.title = pageTitle;
+
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', pageTitle);
+
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc && siteSettings.ogDescription) {
+      ogDesc.setAttribute('content', siteSettings.ogDescription);
+    }
+
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage && siteSettings.ogImage) {
+      ogImage.setAttribute('content', siteSettings.ogImage);
+    }
+  }, [siteSettings]);
 
   useEffect(() => {
     if (hash) {
