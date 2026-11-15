@@ -159,7 +159,8 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
     }
   };
 
-  const handleCardDragLeave = (project) => {
+  const handleCardDragLeave = (e, project) => {
+    if (e.currentTarget.contains(e.relatedTarget)) return;
     if (dragOverProjectId === project.id) {
       setDragOverProjectId(null);
     }
@@ -172,6 +173,8 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
 
   const handleCardDrop = async (e, targetProject) => {
     e.preventDefault();
+    if (isReordering) return;
+
     const sourceId = draggedProjectId || e.dataTransfer.getData('text/plain');
     setDraggedProjectId(null);
     setDragOverProjectId(null);
@@ -182,6 +185,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
     const targetIdx = projects.findIndex((p) => p.id === targetProject.id);
     if (sourceIdx === -1 || targetIdx === -1) return;
 
+    setIsReordering(true);
     const previousProjects = [...projects];
     const reordered = [...projects];
     const [moved] = reordered.splice(sourceIdx, 1);
@@ -205,6 +209,8 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       setProjects(previousProjects);
       showToast('Failed to update project order: ' + err.message, 'error');
       await reloadProjects();
+    } finally {
+      setIsReordering(false);
     }
   };
 
@@ -407,7 +413,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                   onDragStart={(e) => handleCardDragStart(e, project)}
                   onDragOver={handleCardDragOver}
                   onDragEnter={() => handleCardDragEnter(project)}
-                  onDragLeave={() => handleCardDragLeave(project)}
+                  onDragLeave={(e) => handleCardDragLeave(e, project)}
                   onDragEnd={handleCardDragEnd}
                   onDrop={(e) => handleCardDrop(e, project)}
                 >
@@ -426,6 +432,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                       src={imgSrc}
                       alt={project.title}
                       loading="lazy"
+                      draggable="false"
                       onError={(e) => {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = '/assets/images/portfolio-1.png';
@@ -683,6 +690,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                       if (e.target.files && e.target.files[0]) {
                         handleImageFile(e.target.files[0]);
                       }
+                      e.target.value = '';
                     }}
                   />
                   <div className="dropzone-icon">
@@ -753,6 +761,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                       if (e.target.files) {
                         handleGalleryFiles(e.target.files);
                       }
+                      e.target.value = '';
                     }}
                   />
                   <i className="fa-solid fa-images" style={{ fontSize: '1.4rem', color: 'var(--primary)', marginBottom: '0.35rem' }}></i>

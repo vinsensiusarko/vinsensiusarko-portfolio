@@ -22,7 +22,8 @@ export function ProjectModal({ project, onClose }) {
     : (primaryImg ? [primaryImg] : []);
 
   const hasGallery = allImages.length > 1;
-  const currentImg = allImages[activeImageIndex] || primaryImg;
+  const safeActiveIndex = activeImageIndex < allImages.length ? activeImageIndex : 0;
+  const currentImg = allImages[safeActiveIndex] || primaryImg;
 
   const handlePrev = () => {
     setActiveImageIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1));
@@ -115,7 +116,7 @@ export function ProjectModal({ project, onClose }) {
           {hasGallery && (
             <>
               <span className="project-gallery-counter-badge">
-                {activeImageIndex + 1} / {allImages.length}
+                {safeActiveIndex + 1} / {allImages.length}
               </span>
               <button
                 type="button"
@@ -149,7 +150,7 @@ export function ProjectModal({ project, onClose }) {
               <button
                 key={idx}
                 type="button"
-                className={`gallery-thumb-btn ${idx === activeImageIndex ? 'active' : ''}`}
+                className={`gallery-thumb-btn ${idx === safeActiveIndex ? 'active' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setActiveImageIndex(idx);

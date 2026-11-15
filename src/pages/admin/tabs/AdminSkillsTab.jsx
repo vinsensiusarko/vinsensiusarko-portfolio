@@ -46,12 +46,15 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
   };
 
   const handleSkillDragEnter = (skill) => {
-    if (draggedSkillId && draggedSkillId !== skill.id) {
+    if (!draggedSkillId || draggedSkillId === skill.id) return;
+    const sourceSkill = skills.find((s) => s.id === draggedSkillId);
+    if (sourceSkill && sourceSkill.category === skill.category) {
       setDragOverSkillId(skill.id);
     }
   };
 
-  const handleSkillDragLeave = (skill) => {
+  const handleSkillDragLeave = (e, skill) => {
+    if (e.currentTarget.contains(e.relatedTarget)) return;
     if (dragOverSkillId === skill.id) {
       setDragOverSkillId(null);
     }
@@ -214,7 +217,7 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
         onDragStart={(e) => handleSkillDragStart(e, skill)}
         onDragOver={handleSkillDragOver}
         onDragEnter={() => handleSkillDragEnter(skill)}
-        onDragLeave={() => handleSkillDragLeave(skill)}
+        onDragLeave={(e) => handleSkillDragLeave(e, skill)}
         onDragEnd={handleSkillDragEnd}
         onDrop={(e) => handleSkillDrop(e, skill)}
       >
