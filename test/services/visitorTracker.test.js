@@ -1,15 +1,31 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+const mockSetDoc = vi.fn().mockResolvedValue();
+
+vi.mock('firebase/firestore', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    setDoc: (...args) => mockSetDoc(...args),
+    doc: vi.fn((_db, col, id) => ({ path: `${col}/${id}` })),
+    increment: vi.fn((n) => `[increment ${n}]`),
+    serverTimestamp: vi.fn(() => '[serverTimestamp]')
+  };
+});
+
 import {
   detectDeviceType,
   detectBrowser,
   detectOS,
   recordPageView,
-  trackCvDownload
+  trackCvDownload,
+  trackProjectView
 } from '../../src/services/visitorTracker';
 
 describe('visitorTracker Service', () => {
   beforeEach(() => {
     sessionStorage.clear();
+    mockSetDoc.mockClear();
   });
 
   describe('Device, Browser & OS Detection', () => {
@@ -47,13 +63,39 @@ describe('visitorTracker Service', () => {
       expect(firstResult.isNewSession).toBe(true);
       expect(sessionStorage.getItem('ark_session_logged')).toBe('true');
 
+      // Verify nested map updates for Critical Issue #1
+      expect(mockSetDoc).toHaveBeenCalled();
+      const overviewCall = mockSetDoc.mock.calls.find((call) => call[0].path === 'analytics_summary/overview');
+      expect(overviewCall).toBeDefined();
+      expect(overviewCall[1].devices).toBeDefined();
+      expect(typeof overviewCall[1].devices).toBe('object');
+      expect(overviewCall[1].browsers).toBeDefined();
+      expect(overviewCall[1].os).toBeDefined();
+
       // Subsequent page refresh in same session
+      mockSetDoc.mockClear();
       const secondResult = await recordPageView();
       expect(secondResult.isNewSession).toBe(false);
+      const secondOverviewCall = mockSetDoc.mock.calls.find((call) => call[0].path === 'analytics_summary/overview');
+      expect(secondOverviewCall[1].devices).toBeUndefined();
     });
 
     it('tracks CV download without throwing errors (Review Focus #1)', async () => {
       await expect(trackCvDownload()).resolves.not.toThrow();
+      expect(mockSetDoc).toHaveBeenCalledWith(
+        expect.objectContaining({ path: 'analytics_summary/overview' }),
+        expect.objectContaining({ cvDownloads: expect.anything() }),
+        { merge: true }
+      );
+    });
+
+    it('tracks project quick view opens with nested map key', async () => {
+      await trackProjectView('proj-solo-parent');
+      expect(mockSetDoc).toHaveBeenCalledWith(
+        expect.objectContaining({ path: 'analytics_summary/overview' }),
+        { projectViews: { 'proj-solo-parent': expect.anything() } },
+        { merge: true }
+      );
     });
   });
 });

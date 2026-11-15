@@ -3,6 +3,7 @@ import { formatRichDescription } from '../../utils/formatDescription';
 import { resolveProjectImage } from '../../utils/resolveProjectImage';
 import { ProjectModal } from './ProjectModal';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { trackProjectView } from '../../services/visitorTracker';
 
 const FILTER_CHIPS = [
   { label: 'All Projects', value: 'all', icon: 'fa-solid fa-border-all' },
@@ -73,6 +74,13 @@ export function ProjectsSection({ projects }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+
+  const handleOpenProject = (proj) => {
+    setSelectedProject(proj);
+    if (proj?.id) {
+      trackProjectView(proj.id);
+    }
+  };
 
   const filteredProjects = useMemo(() => {
     const trimmed = searchQuery.trim();
@@ -185,7 +193,7 @@ export function ProjectsSection({ projects }) {
                   if (e.target.closest('.project-btn-container a, .project-btn-container button')) {
                     return;
                   }
-                  setSelectedProject(proj);
+                  handleOpenProject(proj);
                 }}
               >
                 <div className="project-img-wrapper" title="Click to view details">
@@ -283,7 +291,7 @@ export function ProjectsSection({ projects }) {
                       className="btn btn-color-2 btn-sm project-detail-trigger"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setSelectedProject(proj);
+                        handleOpenProject(proj);
                       }}
                     >
                       <i className="fa-solid fa-circle-info"></i> Details

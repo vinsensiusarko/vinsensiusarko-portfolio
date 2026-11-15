@@ -96,17 +96,20 @@ export async function recordPageView() {
 
     if (isNewSession) {
       summaryUpdates.uniqueVisitors = increment(1);
-      summaryUpdates[`devices.${device}`] = increment(1);
-      summaryUpdates[`browsers.${browser}`] = increment(1);
-      summaryUpdates[`os.${os}`] = increment(1);
+      summaryUpdates.devices = { [device]: increment(1) };
+      summaryUpdates.browsers = { [browser]: increment(1) };
+      summaryUpdates.os = { [os]: increment(1) };
     }
 
     const dailyRef = doc(db, 'analytics_daily', today);
     const dailyUpdates = {
       date: today,
-      views: increment(1),
-      uniques: isNewSession ? increment(1) : increment(0)
+      views: increment(1)
     };
+
+    if (isNewSession) {
+      dailyUpdates.uniques = increment(1);
+    }
 
     // Fire and forget Firestore promises
     await Promise.allSettled([
@@ -145,7 +148,7 @@ export async function trackProjectView(projectId) {
   try {
     if (!db) return;
     const summaryRef = doc(db, 'analytics_summary', 'overview');
-    await setDoc(summaryRef, { [`projectViews.${projectId}`]: increment(1) }, { merge: true });
+    await setDoc(summaryRef, { projectViews: { [projectId]: increment(1) } }, { merge: true });
   } catch (err) {
     console.warn('Project view tracking skipped:', err);
   }

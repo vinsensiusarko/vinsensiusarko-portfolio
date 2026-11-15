@@ -52,6 +52,7 @@ export function HeroSection({ siteSettings, contactSettings }) {
           width="380"
           height="380"
           fetchPriority="high"
+          decoding="async"
           onError={(e) => {
             e.currentTarget.onerror = null;
             e.currentTarget.src = '/assets/images/arko-pic.png';

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { doc, getDoc, collection, getDocs, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, orderBy, limit, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
 import { useConfirm } from '../../../context/ConfirmContext';
 
@@ -29,12 +29,10 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
         setSummary({ ...DEFAULT_SUMMARY, ...sumSnap.data() });
       }
 
-      // Load last 7 daily buckets
-      const dailySnap = await getDocs(collection(db, 'analytics_daily'));
-      const days = dailySnap.docs
-        .map((d) => d.data())
-        .sort((a, b) => String(a.date).localeCompare(String(b.date)))
-        .slice(-7);
+      // Load last 7 daily buckets efficiently
+      const q = query(collection(db, 'analytics_daily'), orderBy('date', 'desc'), limit(7));
+      const dailySnap = await getDocs(q);
+      const days = dailySnap.docs.map((d) => d.data()).reverse();
 
       setDailyStats(days);
     } catch (err) {
@@ -346,7 +344,7 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
               Operating Systems
             </h3>
             <div className="distribution-list">
-              {['Windows', 'Android', 'iOS', 'macOS'].map((osName) => {
+              {['Windows', 'Android', 'iOS', 'macOS', 'Linux'].map((osName) => {
                 const count = Number(osList[osName] || 0);
                 const pct = Math.round((count / totalOsViews) * 100);
                 return (
