@@ -22,6 +22,30 @@ const INITIAL_SKILL_FORM = {
   order: 1
 };
 
+const PRESET_ICONS = [
+  { name: 'Flutter', category: 'language', iconType: 'svg', iconClass: 'fa-brands fa-flutter' },
+  { name: 'Dart', category: 'language', iconType: 'svg', iconClass: 'fa-brands fa-flutter' },
+  { name: 'React', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-react' },
+  { name: 'Vue.js', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-vuejs' },
+  { name: 'JavaScript', category: 'language', iconType: 'fontawesome', iconClass: 'fa-brands fa-js' },
+  { name: 'TypeScript', category: 'language', iconType: 'fontawesome', iconClass: 'fa-brands fa-js' },
+  { name: 'Python', category: 'language', iconType: 'fontawesome', iconClass: 'fa-brands fa-python' },
+  { name: 'Java', category: 'language', iconType: 'fontawesome', iconClass: 'fa-brands fa-java' },
+  { name: 'PHP', category: 'language', iconType: 'fontawesome', iconClass: 'fa-brands fa-php' },
+  { name: 'Laravel', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-laravel' },
+  { name: 'Node JS', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-node-js' },
+  { name: 'HTML5', category: 'language', iconType: 'fontawesome', iconClass: 'fa-brands fa-html5' },
+  { name: 'CSS3', category: 'language', iconType: 'fontawesome', iconClass: 'fa-brands fa-css3-alt' },
+  { name: 'Git', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-git-alt' },
+  { name: 'GitHub', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-github' },
+  { name: 'MySQL', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-solid fa-database' },
+  { name: 'Docker', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-docker' },
+  { name: 'WordPress', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-wordpress' },
+  { name: 'Android', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-android' },
+  { name: 'Linux', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-linux' },
+  { name: 'AWS', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-brands fa-aws' }
+];
+
 export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = false }) {
   const confirm = useConfirm();
   const [modalOpen, setModalOpen] = useState(false);
@@ -225,7 +249,7 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
           <div className="skill-drag-handle" title="Drag to reorder">
             <i className="fa-solid fa-grip-vertical"></i>
           </div>
-          <div className="skill-item-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="skill-icon-box">
             <SkillIcon skill={skill} size="1.25rem" />
           </div>
           <div style={{ minWidth: 0 }}>
@@ -458,6 +482,33 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
               </div>
 
               <div className="form-group">
+                <label className="form-label">
+                  <i className="fa-solid fa-wand-magic-sparkles"></i> Preset Icons (Click to autofill)
+                </label>
+                <div className="preset-icons-container">
+                  {PRESET_ICONS.map((preset) => (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      className="preset-icon-chip"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          name: preset.name,
+                          category: preset.category,
+                          iconType: preset.iconType,
+                          iconClass: preset.iconClass
+                        });
+                      }}
+                    >
+                      <SkillIcon skill={preset} size="0.95rem" />
+                      <span>{preset.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="form-group">
                 <label className="form-label" htmlFor="skill-icon-class">
                   Font Awesome Class (e.g. fa-brands fa-react or fa-brands fa-flutter)
                 </label>
@@ -471,18 +522,7 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
                     onChange={(e) => setFormData({ ...formData, iconClass: e.target.value })}
                   />
                   <div
-                    className="skill-item-icon"
-                    style={{
-                      width: '2.5rem',
-                      height: '2.5rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: 'var(--radius-sm)',
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--border-color)',
-                      flexShrink: 0
-                    }}
+                    className="skill-icon-box"
                     title="Live Icon Preview"
                   >
                     <SkillIcon

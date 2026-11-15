@@ -32,9 +32,9 @@ describe('AdminSkillsTab Drag and Drop Reordering', () => {
       </ConfirmProvider>
     );
 
-    expect(screen.getByText('JavaScript')).toBeInTheDocument();
-    expect(screen.getByText('Python')).toBeInTheDocument();
-    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getAllByText('JavaScript')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Python')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('React')[0]).toBeInTheDocument();
     expect(screen.getAllByTitle(/Drag to reorder/i)).toHaveLength(3);
   });
 
@@ -107,5 +107,33 @@ describe('AdminSkillsTab Drag and Drop Reordering', () => {
         'success'
       );
     });
+  });
+
+  it('opens add skill modal with preset icon picker chips that populate form data', () => {
+    render(
+      <ConfirmProvider>
+        <AdminSkillsTab
+          skills={mockSkills}
+          reloadSkills={vi.fn()}
+          showToast={vi.fn()}
+        />
+      </ConfirmProvider>
+    );
+
+    // Each row renders a .skill-icon-box
+    const iconBoxes = document.querySelectorAll('.skill-item-row .skill-icon-box');
+    expect(iconBoxes.length).toBe(3);
+
+    // Click Add Skill button
+    fireEvent.click(screen.getByRole('button', { name: /Add Skill/i }));
+
+    // Preset icon selector should be present
+    expect(screen.getByText(/Preset Icons/i)).toBeInTheDocument();
+    const flutterChip = screen.getByRole('button', { name: /Flutter/i });
+    expect(flutterChip).toBeInTheDocument();
+
+    // Click Flutter preset chip -> sets skill name and icon
+    fireEvent.click(flutterChip);
+    expect(screen.getByLabelText(/Skill Name/i)).toHaveValue('Flutter');
   });
 });

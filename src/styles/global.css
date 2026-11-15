@@ -721,8 +721,10 @@ section {
 svg.skill-icon {
   width: 1.6rem;
   height: 1.6rem;
-  margin: 0.15rem 0.2rem 0;
-  display: block;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   fill: currentColor;
 }
 
