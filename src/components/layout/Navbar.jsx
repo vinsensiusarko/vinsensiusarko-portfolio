@@ -108,6 +108,11 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
                   Contact
                 </a>
               </li>
+              <li>
+                <Link to="/privacy-policy" className="nav-privacy-link">
+                  Privacy Policy
+                </Link>
+              </li>
             </ul>
           )}
 

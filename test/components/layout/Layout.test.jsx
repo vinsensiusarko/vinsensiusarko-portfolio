@@ -30,4 +30,24 @@ describe('Layout components (Navbar, Footer, FloatingActions)', () => {
       'https://api.whatsapp.com/send?phone=6285179793167'
     );
   });
+
+  it('renders Privacy Policy link in desktop and mobile navigation', () => {
+    const { container } = render(
+      <ThemeProvider>
+        <SeasonProvider>
+          <MemoryRouter>
+            <Navbar variant="home" siteName="Vinsensius Arka" />
+          </MemoryRouter>
+        </SeasonProvider>
+      </ThemeProvider>
+    );
+
+    // Desktop nav-links must contain Privacy Policy link
+    const desktopPrivacyLink = container.querySelector('.nav-links a[href="/privacy-policy"]');
+    expect(desktopPrivacyLink).toBeInTheDocument();
+
+    // Mobile menu must contain Privacy Policy link
+    const mobilePrivacyLink = container.querySelector('.menu-links a[href="/privacy-policy"]');
+    expect(mobilePrivacyLink).toBeInTheDocument();
+  });
 });
