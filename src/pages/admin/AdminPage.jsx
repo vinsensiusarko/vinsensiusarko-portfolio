@@ -301,7 +301,7 @@ function AdminDashboardContent() {
 
               <div className="header-right">
                 <a
-                  href="/"
+                  href="https://vinsensiusarka.id"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-secondary btn-sm public-site-link"
