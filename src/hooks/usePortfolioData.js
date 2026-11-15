@@ -57,7 +57,25 @@ export function usePortfolioData() {
           snapshot.forEach((docSnap) => {
             items.push({ id: docSnap.id, ...docSnap.data() });
           });
-          setSkills(items);
+          setSkills((prevSkills) => {
+            if (prevSkills && prevSkills.length === items.length) {
+              const isSame = prevSkills.every((prev, i) => {
+                const next = items[i];
+                return (
+                  prev.id === next.id &&
+                  prev.name === next.name &&
+                  prev.level === next.level &&
+                  prev.category === next.category &&
+                  prev.iconClass === next.iconClass &&
+                  prev.iconType === next.iconType &&
+                  prev.iconUrl === next.iconUrl &&
+                  prev.order === next.order
+                );
+              });
+              if (isSame) return prevSkills;
+            }
+            return items;
+          });
         }
       },
       (err) => console.warn('Firestore skills listener (using fallback):', err)

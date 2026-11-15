@@ -1,15 +1,23 @@
+import { useMemo } from 'react';
 import { SkillIcon } from '../common/SkillIcon';
 
 export function ExperienceSection({ skills }) {
-  const languages = skills.filter((s) => s.category === 'language');
-  const tools = skills.filter((s) => s.category === 'framework_tool');
+  const languages = useMemo(
+    () => (skills || []).filter((s) => s.category === 'language'),
+    [skills]
+  );
+  const tools = useMemo(
+    () => (skills || []).filter((s) => s.category === 'framework_tool'),
+    [skills]
+  );
 
   const renderSkillCard = (skill) => {
     const level = skill.level || 'Experienced';
     const isExperienced = level.toLowerCase() === 'experienced';
+    const itemKey = (skill.name || skill.id || '').toLowerCase().trim();
 
     return (
-      <div className="skill-item" key={skill.id || skill.name}>
+      <div className="skill-item" key={itemKey}>
         <div className="skill-icon-box">
           <SkillIcon skill={skill} />
         </div>

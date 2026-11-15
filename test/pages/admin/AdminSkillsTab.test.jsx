@@ -181,4 +181,45 @@ describe('AdminSkillsTab Drag and Drop Reordering', () => {
     fireEvent.click(faTabBtn);
     expect(screen.getByLabelText(/Font Awesome Class or Tech Name/i)).toBeInTheDocument();
   });
+
+  it('optimistically calls setSkills on drop and level toggle', async () => {
+    const setSkillsMock = vi.fn();
+    const showToastMock = vi.fn();
+
+    render(
+      <ConfirmProvider>
+        <AdminSkillsTab
+          skills={mockSkills}
+          setSkills={setSkillsMock}
+          reloadSkills={vi.fn()}
+          showToast={showToastMock}
+        />
+      </ConfirmProvider>
+    );
+
+    const rows = screen.getAllByTitle(/Drag to reorder/i).map((el) => el.closest('.skill-item-row'));
+
+    const dataTransfer = {
+      setData: vi.fn(),
+      getData: vi.fn(() => 's1'),
+      effectAllowed: '',
+      dropEffect: ''
+    };
+
+    fireEvent.dragStart(rows[0], { dataTransfer });
+    fireEvent.dragOver(rows[1], { dataTransfer });
+    fireEvent.drop(rows[1], { dataTransfer });
+
+    expect(setSkillsMock).toHaveBeenCalledTimes(1);
+    const updated = setSkillsMock.mock.calls[0][0];
+    const s1 = updated.find((s) => s.id === 's1');
+    const s2 = updated.find((s) => s.id === 's2');
+    expect(s1.order).toBe(2);
+    expect(s2.order).toBe(1);
+
+    // Test toggle level
+    const toggleBtns = screen.getAllByTitle(/Click to toggle level/i);
+    fireEvent.click(toggleBtns[0]);
+    expect(setSkillsMock).toHaveBeenCalledTimes(2);
+  });
 });

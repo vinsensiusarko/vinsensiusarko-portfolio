@@ -23,6 +23,7 @@ import { AdminContactTab } from './tabs/AdminContactTab';
 import { AdminPrivacyTab } from './tabs/AdminPrivacyTab';
 import { AdminSeoTab } from './tabs/AdminSeoTab';
 import { AdminDatabaseTab } from './tabs/AdminDatabaseTab';
+import { FALLBACK_SKILLS } from '../../data/fallbackData';
 import '../../styles/admin.css';
 
 const TABS = [
@@ -73,7 +74,7 @@ function AdminDashboardContent() {
   };
 
   const [projects, setProjects] = useState([]);
-  const [skills, setSkills] = useState([]);
+  const [skills, setSkills] = useState(FALLBACK_SKILLS);
   const [loadingData, setLoadingData] = useState(true);
   const [toasts, setToasts] = useState([]);
 
@@ -379,6 +380,7 @@ function AdminDashboardContent() {
               {activeTab === 'skills' && (
                 <AdminSkillsTab
                   skills={skills}
+                  setSkills={setSkills}
                   reloadSkills={loadSkills}
                   showToast={showToast}
                   loading={loadingData}

@@ -51,7 +51,7 @@ const PRESET_ICONS = [
   { name: 'Firebase', category: 'framework_tool', iconType: 'fontawesome', iconClass: 'fa-solid fa-fire' }
 ];
 
-export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = false }) {
+export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loading = false }) {
   const confirm = useConfirm();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -60,8 +60,12 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
   const [draggedSkillId, setDraggedSkillId] = useState(null);
   const [dragOverSkillId, setDragOverSkillId] = useState(null);
 
-  const languages = skills.filter((s) => s.category === 'language');
-  const frameworks = skills.filter((s) => s.category === 'framework_tool');
+  const languages = (skills || [])
+    .filter((s) => s.category === 'language')
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  const frameworks = (skills || [])
+    .filter((s) => s.category === 'framework_tool')
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   const handleSkillDragStart = (e, skill) => {
     e.dataTransfer.setData('text/plain', skill.id);
@@ -102,7 +106,7 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
 
     if (!sourceId || sourceId === targetSkill.id || !db) return;
 
-    const sourceSkill = skills.find((s) => s.id === sourceId);
+    const sourceSkill = (skills || []).find((s) => s.id === sourceId);
     if (!sourceSkill) return;
 
     // Review Focus #5: Category isolation check
@@ -111,7 +115,10 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
       return;
     }
 
-    const categorySkills = skills.filter((s) => s.category === targetSkill.category);
+    const previousSkills = skills;
+    const categorySkills = (skills || [])
+      .filter((s) => s.category === targetSkill.category)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
     const sourceIdx = categorySkills.findIndex((s) => s.id === sourceId);
     const targetIdx = categorySkills.findIndex((s) => s.id === targetSkill.id);
     if (sourceIdx === -1 || targetIdx === -1) return;
@@ -125,6 +132,17 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
       order: idx + 1
     }));
 
+    if (setSkills) {
+      const updatedSkills = (skills || []).map((s) => {
+        if (s.category === targetSkill.category) {
+          const match = normalized.find((item) => item.id === s.id);
+          return match || s;
+        }
+        return s;
+      });
+      setSkills(updatedSkills);
+    }
+
     try {
       const batch = writeBatch(db);
       normalized.forEach((s) => {
@@ -135,11 +153,12 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
       });
       await batch.commit();
       showToast(`Reordered "${moved.name}" to position #${targetIdx + 1}!`, 'success');
-      await reloadSkills();
+      if (reloadSkills) await reloadSkills();
     } catch (err) {
       console.error('Error reordering skills via DnD:', err);
+      if (setSkills) setSkills(previousSkills);
       showToast('Failed to update skill order: ' + err.message, 'error');
-      await reloadSkills();
+      if (reloadSkills) await reloadSkills();
     }
   };
 
@@ -218,16 +237,24 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
   const handleToggleLevel = async (skill) => {
     if (!db) return;
     const newLevel = skill.level === 'Experienced' ? 'Intermediate' : 'Experienced';
+    const previousSkills = skills;
+    if (setSkills) {
+      setSkills((prev) =>
+        (prev || []).map((s) => (s.id === skill.id ? { ...s, level: newLevel } : s))
+      );
+    }
     try {
       await updateDoc(doc(db, 'skills', skill.id), {
         level: newLevel,
         updatedAt: serverTimestamp()
       });
       showToast(`"${skill.name}" level changed to ${newLevel}`, 'success');
-      await reloadSkills();
+      if (reloadSkills) await reloadSkills();
     } catch (err) {
       console.error('Error toggling skill level:', err);
+      if (setSkills) setSkills(previousSkills);
       showToast('Failed to toggle level: ' + err.message, 'error');
+      if (reloadSkills) await reloadSkills();
     }
   };
 
@@ -242,13 +269,20 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
     });
     if (!ok) return;
 
+    const previousSkills = skills;
+    if (setSkills) {
+      setSkills((prev) => (prev || []).filter((s) => s.id !== skill.id));
+    }
+
     try {
       await deleteDoc(doc(db, 'skills', skill.id));
       showToast(`Deleted skill "${skill.name}"`, 'info');
-      await reloadSkills();
+      if (reloadSkills) await reloadSkills();
     } catch (err) {
       console.error('Error deleting skill:', err);
+      if (setSkills) setSkills(previousSkills);
       showToast('Failed to delete skill: ' + err.message, 'error');
+      if (reloadSkills) await reloadSkills();
     }
   };
 
