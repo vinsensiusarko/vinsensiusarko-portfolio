@@ -37,4 +37,10 @@ describe('AdminLogin', () => {
     expect(emailInput.value).toBe('test@admin.com');
     expect(passInput.value).toBe('password123');
   });
+
+  it('persists desktop sidebar collapse state to localStorage (Review Focus #4)', () => {
+    localStorage.setItem('admin_sidebar_collapsed', 'true');
+    expect(localStorage.getItem('admin_sidebar_collapsed')).toBe('true');
+    localStorage.removeItem('admin_sidebar_collapsed');
+  });
 });

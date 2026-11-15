@@ -48,6 +48,25 @@ function AdminDashboardContent() {
     }
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('admin_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('admin_sidebar_collapsed', String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
 
   const [projects, setProjects] = useState([]);
   const [skills, setSkills] = useState([]);
@@ -187,7 +206,7 @@ function AdminDashboardContent() {
       {authStatus === 'unauthenticated' && <AdminLogin showToast={showToast} />}
 
       {authStatus === 'authenticated' && (
-        <div id="admin-app" className="admin-app">
+        <div id="admin-app" className={`admin-app ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
           <div
             id="sidebar-backdrop"
             className={`sidebar-backdrop ${sidebarOpen ? 'show' : ''}`}
@@ -195,10 +214,24 @@ function AdminDashboardContent() {
           ></div>
 
           {/* SIDEBAR */}
-          <aside id="admin-sidebar" className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <aside
+            id="admin-sidebar"
+            className={`admin-sidebar ${sidebarOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}
+          >
             <div className="sidebar-brand">
-              <BrandLogo size={26} />
-              <span>Arko</span>
+              <div className="brand-title-group" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', overflow: 'hidden' }}>
+                <BrandLogo size={26} />
+                <span className="brand-name">Arko</span>
+              </div>
+              <button
+                type="button"
+                className="sidebar-collapse-btn desktop-only"
+                onClick={toggleSidebarCollapse}
+                title={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+                aria-label="Toggle Collapse Sidebar"
+              >
+                <i className={`fa-solid ${sidebarCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`}></i>
+              </button>
             </div>
 
             <ul className="sidebar-menu">
@@ -208,9 +241,10 @@ function AdminDashboardContent() {
                     type="button"
                     className={`sidebar-link ${activeTab === tab.id ? 'active' : ''}`}
                     onClick={() => handleSelectTab(tab.id)}
+                    title={sidebarCollapsed ? tab.label : undefined}
                   >
                     <i className={tab.icon}></i>
-                    <span>{tab.label}</span>
+                    <span className="sidebar-link-text">{tab.label}</span>
                   </button>
                 </li>
               ))}

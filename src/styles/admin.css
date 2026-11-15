@@ -108,7 +108,29 @@
   bottom: 0;
   left: 0;
   z-index: 100;
-  transition: transform var(--transition);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform var(--transition);
+}
+
+.admin-shell .sidebar-collapse-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  width: 1.85rem;
+  height: 1.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.admin-shell .sidebar-collapse-btn:hover {
+  background: var(--bg-card-alt);
+  color: var(--text-main);
+  border-color: var(--border-focus);
 }
 
 .admin-shell .sidebar-brand {
@@ -193,6 +215,7 @@
   flex-direction: column;
   min-height: 100vh;
   box-sizing: border-box;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .admin-shell .admin-header {
@@ -1143,5 +1166,64 @@
 
   .admin-shell .form-row {
     grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .admin-shell .desktop-only {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 901px) {
+  .admin-shell .admin-app.sidebar-collapsed {
+    --sidebar-width: 72px;
+  }
+
+  .admin-shell .admin-sidebar.collapsed .sidebar-brand {
+    padding: 0 0.75rem;
+    justify-content: center;
+    position: relative;
+  }
+
+  .admin-shell .admin-sidebar.collapsed .brand-name {
+    display: none;
+  }
+
+  .admin-shell .admin-sidebar.collapsed .sidebar-collapse-btn {
+    position: absolute;
+    right: -11px;
+    top: 22px;
+    background: var(--bg-sidebar);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    z-index: 101;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 0.65rem;
+  }
+
+  .admin-shell .admin-sidebar.collapsed .sidebar-menu {
+    padding: 1.25rem 0.5rem;
+  }
+
+  .admin-shell .admin-sidebar.collapsed .sidebar-link {
+    padding: 0.75rem 0;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .admin-shell .admin-sidebar.collapsed .sidebar-link-text {
+    display: none;
+  }
+
+  .admin-shell .admin-sidebar.collapsed .sidebar-footer {
+    padding: 1rem 0.5rem;
+    justify-content: center;
+  }
+
+  .admin-shell .admin-sidebar.collapsed .sidebar-footer > div:first-child {
+    display: none;
   }
 }
