@@ -8,6 +8,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
+import { SkillIcon } from '../../../components/common/SkillIcon';
 import { AdminSkillsShimmer } from '../AdminShimmer';
 
 const INITIAL_SKILL_FORM = {
@@ -117,12 +118,8 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
     return (
       <div className="skill-item-row" key={skill.id}>
         <div className="skill-item-info">
-          <div className="skill-item-icon">
-            {skill.iconType === 'svg' ? (
-              <i className="fa-solid fa-layer-group"></i>
-            ) : (
-              <i className={skill.iconClass || 'fa-solid fa-code'}></i>
-            )}
+          <div className="skill-item-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <SkillIcon skill={skill} size="1.25rem" />
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 600, fontSize: '0.95rem', wordBreak: 'break-word' }}>
@@ -355,18 +352,44 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
 
               <div className="form-group">
                 <label className="form-label" htmlFor="skill-icon-class">
-                  Font Awesome Class (if applicable)
+                  Font Awesome Class (e.g. fa-brands fa-react or fa-brands fa-flutter)
                 </label>
-                <input
-                  type="text"
-                  id="skill-icon-class"
-                  className="form-input"
-                  placeholder="e.g. fa-brands fa-react"
-                  value={formData.iconClass}
-                  onChange={(e) => setFormData({ ...formData, iconClass: e.target.value })}
-                />
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    id="skill-icon-class"
+                    className="form-input"
+                    placeholder="e.g. fa-brands fa-react or fa-brands fa-flutter"
+                    value={formData.iconClass}
+                    onChange={(e) => setFormData({ ...formData, iconClass: e.target.value })}
+                  />
+                  <div
+                    className="skill-item-icon"
+                    style={{
+                      width: '2.5rem',
+                      height: '2.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 'var(--radius-sm)',
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border-color)',
+                      flexShrink: 0
+                    }}
+                    title="Live Icon Preview"
+                  >
+                    <SkillIcon
+                      skill={{
+                        name: formData.name,
+                        iconClass: formData.iconClass,
+                        iconType: formData.iconType
+                      }}
+                      size="1.25rem"
+                    />
+                  </div>
+                </div>
                 <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                  Browse icons at{' '}
+                  Flutter auto-renders as official SVG. Browse other icons at{' '}
                   <a
                     href="https://fontawesome.com/icons"
                     target="_blank"
