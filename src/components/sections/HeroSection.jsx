@@ -11,18 +11,19 @@ export function HeroSection({ siteSettings, contactSettings }) {
       : ['Web Developer', 'Mobile Developer'];
 
   const [roleIndex, setRoleIndex] = useState(0);
-  const [displayText, setDisplayText] = useState('');
+  const [displayText, setDisplayText] = useState(roles[0] || 'Web Developer');
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const currentRole = roles[roleIndex % roles.length];
     const isPauseAtEnd = !isDeleting && displayText === currentRole;
-    const delay = isPauseAtEnd ? 1600 : isDeleting ? 45 : 95;
+    const isPauseAtEmpty = isDeleting && displayText === '';
+    const delay = isPauseAtEnd ? 1800 : isPauseAtEmpty ? 350 : isDeleting ? 40 : 85;
 
     const timer = setTimeout(() => {
       if (isPauseAtEnd) {
         setIsDeleting(true);
-      } else if (isDeleting && displayText === '') {
+      } else if (isPauseAtEmpty) {
         setIsDeleting(false);
         setRoleIndex((prev) => (prev + 1) % roles.length);
       } else {
@@ -60,10 +61,6 @@ export function HeroSection({ siteSettings, contactSettings }) {
         />
       </div>
       <div className="section__text">
-        <div className="availability-status-badge" role="status" aria-label="Available for New Opportunities">
-          <span className="availability-pulse-dot" aria-hidden="true"></span>
-          <span>Available for New Opportunities</span>
-        </div>
         <div
           className="hero-season-badge"
           aria-label={`Active season: ${seasonMeta.labelEn}`}
@@ -75,7 +72,7 @@ export function HeroSection({ siteSettings, contactSettings }) {
         </p>
         <h1 className="title">{siteSettings.name || 'Vinsensius Arka'}</h1>
         <p className="section__text__p2">
-          <span className="typeWriter">{displayText || roles[0]}</span>
+          <span className="typeWriter">{displayText || '\u00A0'}</span>
           <span className="cursor" aria-hidden="true">
             |
           </span>

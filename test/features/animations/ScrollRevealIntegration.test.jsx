@@ -5,19 +5,19 @@ import { ProjectsSection } from '../../../src/components/sections/ProjectsSectio
 import { SeasonProvider } from '../../../src/context/SeasonContext';
 
 describe('Scroll Reveal & Micro-Interactions Integration', () => {
-  it('renders live availability status badge with pulse dot in HeroSection', () => {
+  it('does not render availability status badge and initializes typewriter cleanly', () => {
     render(
       <SeasonProvider>
         <HeroSection
-          siteSettings={{ name: 'Vinsensius Arka' }}
+          siteSettings={{ name: 'Vinsensius Arka', typewriterRoles: ['Web Developer', 'Mobile Developer'] }}
           contactSettings={{}}
         />
       </SeasonProvider>
     );
 
-    const badge = screen.getByRole('status', { name: /Available for New Opportunities/i });
-    expect(badge).toBeInTheDocument();
-    expect(badge.querySelector('.availability-pulse-dot')).toBeInTheDocument();
+    const badge = screen.queryByRole('status', { name: /Available for New Opportunities/i });
+    expect(badge).not.toBeInTheDocument();
+    expect(screen.getByText('Web Developer')).toBeInTheDocument();
   });
 
   it('renders projects grid with reveal-stagger and cards with stagger-idx', () => {

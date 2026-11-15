@@ -31,6 +31,9 @@ describe('ProjectsSection & ProjectModal', () => {
   it('limits initial display to 6 projects and toggles show more/less (Review Focus #2)', () => {
     render(<ProjectsSection projects={FALLBACK_PROJECTS} />);
 
+    // Details button in card action container should NOT exist
+    expect(screen.queryByRole('button', { name: /Details/i })).not.toBeInTheDocument();
+
     // Initial display: only 6 project articles
     expect(screen.getAllByRole('article')).toHaveLength(6);
 

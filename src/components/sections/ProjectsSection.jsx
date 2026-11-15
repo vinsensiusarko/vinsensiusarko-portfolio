@@ -285,17 +285,6 @@ export function ProjectsSection({ projects }) {
                         </span>
                       )
                     )}
-
-                    <button
-                      type="button"
-                      className="btn btn-color-2 btn-sm project-detail-trigger"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenProject(proj);
-                      }}
-                    >
-                      <i className="fa-solid fa-circle-info"></i> Details
-                    </button>
                   </div>
                 </div>
               </article>
