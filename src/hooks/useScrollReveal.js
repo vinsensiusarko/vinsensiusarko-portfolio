@@ -12,7 +12,7 @@ export function useScrollReveal(selector = '.reveal-on-scroll', deps = []) {
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
-    const elements = document.querySelectorAll(selector);
+    const elements = document.querySelectorAll(`${selector}:not(.revealed)`);
     if (!elements.length) return;
 
     const prefersReducedMotion =

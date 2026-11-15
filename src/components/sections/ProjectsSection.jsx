@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { formatRichDescription } from '../../utils/formatDescription';
 import { resolveProjectImage } from '../../utils/resolveProjectImage';
 import { ProjectModal } from './ProjectModal';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const FILTER_CHIPS = [
   { label: 'All Projects', value: 'all', icon: 'fa-solid fa-border-all' },
@@ -79,6 +80,8 @@ export function ProjectsSection({ projects }) {
       matchesProjectFilter(p, categoryFilter, trimmed)
     );
   }, [projects, categoryFilter, searchQuery]);
+
+  useScrollReveal('.reveal-on-scroll', [filteredProjects, isExpanded]);
 
   const resetFilters = () => {
     setCategoryFilter('all');

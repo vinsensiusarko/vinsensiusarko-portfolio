@@ -57,7 +57,7 @@ export function HeroSection({ siteSettings, contactSettings }) {
         />
       </div>
       <div className="section__text">
-        <div className="availability-status-badge" role="status" aria-label="Available for work">
+        <div className="availability-status-badge" role="status" aria-label="Available for New Opportunities">
           <span className="availability-pulse-dot" aria-hidden="true"></span>
           <span>Available for New Opportunities</span>
         </div>
