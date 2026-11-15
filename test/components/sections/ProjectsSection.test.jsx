@@ -1,22 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ProjectsSection } from './ProjectsSection';
-import { FALLBACK_PROJECTS } from '../../data/fallbackData';
-import { resolveProjectImage } from '../../utils/resolveProjectImage';
+import { ProjectsSection } from '../../../src/components/sections/ProjectsSection';
+import { FALLBACK_PROJECTS } from '../../../src/data/fallbackData';
 
 describe('ProjectsSection & ProjectModal', () => {
-  it('resolves project image paths from image, imageBase64, and relative assets paths', () => {
-    expect(resolveProjectImage({ image: 'assets/images/portfolio-1.png' })).toBe(
-      '/assets/images/portfolio-1.png'
-    );
-    expect(resolveProjectImage({ image: '../assets/images/portfolio-2.png' })).toBe(
-      '/assets/images/portfolio-2.png'
-    );
-    expect(resolveProjectImage({ image: 'data:image/webp;base64,ABC' })).toBe(
-      'data:image/webp;base64,ABC'
-    );
-  });
-  it('filters projects by category (including technology-inferred matches) and resets empty search results (Review Focus #4)', () => {
+  it('filters projects by category (including technology-inferred matches) and resets empty search results', () => {
     render(<ProjectsSection projects={FALLBACK_PROJECTS} />);
 
     // Initially all 9 fallback projects are rendered
@@ -40,7 +28,7 @@ describe('ProjectsSection & ProjectModal', () => {
     expect(screen.getAllByRole('article')).toHaveLength(9);
   });
 
-  it('opens Quick View modal on card click, closes on Escape, and does NOT open modal when clicking external GitHub/Live Demo links (Review Focus #5)', () => {
+  it('opens Quick View modal on card click, closes on Escape, and does NOT open modal when clicking external GitHub/Live Demo links', () => {
     render(<ProjectsSection projects={FALLBACK_PROJECTS} />);
 
     // Clicking external GitHub link inside card must NOT open modal

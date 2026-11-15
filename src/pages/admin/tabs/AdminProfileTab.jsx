@@ -3,6 +3,7 @@ import { doc, getDoc, setDoc, deleteField, serverTimestamp } from 'firebase/fire
 import { db } from '../../../services/firebase';
 import { FALLBACK_SITE_SETTINGS } from '../../../data/fallbackData';
 import { compressImageToBase64 } from '../../../utils/imageCompressor';
+import { AdminFormShimmer } from '../AdminShimmer';
 
 export function AdminProfileTab({ showToast }) {
   const [formData, setFormData] = useState({
@@ -29,6 +30,7 @@ export function AdminProfileTab({ showToast }) {
   const [cvFileName, setCvFileName] = useState(null);
   const [cvStatusText, setCvStatusText] = useState('');
 
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const heroInputRef = useRef(null);
@@ -36,7 +38,10 @@ export function AdminProfileTab({ showToast }) {
 
   useEffect(() => {
     async function loadProfile() {
-      if (!db) return;
+      if (!db) {
+        setLoading(false);
+        return;
+      }
       try {
         const snap = await getDoc(doc(db, 'settings', 'site_settings'));
         if (snap.exists()) {
@@ -72,6 +77,8 @@ export function AdminProfileTab({ showToast }) {
         }
       } catch (err) {
         console.error('Error loading profile settings:', err);
+      } finally {
+        setLoading(false);
       }
     }
     loadProfile();
@@ -189,7 +196,10 @@ export function AdminProfileTab({ showToast }) {
           </div>
         </div>
 
-        <form id="profile-form" onSubmit={handleSubmit}>
+        {loading ? (
+          <AdminFormShimmer fields={6} />
+        ) : (
+          <form id="profile-form" onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
               <label className="form-label" htmlFor="profile-name">
@@ -588,6 +598,7 @@ export function AdminProfileTab({ showToast }) {
             )}
           </button>
         </form>
+        )}
       </div>
     </section>
   );

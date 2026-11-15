@@ -10,8 +10,8 @@ export function resolveProjectImage(project) {
   if (!project) return '/assets/images/portfolio-1.png';
 
   const raw =
-    project.image ||
     project.imageBase64 ||
+    project.image ||
     project.imageUrl ||
     '/assets/images/portfolio-1.png';
 
@@ -29,6 +29,10 @@ export function resolveProjectImage(project) {
 
   if (trimmed.startsWith('../')) {
     return '/' + trimmed.replace(/^(\.\.\/)+/, '');
+  }
+
+  if (trimmed.startsWith('./')) {
+    return '/' + trimmed.replace(/^\.\//, '');
   }
 
   return '/' + trimmed;

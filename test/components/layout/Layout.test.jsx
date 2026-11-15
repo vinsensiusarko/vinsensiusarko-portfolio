@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { ThemeProvider } from '../../context/ThemeContext';
-import { SeasonProvider } from '../../context/SeasonContext';
-import { Navbar } from './Navbar';
-import { Footer } from './Footer';
-import { FloatingActions } from './FloatingActions';
+import { ThemeProvider } from '../../../src/context/ThemeContext';
+import { SeasonProvider } from '../../../src/context/SeasonContext';
+import { Navbar } from '../../../src/components/layout/Navbar';
+import { Footer } from '../../../src/components/layout/Footer';
+import { FloatingActions } from '../../../src/components/layout/FloatingActions';
 
 describe('Layout components (Navbar, Footer, FloatingActions)', () => {
   it('renders Navbar with SeasonSwitcher and toggles theme', () => {

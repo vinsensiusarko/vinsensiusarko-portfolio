@@ -12,6 +12,7 @@ import {
 import { auth, db } from '../../services/firebase';
 import { useTheme } from '../../context/ThemeContext';
 import { AdminLogin } from './AdminLogin';
+import { AdminDashboardSkeleton, AdminStatsShimmer } from './AdminShimmer';
 import { AdminProjectsTab } from './tabs/AdminProjectsTab';
 import { AdminSkillsTab } from './tabs/AdminSkillsTab';
 import { AdminProfileTab } from './tabs/AdminProfileTab';
@@ -47,6 +48,7 @@ export function AdminPage() {
 
   const [projects, setProjects] = useState([]);
   const [skills, setSkills] = useState([]);
+  const [loadingData, setLoadingData] = useState(true);
   const [toasts, setToasts] = useState([]);
 
   const showToast = useCallback((message, type = 'success') => {
@@ -105,7 +107,12 @@ export function AdminPage() {
   }, [showToast]);
 
   const reloadAll = useCallback(async () => {
-    await Promise.all([loadProjects(), loadSkills()]);
+    setLoadingData(true);
+    try {
+      await Promise.all([loadProjects(), loadSkills()]);
+    } finally {
+      setLoadingData(false);
+    }
   }, [loadProjects, loadSkills]);
 
   useEffect(() => {
@@ -162,17 +169,7 @@ export function AdminPage() {
 
   return (
     <div className="admin-shell">
-      {authStatus === 'checking' && (
-        <div id="auth-splash-screen" className="auth-splash-screen">
-          <div className="splash-card">
-            <div className="splash-logo">
-              <i className="fa-solid fa-bolt"></i>
-            </div>
-            <div className="splash-spinner"></div>
-            <p className="splash-text">Verifying Admin Session...</p>
-          </div>
-        </div>
-      )}
+      {authStatus === 'checking' && <AdminDashboardSkeleton />}
 
       {authStatus === 'unauthenticated' && <AdminLogin showToast={showToast} />}
 
@@ -277,41 +274,45 @@ export function AdminPage() {
             {/* CONTENT */}
             <main className="admin-content">
               {/* Quick Stats */}
-              <div className="stats-grid">
-                <div className="stat-box">
-                  <div className="stat-icon">
-                    <i className="fa-solid fa-folder-open"></i>
+              {loadingData ? (
+                <AdminStatsShimmer />
+              ) : (
+                <div className="stats-grid">
+                  <div className="stat-box">
+                    <div className="stat-icon">
+                      <i className="fa-solid fa-folder-open"></i>
+                    </div>
+                    <div className="stat-info">
+                      <h4>Total Projects</h4>
+                      <div id="stat-projects-count" className="stat-value">
+                        {projects.length}
+                      </div>
+                    </div>
                   </div>
-                  <div className="stat-info">
-                    <h4>Total Projects</h4>
-                    <div id="stat-projects-count" className="stat-value">
-                      {projects.length}
+                  <div className="stat-box">
+                    <div className="stat-icon">
+                      <i className="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <div className="stat-info">
+                      <h4>Active Skills</h4>
+                      <div id="stat-skills-count" className="stat-value">
+                        {skills.length}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="stat-box">
+                    <div className="stat-icon">
+                      <i className="fa-solid fa-cloud-bolt"></i>
+                    </div>
+                    <div className="stat-info">
+                      <h4>Storage Mode</h4>
+                      <div className="stat-value" style={{ fontSize: '1.1rem', color: '#10b981' }}>
+                        Base64 Direct
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="stat-box">
-                  <div className="stat-icon">
-                    <i className="fa-solid fa-laptop-code"></i>
-                  </div>
-                  <div className="stat-info">
-                    <h4>Active Skills</h4>
-                    <div id="stat-skills-count" className="stat-value">
-                      {skills.length}
-                    </div>
-                  </div>
-                </div>
-                <div className="stat-box">
-                  <div className="stat-icon">
-                    <i className="fa-solid fa-cloud-bolt"></i>
-                  </div>
-                  <div className="stat-info">
-                    <h4>Storage Mode</h4>
-                    <div className="stat-value" style={{ fontSize: '1.1rem', color: '#10b981' }}>
-                      Base64 Direct
-                    </div>
-                  </div>
-                </div>
-              </div>
+              )}
 
               {/* Active Tab Content */}
               {activeTab === 'projects' && (
@@ -320,6 +321,7 @@ export function AdminPage() {
                   setProjects={setProjects}
                   reloadProjects={loadProjects}
                   showToast={showToast}
+                  loading={loadingData}
                 />
               )}
               {activeTab === 'skills' && (
@@ -327,6 +329,7 @@ export function AdminPage() {
                   skills={skills}
                   reloadSkills={loadSkills}
                   showToast={showToast}
+                  loading={loadingData}
                 />
               )}
               {activeTab === 'profile' && <AdminProfileTab showToast={showToast} />}

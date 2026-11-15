@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { detectSeasonByMonth } from '../features/season/seasonConfig';
-import { SeasonProvider, useSeason } from './SeasonContext';
+import { detectSeasonByMonth } from '../../src/features/season/seasonConfig';
+import { SeasonProvider, useSeason } from '../../src/context/SeasonContext';
 
 function SeasonTestConsumer() {
   const {
@@ -88,7 +88,7 @@ describe('SeasonContext', () => {
     expect(localStorage.getItem('season')).toBeNull();
   });
 
-  it('ignores corrupted or unrecognized localStorage season values and falls back to auto season (Review Focus #1)', () => {
+  it('ignores corrupted or unrecognized localStorage season values and falls back to auto season', () => {
     localStorage.setItem('season', 'monsoon-invalid');
     render(
       <SeasonProvider>
@@ -101,7 +101,7 @@ describe('SeasonContext', () => {
     expect(screen.getByTestId('auto').textContent).toBe('true');
   });
 
-  it('defaults particlesEnabled to false when prefers-reduced-motion: reduce is active and localStorage is unset (Review Focus #2)', () => {
+  it('defaults particlesEnabled to false when prefers-reduced-motion: reduce is active and localStorage is unset', () => {
     window.matchMedia = vi.fn().mockImplementation((query) => ({
       matches: query === '(prefers-reduced-motion: reduce)',
       media: query,

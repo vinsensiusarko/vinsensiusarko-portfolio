@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { AppRoutes } from './App';
-import { ThemeProvider } from './context/ThemeContext';
-import { SeasonProvider } from './context/SeasonContext';
+import { AppRoutes } from '../src/App';
+import { ThemeProvider } from '../src/context/ThemeContext';
+import { SeasonProvider } from '../src/context/SeasonContext';
 
 function renderRoute(initialEntry = '/') {
   return render(
@@ -31,12 +31,13 @@ describe('App routing integration', () => {
     expect(screen.getByText(/Google Play Store Compliant/i)).toBeInTheDocument();
   });
 
-  it('renders AdminPage at /admin', async () => {
+  it('renders AdminPage at /admin with skeleton verification or login', async () => {
     renderRoute('/admin');
     await waitFor(() => {
       const hasPortal = screen.queryByRole('heading', { name: /Admin Portal/i });
-      const hasSplash = screen.queryByText(/Verifying Admin Session/i);
-      expect(hasPortal || hasSplash).toBeTruthy();
+      const hasSkeleton = screen.queryByTestId('admin-dashboard-skeleton');
+      const hasVerifying = screen.queryByText(/Verifying Admin Session/i);
+      expect(hasPortal || hasSkeleton || hasVerifying).toBeTruthy();
     });
   });
 

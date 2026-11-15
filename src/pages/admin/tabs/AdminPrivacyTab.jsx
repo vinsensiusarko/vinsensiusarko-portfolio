@@ -3,14 +3,19 @@ import { Link } from 'react-router';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
 import { FALLBACK_PRIVACY_POLICY } from '../../../data/fallbackData';
+import { AdminFormShimmer } from '../AdminShimmer';
 
 export function AdminPrivacyTab({ showToast }) {
   const [formData, setFormData] = useState({ ...FALLBACK_PRIVACY_POLICY });
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function loadPrivacy() {
-      if (!db) return;
+      if (!db) {
+        setLoading(false);
+        return;
+      }
       try {
         const snap = await getDoc(doc(db, 'settings', 'privacy_policy'));
         if (snap.exists()) {
@@ -18,6 +23,8 @@ export function AdminPrivacyTab({ showToast }) {
         }
       } catch (err) {
         console.error('Error loading privacy policy settings:', err);
+      } finally {
+        setLoading(false);
       }
     }
     loadPrivacy();
@@ -97,7 +104,10 @@ export function AdminPrivacyTab({ showToast }) {
           </div>
         </div>
 
-        <form id="privacy-form" onSubmit={handleSubmit}>
+        {loading ? (
+          <AdminFormShimmer fields={6} />
+        ) : (
+          <form id="privacy-form" onSubmit={handleSubmit}>
           <h3 style={{ fontSize: '1.05rem', marginBottom: '1rem' }}>
             <i className="fa-solid fa-heading"></i> Page Header &amp; Metadata
           </h3>
@@ -427,6 +437,7 @@ export function AdminPrivacyTab({ showToast }) {
             )}
           </button>
         </form>
+        )}
       </div>
     </section>
   );

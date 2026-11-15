@@ -12,6 +12,7 @@ import { db } from '../../../services/firebase';
 import { formatRichDescription } from '../../../utils/formatDescription';
 import { compressImageToBase64 } from '../../../utils/imageCompressor';
 import { resolveProjectImage } from '../../../utils/resolveProjectImage';
+import { AdminProjectsShimmer } from '../AdminShimmer';
 
 const INITIAL_FORM = {
   title: '',
@@ -27,7 +28,7 @@ const INITIAL_FORM = {
   isComingSoon: false
 };
 
-export function AdminProjectsTab({ projects, setProjects, reloadProjects, showToast }) {
+export function AdminProjectsTab({ projects, setProjects, reloadProjects, showToast, loading = false }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM);
@@ -232,7 +233,9 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
         </div>
 
         <div id="projects-grid" className="admin-grid">
-          {projects.length === 0 ? (
+          {loading ? (
+            <AdminProjectsShimmer count={6} />
+          ) : projects.length === 0 ? (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem 1rem' }}>
               <i
                 className="fa-solid fa-folder-open"

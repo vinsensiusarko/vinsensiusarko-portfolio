@@ -8,6 +8,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
+import { AdminSkillsShimmer } from '../AdminShimmer';
 
 const INITIAL_SKILL_FORM = {
   name: '',
@@ -18,7 +19,7 @@ const INITIAL_SKILL_FORM = {
   order: 1
 };
 
-export function AdminSkillsTab({ skills, reloadSkills, showToast }) {
+export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = false }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(INITIAL_SKILL_FORM);
@@ -197,57 +198,61 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast }) {
           </button>
         </div>
 
-        <div className="form-row">
-          <div className="card" style={{ marginBottom: 0 }}>
-            <h3
-              style={{
-                fontSize: '1.05rem',
-                marginBottom: '1rem',
-                borderBottom: '1px solid var(--border-color)',
-                paddingBottom: '0.5rem'
-              }}
-            >
-              <i className="fa-solid fa-code"></i> Programming Languages
-            </h3>
-            <div
-              id="skills-languages-list"
-              style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
-            >
-              {languages.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                  No programming languages found.
-                </p>
-              ) : (
-                languages.map(renderSkillRow)
-              )}
+        {loading ? (
+          <AdminSkillsShimmer />
+        ) : (
+          <div className="form-row">
+            <div className="card" style={{ marginBottom: 0 }}>
+              <h3
+                style={{
+                  fontSize: '1.05rem',
+                  marginBottom: '1rem',
+                  borderBottom: '1px solid var(--border-color)',
+                  paddingBottom: '0.5rem'
+                }}
+              >
+                <i className="fa-solid fa-code"></i> Programming Languages
+              </h3>
+              <div
+                id="skills-languages-list"
+                style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+              >
+                {languages.length === 0 ? (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    No programming languages found.
+                  </p>
+                ) : (
+                  languages.map(renderSkillRow)
+                )}
+              </div>
             </div>
-          </div>
 
-          <div className="card" style={{ marginBottom: 0 }}>
-            <h3
-              style={{
-                fontSize: '1.05rem',
-                marginBottom: '1rem',
-                borderBottom: '1px solid var(--border-color)',
-                paddingBottom: '0.5rem'
-              }}
-            >
-              <i className="fa-solid fa-cubes"></i> Frameworks &amp; Tools
-            </h3>
-            <div
-              id="skills-frameworks-list"
-              style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
-            >
-              {frameworks.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                  No frameworks or tools found.
-                </p>
-              ) : (
-                frameworks.map(renderSkillRow)
-              )}
+            <div className="card" style={{ marginBottom: 0 }}>
+              <h3
+                style={{
+                  fontSize: '1.05rem',
+                  marginBottom: '1rem',
+                  borderBottom: '1px solid var(--border-color)',
+                  paddingBottom: '0.5rem'
+                }}
+              >
+                <i className="fa-solid fa-cubes"></i> Frameworks &amp; Tools
+              </h3>
+              <div
+                id="skills-frameworks-list"
+                style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+              >
+                {frameworks.length === 0 ? (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    No frameworks or tools found.
+                  </p>
+                ) : (
+                  frameworks.map(renderSkillRow)
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ADD / EDIT SKILL MODAL */}

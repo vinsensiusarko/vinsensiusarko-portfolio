@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatRichDescription } from './formatDescription';
+import { formatRichDescription } from '../../src/utils/formatDescription';
 
 describe('formatRichDescription', () => {
   it('returns empty string for null, undefined, or empty input', () => {
@@ -30,7 +30,7 @@ describe('formatRichDescription', () => {
     expect(res).toContain('<span class="rich-item-text">Thermal printer</span>');
   });
 
-  it('escapes HTML and XSS payloads in paragraphs and list items (Review Focus #3)', () => {
+  it('escapes HTML and XSS payloads in paragraphs and list items', () => {
     const malicious = '<script>alert("xss")</script>\n- <img src=x onerror="hack()">';
     const res = formatRichDescription(malicious);
     expect(res).not.toContain('<script>');

@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ThemeProvider } from '../../context/ThemeContext';
-import { SeasonProvider } from '../../context/SeasonContext';
-import { SeasonSwitcher } from './SeasonSwitcher';
-import { SeasonalCanvas } from './SeasonalCanvas';
+import { ThemeProvider } from '../../../src/context/ThemeContext';
+import { SeasonProvider } from '../../../src/context/SeasonContext';
+import { SeasonSwitcher } from '../../../src/features/season/SeasonSwitcher';
+import { SeasonalCanvas } from '../../../src/features/season/SeasonalCanvas';
 
 function renderWithProviders(ui) {
   return render(

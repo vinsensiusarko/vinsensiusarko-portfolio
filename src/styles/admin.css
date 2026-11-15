@@ -36,6 +36,9 @@
   --shadow-lg: 0 10px 30px -4px rgba(0, 0, 0, 0.1);
   --shadow-modal: 0 20px 45px -5px rgba(0, 0, 0, 0.2);
 
+  --shimmer-base: #e2e8f0;
+  --shimmer-highlight: #f8fafc;
+
   --transition: all 0.25s ease;
 
   font-family: "Poppins", sans-serif;
@@ -72,6 +75,9 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 10px 30px -4px rgba(0, 0, 0, 0.6);
+
+  --shimmer-base: #1e293b;
+  --shimmer-highlight: #334155;
 }
 
 .admin-shell *,
@@ -947,6 +953,77 @@
 @keyframes splashSpin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   Shimmer Loading Effects (Theme-Adaptive)
+   ========================================================================== */
+@keyframes adminShimmerAnim {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.admin-shell .admin-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--shimmer-base) 0%,
+    var(--shimmer-highlight) 50%,
+    var(--shimmer-base) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: adminShimmerAnim 1.6s ease-in-out infinite !important;
+  border-color: transparent !important;
+  pointer-events: none !important;
+}
+
+.admin-shell .admin-shimmer-text {
+  height: 0.9rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+}
+
+.admin-shell .shimmer-dashboard-skeleton {
+  pointer-events: none;
+}
+
+.admin-shell .shimmer-verifying-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1rem;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-shell .shimmer-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: shimmerPulse 1.6s infinite;
+}
+
+@keyframes shimmerPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
   }
 }
 

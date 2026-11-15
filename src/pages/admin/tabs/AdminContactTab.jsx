@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
 import { FALLBACK_CONTACT_SETTINGS } from '../../../data/fallbackData';
+import { AdminFormShimmer } from '../AdminShimmer';
 
 export function AdminContactTab({ showToast }) {
   const [formData, setFormData] = useState({
@@ -13,11 +14,15 @@ export function AdminContactTab({ showToast }) {
     facebook: FALLBACK_CONTACT_SETTINGS.facebook,
     twitter: FALLBACK_CONTACT_SETTINGS.twitter
   });
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function loadContact() {
-      if (!db) return;
+      if (!db) {
+        setLoading(false);
+        return;
+      }
       try {
         const snap = await getDoc(doc(db, 'settings', 'contact_settings'));
         if (snap.exists()) {
@@ -34,6 +39,8 @@ export function AdminContactTab({ showToast }) {
         }
       } catch (err) {
         console.error('Error loading contact settings:', err);
+      } finally {
+        setLoading(false);
       }
     }
     loadContact();
@@ -80,7 +87,10 @@ export function AdminContactTab({ showToast }) {
           </div>
         </div>
 
-        <form id="contact-form" onSubmit={handleSubmit}>
+        {loading ? (
+          <AdminFormShimmer fields={4} />
+        ) : (
+          <form id="contact-form" onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
               <label className="form-label" htmlFor="contact-email">
@@ -189,6 +199,7 @@ export function AdminContactTab({ showToast }) {
             )}
           </button>
         </form>
+        )}
       </div>
     </section>
   );
