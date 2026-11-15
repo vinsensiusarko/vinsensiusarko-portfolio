@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db } from '../../services/firebase';
 import { useTheme } from '../../context/ThemeContext';
+import { ConfirmProvider, useConfirm } from '../../context/ConfirmContext';
 import { BrandLogo } from '../../components/common/BrandLogo';
 import { AdminLogin } from './AdminLogin';
 import { AdminDashboardSkeleton, AdminStatsShimmer } from './AdminShimmer';
@@ -33,8 +34,9 @@ const TABS = [
 
 const ACTIVE_TAB_KEY = 'admin_active_tab';
 
-export function AdminPage() {
+function AdminDashboardContent() {
   const { theme, toggleTheme } = useTheme();
+  const confirm = useConfirm();
   const [authStatus, setAuthStatus] = useState('checking'); // 'checking' | 'unauthenticated' | 'authenticated'
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState(() => {
@@ -157,6 +159,16 @@ export function AdminPage() {
 
   const handleLogout = async () => {
     if (!auth) return;
+    const ok = await confirm({
+      title: 'Sign Out?',
+      message: 'Are you sure you want to sign out of Arko CMS?',
+      confirmText: 'Sign Out',
+      cancelText: 'Cancel',
+      variant: 'warning',
+      icon: 'fa-solid fa-right-from-bracket'
+    });
+    if (!ok) return;
+
     try {
       await signOut(auth);
       showToast('Signed out successfully.', 'info');
@@ -361,5 +373,13 @@ export function AdminPage() {
         })}
       </div>
     </div>
+  );
+}
+
+export function AdminPage() {
+  return (
+    <ConfirmProvider>
+      <AdminDashboardContent />
+    </ConfirmProvider>
   );
 }

@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
+import { useConfirm } from '../../../context/ConfirmContext';
 import { FALLBACK_PRIVACY_POLICY } from '../../../data/fallbackData';
 import { AdminFormShimmer } from '../AdminShimmer';
 
 export function AdminPrivacyTab({ showToast }) {
+  const confirm = useConfirm();
   const [formData, setFormData] = useState({ ...FALLBACK_PRIVACY_POLICY });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -40,14 +42,18 @@ export function AdminPrivacyTab({ showToast }) {
     showToast(`Date set to "${formatted}". Don't forget to Save!`, 'info');
   };
 
-  const handleResetDefaults = () => {
-    if (
-      !window.confirm(
-        'Reset all Privacy Policy fields to the default template? Click "Save Privacy Policy Changes" afterwards to apply.'
-      )
-    ) {
-      return;
-    }
+  const handleResetDefaults = async () => {
+    const ok = await confirm({
+      title: 'Reset Template Privacy Policy?',
+      message:
+        'Reset semua input Privacy Policy ke template bawaan? Klik "Save Privacy Policy Changes" setelahnya untuk menyimpan perubahan.',
+      confirmText: 'Reset Defaults',
+      cancelText: 'Batal',
+      variant: 'warning',
+      icon: 'fa-solid fa-rotate-left'
+    });
+    if (!ok) return;
+
     setFormData({ ...FALLBACK_PRIVACY_POLICY });
     showToast('Default template restored in form. Click Save Changes to persist.', 'info');
   };

@@ -9,6 +9,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
+import { useConfirm } from '../../../context/ConfirmContext';
 import {
   FALLBACK_PROJECTS,
   FALLBACK_SKILLS,
@@ -18,19 +19,23 @@ import {
 } from '../../../data/fallbackData';
 
 export function AdminDatabaseTab({ reloadAll, showToast }) {
+  const confirm = useConfirm();
   const [seeding, setSeeding] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const restoreInputRef = useRef(null);
 
   const handleSeedAll = async () => {
     if (!db) return;
-    if (
-      !window.confirm(
-        'This will populate your Firestore database with the 9 default portfolio projects, 11 skills, and default profile settings. Proceed?'
-      )
-    ) {
-      return;
-    }
+    const ok = await confirm({
+      title: 'Seed Firestore Database?',
+      message:
+        'Tindakan ini akan mengisi database Firestore dengan data bawaan: 9 proyek, 11 skills, dan pengaturan profil. Lanjutkan?',
+      confirmText: 'Ya, Jalankan Seeder',
+      cancelText: 'Batal',
+      variant: 'warning',
+      icon: 'fa-solid fa-database'
+    });
+    if (!ok) return;
 
     setSeeding(true);
     try {
@@ -135,7 +140,15 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
       const text = await file.text();
       const data = JSON.parse(text);
 
-      if (!window.confirm('Restore data from this JSON backup into Firestore?')) {
+      const ok = await confirm({
+        title: 'Restore Backup Data?',
+        message: 'Masukkan data dari file JSON backup ini ke database Firestore?',
+        confirmText: 'Ya, Restore',
+        cancelText: 'Batal',
+        variant: 'warning',
+        icon: 'fa-solid fa-file-import'
+      });
+      if (!ok) {
         setRestoring(false);
         return;
       }

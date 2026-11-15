@@ -9,6 +9,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
+import { useConfirm } from '../../../context/ConfirmContext';
 import { formatRichDescription } from '../../../utils/formatDescription';
 import { compressImageToBase64 } from '../../../utils/imageCompressor';
 import { resolveProjectImage } from '../../../utils/resolveProjectImage';
@@ -29,6 +30,7 @@ const INITIAL_FORM = {
 };
 
 export function AdminProjectsTab({ projects, setProjects, reloadProjects, showToast, loading = false }) {
+  const confirm = useConfirm();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM);
@@ -128,9 +130,16 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
   };
 
   const handleDelete = async (project) => {
-    if (!window.confirm(`Are you sure you want to delete "${project.title}"? This cannot be undone.`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: 'Hapus Proyek?',
+      message: `Apakah Anda yakin ingin menghapus proyek "${project.title}"? Tindakan ini permanen dan tidak dapat dibatalkan.`,
+      confirmText: 'Ya, Hapus Proyek',
+      cancelText: 'Batal',
+      variant: 'danger',
+      icon: 'fa-solid fa-trash'
+    });
+    if (!ok) return;
+
     try {
       await deleteDoc(doc(db, 'projects', project.id));
       const remaining = projects.filter((p) => p.id !== project.id);

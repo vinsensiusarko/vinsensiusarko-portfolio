@@ -8,6 +8,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
+import { useConfirm } from '../../../context/ConfirmContext';
 import { SkillIcon } from '../../../components/common/SkillIcon';
 import { AdminSkillsShimmer } from '../AdminShimmer';
 
@@ -21,6 +22,7 @@ const INITIAL_SKILL_FORM = {
 };
 
 export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = false }) {
+  const confirm = useConfirm();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(INITIAL_SKILL_FORM);
@@ -68,7 +70,16 @@ export function AdminSkillsTab({ skills, reloadSkills, showToast, loading = fals
   };
 
   const handleDelete = async (skill) => {
-    if (!window.confirm(`Delete skill "${skill.name}"?`)) return;
+    const ok = await confirm({
+      title: 'Hapus Keahlian?',
+      message: `Apakah Anda yakin ingin menghapus "${skill.name}"?`,
+      confirmText: 'Ya, Hapus',
+      cancelText: 'Batal',
+      variant: 'danger',
+      icon: 'fa-solid fa-trash'
+    });
+    if (!ok) return;
+
     try {
       await deleteDoc(doc(db, 'skills', skill.id));
       showToast(`Deleted skill "${skill.name}"`, 'info');

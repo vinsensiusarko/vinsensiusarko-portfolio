@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
 import { ThemeProvider } from './context/ThemeContext';
 import { SeasonProvider } from './context/SeasonContext';
+import { ConfirmProvider } from './context/ConfirmContext';
 import { SeasonalCanvas } from './features/season/SeasonalCanvas';
 import { HomePage } from './pages/HomePage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
@@ -30,9 +31,11 @@ export default function App() {
   return (
     <ThemeProvider>
       <SeasonProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <ConfirmProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </ConfirmProvider>
       </SeasonProvider>
     </ThemeProvider>
   );
