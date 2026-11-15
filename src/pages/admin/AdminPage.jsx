@@ -17,6 +17,7 @@ import { AdminLogin } from './AdminLogin';
 import { AdminDashboardSkeleton, AdminStatsShimmer } from './AdminShimmer';
 import { AdminProjectsTab } from './tabs/AdminProjectsTab';
 import { AdminSkillsTab } from './tabs/AdminSkillsTab';
+import { AdminAnalyticsTab } from './tabs/AdminAnalyticsTab';
 import { AdminProfileTab } from './tabs/AdminProfileTab';
 import { AdminContactTab } from './tabs/AdminContactTab';
 import { AdminPrivacyTab } from './tabs/AdminPrivacyTab';
@@ -26,6 +27,7 @@ import '../../styles/admin.css';
 const TABS = [
   { id: 'projects', label: 'Projects', title: 'Projects Management', icon: 'fa-solid fa-layer-group' },
   { id: 'skills', label: 'Skills & Experience', title: 'Skills & Tools Management', icon: 'fa-solid fa-code' },
+  { id: 'analytics', label: 'Visitor Analytics', title: 'Visitor Analytics & Traffic Insights', icon: 'fa-solid fa-chart-line' },
   { id: 'profile', label: 'Profile & Bio', title: 'Profile, Bio & CV Resume', icon: 'fa-solid fa-id-card' },
   { id: 'contact', label: 'Contact & Socials', title: 'Contact & Social Channels', icon: 'fa-solid fa-address-book' },
   { id: 'privacy', label: 'Privacy Policy', title: 'Privacy Policy Settings', icon: 'fa-solid fa-shield-halved' },
@@ -379,6 +381,7 @@ function AdminDashboardContent() {
                   loading={loadingData}
                 />
               )}
+              {activeTab === 'analytics' && <AdminAnalyticsTab showToast={showToast} />}
               {activeTab === 'profile' && <AdminProfileTab showToast={showToast} />}
               {activeTab === 'contact' && <AdminContactTab showToast={showToast} />}
               {activeTab === 'privacy' && <AdminPrivacyTab showToast={showToast} />}

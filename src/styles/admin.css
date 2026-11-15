@@ -1396,3 +1396,191 @@
     display: none;
   }
 }
+
+/* ==========================================================================
+   Visitor Analytics Dashboard
+   ========================================================================== */
+.admin-shell .analytics-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.admin-shell .analytics-kpi-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.admin-shell .analytics-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.admin-shell .kpi-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.admin-shell .kpi-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-shell .kpi-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+
+.admin-shell .kpi-value {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.admin-shell .kpi-subtext {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.admin-shell .analytics-panel {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* 7-Day CSS Bar Chart */
+.admin-shell .analytics-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.85rem;
+  height: 200px;
+  padding-top: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.admin-shell .chart-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.admin-shell .chart-bar-track {
+  flex: 1;
+  width: 100%;
+  max-width: 48px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.admin-shell .chart-bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, var(--primary) 0%, rgba(99, 102, 241, 0.45) 100%);
+  border-radius: 6px 6px 0 0;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 8px;
+}
+
+.admin-shell .chart-bar-fill:hover {
+  background: linear-gradient(180deg, #818cf8 0%, rgba(99, 102, 241, 0.7) 100%);
+  transform: scaleY(1.03);
+}
+
+.admin-shell .chart-bar-tooltip {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.admin-shell .chart-bar-fill:hover .chart-bar-tooltip {
+  opacity: 1;
+}
+
+.admin-shell .chart-bar-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.6rem;
+  font-weight: 500;
+}
+
+/* Audience Breakdown Grid & Distribution Bars */
+.admin-shell .analytics-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.admin-shell .distribution-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.admin-shell .distribution-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.admin-shell .distribution-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.admin-shell .distribution-count {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.admin-shell .distribution-bar-track {
+  width: 100%;
+  height: 8px;
+  background-color: var(--bg-card-alt);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.admin-shell .distribution-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
