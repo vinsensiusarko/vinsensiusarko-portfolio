@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSeason } from '../../context/SeasonContext';
+import { trackCvDownload } from '../../services/visitorTracker';
 
 export function HeroSection({ siteSettings, contactSettings }) {
   const { seasonMeta } = useSeason();
@@ -94,6 +95,7 @@ export function HeroSection({ siteSettings, contactSettings }) {
                 : undefined
             }
             className="btn btn-color-2"
+            onClick={() => trackCvDownload()}
           >
             <i className="fa-solid fa-file-arrow-down"></i> Download CV
           </a>

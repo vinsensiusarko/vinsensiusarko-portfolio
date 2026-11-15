@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { recordPageView } from '../services/visitorTracker';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { FloatingActions } from '../components/layout/FloatingActions';
@@ -15,6 +16,10 @@ export function HomePage() {
   const { projects, skills, siteSettings, contactSettings } = usePortfolioData();
   const { hash } = useLocation();
   useScrollReveal('.reveal-on-scroll', [projects.length, skills.length]);
+
+  useEffect(() => {
+    recordPageView();
+  }, []);
 
   useEffect(() => {
     document.title = `${siteSettings.name || 'Vinsensius Arka'} — Web & Mobile Developer`;
