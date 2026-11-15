@@ -7,7 +7,7 @@
 ---
 
 ## 1. Problem Statement & User Intent
-The user requested five key refinements and additions:
+The user requested seven key refinements and additions:
 1. **Typewriter Effect Fix**: When deleting letters between roles ("Mobile Developer" and "Web Developer"), a glitch occurs because `displayText || roles[0]` falls back to the full first role string as soon as `displayText` becomes empty. This causes a jarring visual flicker.
 2. **Remove Availability Badge**: The "Available for New Opportunities" status badge above the hero greeting is deemed unnecessary and should be removed cleanly.
 3. **Remove Project Card "Details" Button**: The extra "Details" button in `.project-btn-container` creates visual clutter. The card and the thumbnail image with "Quick View" badge already trigger the project detail gallery modal.
@@ -18,6 +18,10 @@ The user requested five key refinements and additions:
 5. **Command Palette (`Ctrl + K` / `Cmd + K`) & Sound Effects**:
    - Provide a keyboard-first command palette for fast section navigation, season switching, theme toggling, and project filtering.
    - Implement zero-dependency Web Audio API micro-interactions (soft clicks, modal swoosh, season chime) with a toggleable mute state (default: muted) stored in `localStorage`.
+6. **BrandLogo Matching Favicon**:
+   - The monogram logo next to "Arko" in the Admin sidebar and login currently renders a generic rounded gradient box with a plain "V". It must be updated to match the exact geometric origami V emblem from `/assets/favicon.ico` / `/assets/favicon.png`.
+7. **Admin Sidebar Collapse Arrow Redesign**:
+   - The collapse/expand arrow button currently looks awkward and unappealing, especially in collapsed mode where it is a tiny cut-off 22px circle on the border. It should be redesigned into a sleek, modern pill/circle toggle with smooth hover animation, scale feedback, and proper positioning.
 
 ---
 
@@ -99,6 +103,16 @@ src/
   - Navigation: Hero/Home, About, Experience & Skills, Projects, Contact, Privacy Policy, Admin Panel.
   - Actions: Switch Season (Spring, Summer, Autumn, Winter), Toggle Audio Sound, Toggle Theme.
   - Quick Filters: Filter projects by "Web", "Mobile", "Desktop", "All".
+
+### 3.6 BrandLogo Matching Favicon Emblem
+- **File:** `src/components/common/BrandLogo.jsx`
+- Copy extracted 64x64 PNG from `favicon.ico` into `public/assets/favicon.png` so both raster and vector formats exist.
+- Update `BrandLogo.jsx` to render the exact favicon image/vector representing the unique geometric origami "V" monogram, with crisp responsive sizing (`width: size, height: size`), alt label, and clean contrast.
+
+### 3.7 Sidebar Collapse Arrow Redesign
+- **Files:** `src/pages/admin/AdminPage.jsx`, `src/styles/admin.css`
+- **Expanded state**: Sleek circle button (`width: 2rem; height: 2rem; border-radius: 50%`) with smooth hover background, high-contrast chevron icon, and subtle border.
+- **Collapsed state**: Repositioned as a floating interactive pill tab on the sidebar border (`right: -13px; width: 26px; height: 26px; border-radius: 50%; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1.5px solid var(--border-color);`), with smooth `transform: scale(1.12)` on hover, ensuring high visibility, easy clicking, and modern aesthetic.
 
 ---
 
