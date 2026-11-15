@@ -580,6 +580,91 @@
   display: block;
 }
 
+/* Screenshot Gallery Dropzone & Grid in Admin */
+.admin-shell .gallery-upload-dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  text-align: center;
+  background-color: var(--bg-card-alt);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.admin-shell .gallery-upload-dropzone:hover {
+  border-color: var(--border-focus);
+  background-color: var(--bg-card);
+}
+
+.admin-shell .admin-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.admin-shell .admin-gallery-item {
+  position: relative;
+  height: 75px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: #0b1120;
+}
+
+.admin-shell .admin-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-shell .admin-gallery-actions {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.admin-shell .admin-gallery-item:hover .admin-gallery-actions {
+  opacity: 1;
+}
+
+.admin-shell .btn-gallery-action {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: transform 0.15s ease;
+}
+
+.admin-shell .btn-gallery-action:hover {
+  transform: scale(1.15);
+}
+
+.admin-shell .btn-gallery-action.cover {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.admin-shell .btn-gallery-action.delete {
+  background: var(--accent-danger);
+  color: #ffffff;
+}
+
 .admin-shell .compression-badge {
   display: inline-flex;
   align-items: center;
@@ -694,6 +779,78 @@
   padding: 0.15rem 0.55rem;
   border-radius: var(--radius-pill);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.admin-shell .admin-card-drag-handle {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  font-size: 0.8rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.admin-shell .admin-card-drag-handle:hover {
+  background: rgba(15, 23, 42, 0.95);
+  transform: scale(1.08);
+}
+
+.admin-shell .admin-card-drag-handle:active {
+  cursor: grabbing;
+}
+
+.admin-shell .admin-project-card.is-dragging {
+  opacity: 0.45;
+  transform: scale(0.98);
+  border: 2px dashed var(--primary);
+}
+
+.admin-shell .admin-project-card.drag-target {
+  border-color: var(--primary);
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.4);
+  transform: translateY(-3px);
+}
+
+.admin-shell .skill-drag-handle {
+  cursor: grab;
+  padding: 0.3rem 0.5rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.admin-shell .skill-drag-handle:hover {
+  color: var(--text-primary);
+  transform: scale(1.15);
+}
+
+.admin-shell .skill-drag-handle:active {
+  cursor: grabbing;
+}
+
+.admin-shell .skill-item-row.is-dragging {
+  opacity: 0.4;
+  background: var(--bg-card-alt);
+}
+
+.admin-shell .skill-item-row.drag-target {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.08);
 }
 
 .admin-shell .admin-project-desc {

@@ -23,6 +23,7 @@ const INITIAL_FORM = {
   techStack: '',
   imageUrl: '',
   imageBase64: '',
+  gallery: [],
   githubUrl: '',
   demoUrl: '',
   demoLabel: 'Live Demo',
@@ -38,14 +39,18 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
   const [dragOver, setDragOver] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
+  const [draggedProjectId, setDraggedProjectId] = useState(null);
+  const [dragOverProjectId, setDragOverProjectId] = useState(null);
   const fileInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
 
   const openAddModal = () => {
     setEditingId(null);
     setCompressedKB(null);
     setFormData({
       ...INITIAL_FORM,
-      order: projects.length + 1
+      order: projects.length + 1,
+      gallery: []
     });
     setModalOpen(true);
   };
@@ -65,12 +70,142 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       techStack: Array.isArray(project.techStack) ? project.techStack.join(', ') : '',
       imageUrl: isDataUri ? '' : rawImg,
       imageBase64: isDataUri ? rawImg : '',
+      gallery: Array.isArray(project.gallery) ? [...project.gallery] : [],
       githubUrl: project.githubUrl || '',
       demoUrl: project.demoUrl || '',
       demoLabel: project.demoLabel || 'Live Demo',
       isComingSoon: Boolean(project.isComingSoon)
     });
     setModalOpen(true);
+  };
+
+  const handleGalleryFiles = async (files) => {
+    if (!files || files.length === 0) return;
+    const currentGallery = formData.gallery || [];
+    const availableSlots = 6 - currentGallery.length;
+    if (availableSlots <= 0) {
+      showToast('Maximum 6 screenshot images reached.', 'warning');
+      return;
+    }
+
+    const filesToProcess = Array.from(files)
+      .filter((f) => f.type.startsWith('image/'))
+      .slice(0, availableSlots);
+
+    if (filesToProcess.length === 0) {
+      showToast('Please select valid image files.', 'error');
+      return;
+    }
+
+    showToast(`Compressing ${filesToProcess.length} gallery image(s)...`, 'info');
+    try {
+      const compressedList = [];
+      for (const file of filesToProcess) {
+        const { dataUrl } = await compressImageToBase64(file, 800, 0.8);
+        compressedList.push(dataUrl);
+      }
+      setFormData((prev) => ({
+        ...prev,
+        gallery: [...(prev.gallery || []), ...compressedList]
+      }));
+      showToast(`Added ${compressedList.length} image(s) to gallery!`, 'success');
+    } catch (err) {
+      console.error('Gallery compression failed:', err);
+      showToast('Failed to compress gallery image(s).', 'error');
+    }
+  };
+
+  const removeGalleryImage = (indexToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      gallery: (prev.gallery || []).filter((_, idx) => idx !== indexToRemove)
+    }));
+  };
+
+  const setGalleryImageAsCover = (indexToCover) => {
+    const selectedImg = formData.gallery?.[indexToCover];
+    if (!selectedImg) return;
+    setFormData((prev) => {
+      const oldCover = prev.imageBase64 || prev.imageUrl;
+      const newGallery = [...(prev.gallery || [])];
+      newGallery.splice(indexToCover, 1);
+      if (oldCover && !newGallery.includes(oldCover)) {
+        newGallery.unshift(oldCover);
+      }
+      return {
+        ...prev,
+        imageBase64: selectedImg,
+        imageUrl: '',
+        gallery: newGallery.slice(0, 6)
+      };
+    });
+    showToast('Cover image updated from gallery!', 'success');
+  };
+
+  const handleCardDragStart = (e, project) => {
+    e.dataTransfer.setData('text/plain', project.id);
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggedProjectId(project.id);
+  };
+
+  const handleCardDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleCardDragEnter = (project) => {
+    if (draggedProjectId && draggedProjectId !== project.id) {
+      setDragOverProjectId(project.id);
+    }
+  };
+
+  const handleCardDragLeave = (project) => {
+    if (dragOverProjectId === project.id) {
+      setDragOverProjectId(null);
+    }
+  };
+
+  const handleCardDragEnd = () => {
+    setDraggedProjectId(null);
+    setDragOverProjectId(null);
+  };
+
+  const handleCardDrop = async (e, targetProject) => {
+    e.preventDefault();
+    const sourceId = draggedProjectId || e.dataTransfer.getData('text/plain');
+    setDraggedProjectId(null);
+    setDragOverProjectId(null);
+
+    if (!sourceId || sourceId === targetProject.id || !db) return;
+
+    const sourceIdx = projects.findIndex((p) => p.id === sourceId);
+    const targetIdx = projects.findIndex((p) => p.id === targetProject.id);
+    if (sourceIdx === -1 || targetIdx === -1) return;
+
+    const previousProjects = [...projects];
+    const reordered = [...projects];
+    const [moved] = reordered.splice(sourceIdx, 1);
+    reordered.splice(targetIdx, 0, moved);
+
+    const normalized = reordered.map((p, idx) => ({ ...p, order: idx + 1 }));
+    setProjects(normalized);
+
+    try {
+      const batch = writeBatch(db);
+      normalized.forEach((p) => {
+        batch.update(doc(db, 'projects', p.id), {
+          order: p.order,
+          updatedAt: serverTimestamp()
+        });
+      });
+      await batch.commit();
+      showToast(`Reordered "${moved.title}" to position #${targetIdx + 1}!`, 'success');
+    } catch (err) {
+      console.error('Error reordering projects via DnD:', err);
+      setProjects(previousProjects);
+      showToast('Failed to update project order: ' + err.message, 'error');
+      await reloadProjects();
+    }
   };
 
   const handleImageFile = async (file) => {
@@ -191,6 +326,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       demoLabel: formData.demoLabel.trim() || 'Live Demo',
       isComingSoon: Boolean(formData.isComingSoon),
       image: finalImage,
+      gallery: Array.isArray(formData.gallery) ? formData.gallery : [],
       updatedAt: serverTimestamp()
     };
 
@@ -264,12 +400,25 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
               const descHtml = formatRichDescription(project.description || '');
 
               return (
-                <div className="admin-project-card" key={project.id}>
+                <div
+                  className={`admin-project-card ${draggedProjectId === project.id ? 'is-dragging' : ''} ${dragOverProjectId === project.id ? 'drag-target' : ''}`}
+                  key={project.id}
+                  draggable={true}
+                  onDragStart={(e) => handleCardDragStart(e, project)}
+                  onDragOver={handleCardDragOver}
+                  onDragEnter={() => handleCardDragEnter(project)}
+                  onDragLeave={() => handleCardDragLeave(project)}
+                  onDragEnd={handleCardDragEnd}
+                  onDrop={(e) => handleCardDrop(e, project)}
+                >
                   <div className="admin-project-thumb">
                     <div
                       className="admin-project-thumb-bg"
                       style={{ backgroundImage: `url('${imgSrc}')` }}
                     ></div>
+                    <div className="admin-card-drag-handle" title="Drag to reorder">
+                      <i className="fa-solid fa-grip-vertical"></i>
+                    </div>
                     <span className="project-order-badge" title="Display Order">
                       #{index + 1}
                     </span>
@@ -571,6 +720,90 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                     </div>
                   )}
                 </div>
+              </div>
+
+              <div className="form-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <label className="form-label" style={{ marginBottom: 0 }}>
+                    Project Screenshot Gallery ({formData.gallery?.length || 0}/6)
+                  </label>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    Multiple screenshots shown in Quick View detail modal
+                  </span>
+                </div>
+
+                <div
+                  className="gallery-upload-dropzone"
+                  onClick={() => galleryInputRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (e.dataTransfer.files) {
+                      handleGalleryFiles(e.dataTransfer.files);
+                    }
+                  }}
+                >
+                  <input
+                    ref={galleryInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        handleGalleryFiles(e.target.files);
+                      }
+                    }}
+                  />
+                  <i className="fa-solid fa-images" style={{ fontSize: '1.4rem', color: 'var(--primary)', marginBottom: '0.35rem' }}></i>
+                  <p style={{ fontWeight: 600, fontSize: '0.88rem', margin: '0 0 0.2rem 0' }}>
+                    Click or Drag screenshots to add to gallery (Up to 6)
+                  </p>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
+                    Auto-compressed via Canvas WebP/JPEG — Client can view full multi-image gallery
+                  </p>
+                </div>
+
+                {formData.gallery && formData.gallery.length > 0 && (
+                  <div className="admin-gallery-grid">
+                    {formData.gallery.map((img, gIdx) => (
+                      <div className="admin-gallery-item" key={gIdx}>
+                        <img
+                          src={img}
+                          alt={`Screenshot ${gIdx + 1}`}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/assets/images/portfolio-1.png';
+                          }}
+                        />
+                        <div className="admin-gallery-actions">
+                          <button
+                            type="button"
+                            className="btn-gallery-action cover"
+                            title="Set as Cover Image"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setGalleryImageAsCover(gIdx);
+                            }}
+                          >
+                            <i className="fa-solid fa-star"></i>
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-gallery-action delete"
+                            title="Remove screenshot"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeGalleryImage(gIdx);
+                            }}
+                          >
+                            <i className="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="form-group">
