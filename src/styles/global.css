@@ -1516,11 +1516,11 @@ footer p {
   50% { opacity: 0; }
 }
 
-/* Scroll Reveal */
+/* Scroll Reveal & Motion Engine */
 .reveal-on-scroll {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
@@ -1528,6 +1528,114 @@ footer p {
   opacity: 1;
   transform: none;
   will-change: auto;
+}
+
+/* Staggered Child Reveal */
+.reveal-stagger > .reveal-on-scroll {
+  transition-delay: calc(var(--stagger-idx, 0) * 85ms);
+}
+
+.reveal-fade-left {
+  opacity: 0;
+  transform: translateX(-32px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-fade-left.revealed {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+.reveal-fade-right {
+  opacity: 0;
+  transform: translateX(32px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-fade-right.revealed {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/* Live Availability Status Badge */
+.availability-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 1rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #10b981;
+  margin-bottom: 1.25rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.12);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+.availability-status-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.22);
+}
+
+.availability-pulse-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.availability-pulse-dot::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.45);
+  animation: pulse-ring 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* Interactive Project Card Hover Effects */
+.project-card {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 38px rgba(0, 0, 0, 0.35), 0 0 24px rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+.project-card .project-thumb img {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-card:hover .project-thumb img {
+  transform: scale(1.04);
 }
 
 /* Prefers-reduced-motion accessibility */
@@ -1540,8 +1648,16 @@ footer p {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .reveal-on-scroll {
+  .reveal-on-scroll,
+  .reveal-fade-left,
+  .reveal-fade-right {
     opacity: 1 !important;
+    transform: none !important;
+  }
+  .availability-pulse-dot::after {
+    animation: none !important;
+  }
+  .project-card:hover {
     transform: none !important;
   }
 }
