@@ -7,7 +7,10 @@ describe('SkillIcon component', () => {
     const { container: c1 } = render(
       <SkillIcon skill={{ name: 'Flutter', iconClass: 'fa-solid fa-code' }} />
     );
-    expect(c1.querySelector('svg.skill-icon-svg')).toBeInTheDocument();
+    const svgEl = c1.querySelector('svg.skill-icon-svg');
+    expect(svgEl).toBeInTheDocument();
+    expect(svgEl).toHaveAttribute('fill', 'currentColor');
+    expect(svgEl.style.color).not.toBe('#02569B');
 
     const { container: c2 } = render(
       <SkillIcon skill={{ name: 'Mobile Framework', iconClass: 'fa-brands fa-flutter' }} />

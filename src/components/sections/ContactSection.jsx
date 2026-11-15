@@ -40,7 +40,7 @@ export function ContactSection({ contactSettings }) {
         <div className="contact-grid">
           <a
             href={`mailto:${email}`}
-            className="contact-card"
+            className="contact-card contact-card-email"
             aria-label={`Send email to ${email}`}
           >
             <div className="contact-card-icon">

@@ -153,6 +153,25 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+.admin-shell .brand-logo-svg {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  transition: filter 0.25s ease;
+}
+
+.admin-shell .brand-logo-svg image,
+.admin-shell .brand-logo-img {
+  transition: filter 0.25s ease;
+  filter: brightness(0.2);
+}
+
+[data-theme="dark"] .admin-shell .brand-logo-svg image,
+[data-theme="dark"] .admin-shell .brand-logo-img,
+.admin-shell .brand-logo-svg.brand-logo-dark image {
+  filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255, 255, 255, 0.45));
+}
+
 .admin-shell .sidebar-brand i {
   font-size: 1.4rem;
 }

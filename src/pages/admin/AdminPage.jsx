@@ -300,14 +300,15 @@ function AdminDashboardContent() {
               </div>
 
               <div className="header-right">
-                <Link
-                  to="/"
+                <a
+                  href="/"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="btn btn-secondary btn-sm public-site-link"
                 >
                   <i className="fa-solid fa-arrow-up-right-from-square"></i>{' '}
                   <span className="btn-text">View Live Site</span>
-                </Link>
+                </a>
                 <button
                   type="button"
                   id="admin-theme-toggle"

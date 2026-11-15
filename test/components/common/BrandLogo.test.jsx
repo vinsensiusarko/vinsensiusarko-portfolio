@@ -10,4 +10,14 @@ describe('BrandLogo component', () => {
     expect(svg).toHaveAttribute('width', '32');
     expect(svg).toHaveAttribute('height', '32');
   });
+
+  it('renders with theme class and transparent favicon image href', () => {
+    render(<BrandLogo size={24} className="custom-logo-class" />);
+    const svg = screen.getByRole('img', { name: /Vinsensius Arko Logo/i });
+    expect(svg).toHaveClass('brand-logo-svg');
+    expect(svg).toHaveClass('custom-logo-class');
+    const image = svg.querySelector('image');
+    expect(image).toBeInTheDocument();
+    expect(image).toHaveAttribute('href', '/assets/favicon.png');
+  });
 });

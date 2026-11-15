@@ -743,6 +743,10 @@ svg.skill-icon {
 /* ==========================================================================
    10. Projects Section (#projects)
    ========================================================================== */
+#projects {
+  scroll-margin-top: 100px;
+}
+
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1028,6 +1032,23 @@ svg.skill-icon {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.contact-card-email .contact-card-value {
+  font-size: 0.9rem;
+  word-break: break-all;
+  white-space: normal;
+  text-overflow: clip;
+}
+
+@media (min-width: 640px) {
+  .contact-card-email {
+    grid-column: span 2;
+  }
+  .contact-card-email .contact-card-value {
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
 }
 
 /* ==========================================================================
@@ -2165,7 +2186,8 @@ footer p {
 
 .floating-actions .whatsapp-float-btn,
 .floating-actions .float,
-.floating-actions .back-to-top-btn {
+.floating-actions .back-to-top-btn,
+.floating-actions .sound-toggle-btn {
   pointer-events: auto;
 }
 
@@ -2276,8 +2298,9 @@ footer p {
   font-size: 0.95rem;
   box-shadow: var(--shadow-md);
   cursor: pointer;
+  pointer-events: auto;
   transition: all var(--transition-normal);
-  z-index: 999;
+  z-index: 1000;
 }
 
 .floating-actions .sound-toggle-btn.active {
@@ -2540,4 +2563,24 @@ footer p {
   background: var(--bg-card-alt);
   border: 1px solid var(--border-color);
   border-radius: 4px;
+}
+
+/* Brand Logo Monogram Adaptation */
+.brand-logo-svg {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  transition: filter 0.25s ease;
+}
+
+.brand-logo-svg image,
+.brand-logo-img {
+  transition: filter 0.25s ease;
+  filter: brightness(0.2);
+}
+
+[data-theme="dark"] .brand-logo-svg image,
+[data-theme="dark"] .brand-logo-img,
+.brand-logo-svg.brand-logo-dark image {
+  filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255, 255, 255, 0.45));
 }

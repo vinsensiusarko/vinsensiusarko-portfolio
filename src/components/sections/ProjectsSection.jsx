@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { formatRichDescription } from '../../utils/formatDescription';
 import { resolveProjectImage } from '../../utils/resolveProjectImage';
 import { ProjectModal } from './ProjectModal';
@@ -74,6 +74,32 @@ export function ProjectsSection({ projects }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const isFirstMountRef = useRef(true);
+
+  useEffect(() => {
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false;
+      return;
+    }
+    if (!isExpanded) {
+      const targetEl =
+        document.getElementById('projects') ||
+        document.querySelector('.project-controls') ||
+        document.getElementById('projects-grid');
+      if (targetEl) {
+        const headerOffset = 90;
+        const elementPosition = targetEl.getBoundingClientRect?.()?.top ?? 0;
+        const offsetPosition =
+          elementPosition + (window.pageYOffset || window.scrollY || 0) - headerOffset;
+        if (typeof window?.scrollTo === 'function') {
+          window.scrollTo({
+            top: Math.max(0, offsetPosition),
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+  }, [isExpanded]);
 
   const handleOpenProject = (proj) => {
     setSelectedProject(proj);
@@ -299,31 +325,7 @@ export function ProjectsSection({ projects }) {
               className="btn btn-show-more"
               aria-expanded={isExpanded}
               aria-controls="projects-grid"
-              onClick={() => {
-                if (isExpanded) {
-                  setIsExpanded(false);
-                  const targetEl =
-                    document.querySelector('.project-controls') ||
-                    document.getElementById('projects-grid') ||
-                    document.getElementById('projects');
-                  if (targetEl) {
-                    if (typeof window?.scrollTo === 'function') {
-                      const headerOffset = 110;
-                      const elementPosition = targetEl.getBoundingClientRect?.()?.top ?? 0;
-                      const offsetPosition =
-                        elementPosition + (window.pageYOffset || window.scrollY || 0) - headerOffset;
-                      window.scrollTo({
-                        top: Math.max(0, offsetPosition),
-                        behavior: 'smooth'
-                      });
-                    } else if (typeof targetEl.scrollIntoView === 'function') {
-                      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }
-                } else {
-                  setIsExpanded(true);
-                }
-              }}
+              onClick={() => setIsExpanded((prev) => !prev)}
             >
               <span>
                 {isExpanded
