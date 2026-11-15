@@ -41,4 +41,24 @@ describe('ExperienceSection Component', () => {
     expect(html5ElementBefore).toBe(html5ElementAfter);
     expect(flutterElementBefore).toBe(flutterElementAfter);
   });
+
+  it('updates level in-place without destroying DOM elements when level changes from Intermediate to Experienced', () => {
+    const initialSkills = [
+      { id: 'nodejs', name: 'Node JS', category: 'framework_tool', level: 'Intermediate', iconClass: 'fa-brands fa-node-js' }
+    ];
+    const updatedSkills = [
+      { id: 'nodejs', name: 'Node JS', category: 'framework_tool', level: 'Experienced', iconClass: 'fa-brands fa-node-js' }
+    ];
+
+    const { rerender } = render(<ExperienceSection skills={initialSkills} />);
+    const cardBefore = screen.getByText('Node JS').closest('.skill-item');
+    const badgeBefore = screen.getByText('Intermediate');
+    expect(badgeBefore).toHaveClass('intermediate');
+
+    rerender(<ExperienceSection skills={updatedSkills} />);
+    const cardAfter = screen.getByText('Node JS').closest('.skill-item');
+    const badgeAfter = screen.getByText('Experienced');
+    expect(badgeAfter).toHaveClass('experienced');
+    expect(cardBefore).toBe(cardAfter);
+  });
 });

@@ -140,6 +140,13 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
         }
         return s;
       });
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem('portfolio_skills_cache', JSON.stringify(updatedSkills));
+        }
+      } catch {
+        // ignore
+      }
       setSkills(updatedSkills);
     }
 
@@ -239,9 +246,17 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
     const newLevel = skill.level === 'Experienced' ? 'Intermediate' : 'Experienced';
     const previousSkills = skills;
     if (setSkills) {
-      setSkills((prev) =>
-        (prev || []).map((s) => (s.id === skill.id ? { ...s, level: newLevel } : s))
+      const updatedSkills = (skills || []).map((s) =>
+        s.id === skill.id ? { ...s, level: newLevel } : s
       );
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem('portfolio_skills_cache', JSON.stringify(updatedSkills));
+        }
+      } catch {
+        // ignore
+      }
+      setSkills(updatedSkills);
     }
     try {
       await updateDoc(doc(db, 'skills', skill.id), {
@@ -253,6 +268,13 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
     } catch (err) {
       console.error('Error toggling skill level:', err);
       if (setSkills) setSkills(previousSkills);
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem('portfolio_skills_cache', JSON.stringify(previousSkills));
+        }
+      } catch {
+        // ignore
+      }
       showToast('Failed to toggle level: ' + err.message, 'error');
       if (reloadSkills) await reloadSkills();
     }
@@ -271,7 +293,15 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
 
     const previousSkills = skills;
     if (setSkills) {
-      setSkills((prev) => (prev || []).filter((s) => s.id !== skill.id));
+      const updatedSkills = (skills || []).filter((s) => s.id !== skill.id);
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem('portfolio_skills_cache', JSON.stringify(updatedSkills));
+        }
+      } catch {
+        // ignore
+      }
+      setSkills(updatedSkills);
     }
 
     try {
@@ -281,6 +311,13 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
     } catch (err) {
       console.error('Error deleting skill:', err);
       if (setSkills) setSkills(previousSkills);
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem('portfolio_skills_cache', JSON.stringify(previousSkills));
+        }
+      } catch {
+        // ignore
+      }
       showToast('Failed to delete skill: ' + err.message, 'error');
       if (reloadSkills) await reloadSkills();
     }

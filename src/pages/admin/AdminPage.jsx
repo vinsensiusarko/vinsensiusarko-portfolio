@@ -74,7 +74,20 @@ function AdminDashboardContent() {
   };
 
   const [projects, setProjects] = useState([]);
-  const [skills, setSkills] = useState(FALLBACK_SKILLS);
+  const [skills, setSkills] = useState(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const raw = window.localStorage.getItem('portfolio_skills_cache');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return FALLBACK_SKILLS;
+  });
   const [loadingData, setLoadingData] = useState(true);
   const [toasts, setToasts] = useState([]);
 
@@ -126,7 +139,15 @@ function AdminDashboardContent() {
     try {
       const q = query(collection(db, 'skills'), orderBy('order', 'asc'));
       const snap = await getDocs(q);
-      setSkills(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setSkills(items);
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem('portfolio_skills_cache', JSON.stringify(items));
+        }
+      } catch {
+        // ignore
+      }
     } catch (err) {
       console.error('Error loading skills in Admin:', err);
       showToast('Error loading skills: ' + err.message, 'error');

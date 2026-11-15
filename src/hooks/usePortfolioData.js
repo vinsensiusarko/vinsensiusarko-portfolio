@@ -8,6 +8,42 @@ import {
   FALLBACK_CONTACT_SETTINGS
 } from '../data/fallbackData';
 
+const CACHE_KEYS = {
+  PROJECTS: 'portfolio_projects_cache',
+  SKILLS: 'portfolio_skills_cache',
+  SITE_SETTINGS: 'portfolio_site_settings_cache',
+  CONTACT_SETTINGS: 'portfolio_contact_settings_cache'
+};
+
+function getCachedData(key, fallback) {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const raw = window.localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(fallback)) {
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } else if (parsed && typeof parsed === 'object') {
+          return { ...fallback, ...parsed };
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return fallback;
+}
+
+function setCachedData(key, data) {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(key, JSON.stringify(data));
+    }
+  } catch {
+    // ignore
+  }
+}
+
 function normalizeAssetPath(path, defaultPath) {
   if (!path) return defaultPath;
   if (
@@ -22,10 +58,18 @@ function normalizeAssetPath(path, defaultPath) {
 }
 
 export function usePortfolioData() {
-  const [projects, setProjects] = useState(FALLBACK_PROJECTS);
-  const [skills, setSkills] = useState(FALLBACK_SKILLS);
-  const [siteSettings, setSiteSettings] = useState(FALLBACK_SITE_SETTINGS);
-  const [contactSettings, setContactSettings] = useState(FALLBACK_CONTACT_SETTINGS);
+  const [projects, setProjects] = useState(() =>
+    getCachedData(CACHE_KEYS.PROJECTS, FALLBACK_PROJECTS)
+  );
+  const [skills, setSkills] = useState(() =>
+    getCachedData(CACHE_KEYS.SKILLS, FALLBACK_SKILLS)
+  );
+  const [siteSettings, setSiteSettings] = useState(() =>
+    getCachedData(CACHE_KEYS.SITE_SETTINGS, FALLBACK_SITE_SETTINGS)
+  );
+  const [contactSettings, setContactSettings] = useState(() =>
+    getCachedData(CACHE_KEYS.CONTACT_SETTINGS, FALLBACK_CONTACT_SETTINGS)
+  );
 
   useEffect(() => {
     if (!db) return;
@@ -44,6 +88,7 @@ export function usePortfolioData() {
             });
           });
           setProjects(items);
+          setCachedData(CACHE_KEYS.PROJECTS, items);
         }
       },
       (err) => console.warn('Firestore projects listener (using fallback):', err)
@@ -61,9 +106,10 @@ export function usePortfolioData() {
             if (prevSkills && prevSkills.length === items.length) {
               const isSame = prevSkills.every((prev, i) => {
                 const next = items[i];
+                const prevKey = (prev.name || prev.id || '').toLowerCase().trim();
+                const nextKey = (next.name || next.id || '').toLowerCase().trim();
                 return (
-                  prev.id === next.id &&
-                  prev.name === next.name &&
+                  prevKey === nextKey &&
                   prev.level === next.level &&
                   prev.category === next.category &&
                   prev.iconClass === next.iconClass &&
@@ -74,6 +120,7 @@ export function usePortfolioData() {
               });
               if (isSame) return prevSkills;
             }
+            setCachedData(CACHE_KEYS.SKILLS, items);
             return items;
           });
         }
@@ -86,13 +133,17 @@ export function usePortfolioData() {
       (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setSiteSettings((prev) => ({
-            ...prev,
-            ...data,
-            heroImage: normalizeAssetPath(data.heroImage, prev.heroImage),
-            aboutImage: normalizeAssetPath(data.aboutImage, prev.aboutImage),
-            cvUrl: normalizeAssetPath(data.cvUrl, prev.cvUrl)
-          }));
+          setSiteSettings((prev) => {
+            const next = {
+              ...prev,
+              ...data,
+              heroImage: normalizeAssetPath(data.heroImage, prev.heroImage),
+              aboutImage: normalizeAssetPath(data.aboutImage, prev.aboutImage),
+              cvUrl: normalizeAssetPath(data.cvUrl, prev.cvUrl)
+            };
+            setCachedData(CACHE_KEYS.SITE_SETTINGS, next);
+            return next;
+          });
         }
       },
       (err) => console.warn('Firestore site_settings listener (using fallback):', err)
@@ -102,7 +153,11 @@ export function usePortfolioData() {
       doc(db, 'settings', 'contact_settings'),
       (docSnap) => {
         if (docSnap.exists()) {
-          setContactSettings((prev) => ({ ...prev, ...docSnap.data() }));
+          setContactSettings((prev) => {
+            const next = { ...prev, ...docSnap.data() };
+            setCachedData(CACHE_KEYS.CONTACT_SETTINGS, next);
+            return next;
+          });
         }
       },
       (err) => console.warn('Firestore contact_settings listener (using fallback):', err)

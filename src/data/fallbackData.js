@@ -136,10 +136,10 @@ export const FALLBACK_SKILLS = [
   { id: 'flutter', order: 5, name: 'Flutter', level: 'Experienced', category: 'language', iconClass: 'fa-brands fa-flutter', iconType: 'svg' },
   { id: 'php', order: 6, name: 'PHP', level: 'Experienced', category: 'language', iconClass: 'fa-brands fa-php' },
   { id: 'laravel', order: 7, name: 'Laravel', level: 'Experienced', category: 'framework_tool', iconClass: 'fa-brands fa-laravel' },
-  { id: 'nodejs', order: 8, name: 'Node JS', level: 'Intermediate', category: 'framework_tool', iconClass: 'fa-brands fa-node-js' },
+  { id: 'nodejs', order: 8, name: 'Node JS', level: 'Experienced', category: 'framework_tool', iconClass: 'fa-brands fa-node-js' },
   { id: 'mysql', order: 9, name: 'MySQL', level: 'Experienced', category: 'framework_tool', iconClass: 'fa-solid fa-database' },
   { id: 'git', order: 10, name: 'Git', level: 'Experienced', category: 'framework_tool', iconClass: 'fa-brands fa-git-alt' },
-  { id: 'wordpress', order: 11, name: 'WordPress', level: 'Intermediate', category: 'framework_tool', iconClass: 'fa-brands fa-wordpress' }
+  { id: 'wordpress', order: 11, name: 'WordPress', level: 'Experienced', category: 'framework_tool', iconClass: 'fa-brands fa-wordpress' }
 ];
 
 export const FALLBACK_SITE_SETTINGS = {
