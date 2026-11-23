@@ -95,7 +95,10 @@ describe('AdminLogin & AdminPage Shell', () => {
     expect(screen.getByRole('heading', { name: /Contact & Social Channels/i })).toBeInTheDocument();
   });
 
-  it('keeps rich description utilities available in index.css', () => {
+  it('retires legacy CSS files and keeps rich description utilities in index.css', () => {
+    const styleFiles = fs.readdirSync(path.resolve('src/styles'));
+    expect(styleFiles).toEqual(['index.css']);
+
     const indexCss = fs.readFileSync(path.resolve('src/styles/index.css'), 'utf8');
     expect(indexCss).toMatch(/\.rich-list-group/);
     expect(indexCss).toMatch(/\.rich-number-badge/);

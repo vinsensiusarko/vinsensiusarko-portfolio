@@ -156,6 +156,8 @@ html[data-theme="dark"][data-season="winter"] {
   --color-status-warn-bg: var(--status-warn-bg);
   --color-status-warn-fg: var(--status-warn-fg);
   --color-status-warn-border: var(--status-warn-border);
+  --color-success: var(--status-success-fg);
+  --color-warning: var(--status-warn-fg);
 
   --color-brand-whatsapp: var(--brand-whatsapp);
   --color-brand-whatsapp-foreground: var(--brand-whatsapp-foreground);

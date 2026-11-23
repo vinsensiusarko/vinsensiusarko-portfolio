@@ -32,14 +32,14 @@ describe('ConfirmContext & useConfirm', () => {
 
     // Open
     fireEvent.click(screen.getByText('Open Dialog'));
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     expect(screen.getByText('Hapus Item?')).toBeInTheDocument();
     expect(screen.getByText('Item ini akan dihapus permanen.')).toBeInTheDocument();
 
     // Cancel
     fireEvent.click(screen.getByRole('button', { name: /Batal/i }));
     await waitFor(() => {
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
       expect(screen.getByText('CANCELLED')).toBeInTheDocument();
     });
 
@@ -47,7 +47,7 @@ describe('ConfirmContext & useConfirm', () => {
     fireEvent.click(screen.getByText('Open Dialog'));
     fireEvent.click(screen.getByRole('button', { name: /Ya, Hapus/i }));
     await waitFor(() => {
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
       expect(screen.getByText('CONFIRMED')).toBeInTheDocument();
     });
   });
@@ -61,11 +61,11 @@ describe('ConfirmContext & useConfirm', () => {
     );
 
     fireEvent.click(screen.getByText('Open Dialog'));
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
 
     fireEvent.keyDown(document, { key: 'Escape' });
     await waitFor(() => {
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
       expect(screen.getByText('CANCELLED')).toBeInTheDocument();
     });
   });
