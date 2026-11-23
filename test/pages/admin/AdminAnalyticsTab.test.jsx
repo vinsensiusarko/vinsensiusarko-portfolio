@@ -72,7 +72,7 @@ describe('AdminAnalyticsTab Component', () => {
     fireEvent.click(resetBtn);
 
     // Confirmation dialog should open
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     expect(screen.getByText(/Reset Analytics Data\?/i)).toBeInTheDocument();
 
     // Cancel dialog
@@ -80,7 +80,7 @@ describe('AdminAnalyticsTab Component', () => {
     fireEvent.click(cancelBtn);
 
     await waitFor(() => {
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
   });
 });

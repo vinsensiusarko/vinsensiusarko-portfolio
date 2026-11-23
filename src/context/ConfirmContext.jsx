@@ -1,8 +1,40 @@
-import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
-import '../styles/confirm.css';
+import { createContext, useContext, useState, useCallback, useRef } from 'react';
+import {
+  IconAlertCircle,
+  IconAlertTriangle,
+  IconInfoCircle
+} from '@tabler/icons-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle
+} from '../components/ui/alert-dialog';
 
 const ConfirmContext = createContext(null);
+
+const VARIANT_CONFIG = {
+  danger: {
+    Icon: IconAlertTriangle,
+    mediaClass: 'bg-destructive/10 text-destructive',
+    actionVariant: 'destructive'
+  },
+  warning: {
+    Icon: IconAlertCircle,
+    mediaClass: 'bg-warning/15 text-warning',
+    actionVariant: 'default'
+  },
+  info: {
+    Icon: IconInfoCircle,
+    mediaClass: 'bg-muted text-foreground',
+    actionVariant: 'default'
+  }
+};
 
 export function ConfirmProvider({ children }) {
   const [dialogState, setDialogState] = useState({
@@ -11,13 +43,12 @@ export function ConfirmProvider({ children }) {
     message: '',
     confirmText: 'Ya, Lanjutkan',
     cancelText: 'Batal',
-    variant: 'danger', // 'danger' | 'warning' | 'info'
-    icon: null
+    variant: 'danger'
   });
 
   const resolverRef = useRef(null);
 
-  const confirm = useCallback((options) => {
+  const confirm = useCallback((options = {}) => {
     return new Promise((resolve) => {
       resolverRef.current = resolve;
       setDialogState({
@@ -26,91 +57,58 @@ export function ConfirmProvider({ children }) {
         message: options.message || 'Apakah Anda yakin ingin melanjutkan?',
         confirmText: options.confirmText || 'Ya, Lanjutkan',
         cancelText: options.cancelText || 'Batal',
-        variant: options.variant || 'danger',
-        icon: options.icon || null
+        variant: options.variant || 'danger'
       });
     });
   }, []);
 
-  const handleConfirm = () => {
+  const settle = useCallback((result) => {
     if (resolverRef.current) {
-      resolverRef.current(true);
+      const resolve = resolverRef.current;
       resolverRef.current = null;
+      resolve(result);
     }
     setDialogState((prev) => ({ ...prev, isOpen: false }));
-  };
+  }, []);
 
-  const handleCancel = () => {
-    if (resolverRef.current) {
-      resolverRef.current(false);
-      resolverRef.current = null;
+  const handleOpenChange = (nextOpen) => {
+    if (!nextOpen) {
+      settle(false);
     }
-    setDialogState((prev) => ({ ...prev, isOpen: false }));
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (dialogState.isOpen && e.key === 'Escape') {
-        handleCancel();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [dialogState.isOpen]);
-
-  const defaultIconMap = {
-    danger: 'fa-solid fa-triangle-exclamation',
-    warning: 'fa-solid fa-circle-exclamation',
-    info: 'fa-solid fa-circle-info'
-  };
-
-  const activeIcon = dialogState.icon || defaultIconMap[dialogState.variant] || defaultIconMap.info;
-
-  const modalContent = dialogState.isOpen ? (
-    <div
-      className="confirm-modal-overlay"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) handleCancel();
-      }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-modal-title"
-    >
-      <div className="confirm-modal-box">
-        <div className={`confirm-modal-icon-wrapper variant-${dialogState.variant}`}>
-          <i className={activeIcon}></i>
-        </div>
-        <h3 id="confirm-modal-title" className="confirm-modal-title">
-          {dialogState.title}
-        </h3>
-        <p className="confirm-modal-message">{dialogState.message}</p>
-        <div className="confirm-modal-actions">
-          <button
-            type="button"
-            className="confirm-modal-btn btn-cancel"
-            onClick={handleCancel}
-          >
-            {dialogState.cancelText}
-          </button>
-          <button
-            type="button"
-            className={`confirm-modal-btn btn-confirm-${dialogState.variant}`}
-            onClick={handleConfirm}
-            autoFocus
-          >
-            {dialogState.confirmText}
-          </button>
-        </div>
-      </div>
-    </div>
-  ) : null;
+  const variantMeta = VARIANT_CONFIG[dialogState.variant] || VARIANT_CONFIG.info;
+  const VariantIcon = variantMeta.Icon;
 
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
-      {typeof document !== 'undefined' && modalContent
-        ? createPortal(modalContent, document.body)
-        : modalContent}
+      <AlertDialog open={dialogState.isOpen} onOpenChange={handleOpenChange}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia className={`size-12 rounded-xl ${variantMeta.mediaClass}`}>
+              <VariantIcon className="size-6" stroke={1.75} aria-hidden="true" />
+            </AlertDialogMedia>
+            <AlertDialogTitle className="font-display text-lg font-semibold">
+              {dialogState.title}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm leading-relaxed text-muted-foreground">
+              {dialogState.message}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => settle(false)}>
+              {dialogState.cancelText}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant={variantMeta.actionVariant}
+              onClick={() => settle(true)}
+            >
+              {dialogState.confirmText}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </ConfirmContext.Provider>
   );
 }
