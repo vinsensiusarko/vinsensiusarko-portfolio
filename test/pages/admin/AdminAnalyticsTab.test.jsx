@@ -57,6 +57,26 @@ describe('AdminAnalyticsTab Component', () => {
     expect(screen.getByText(/Operating Systems/i)).toBeInTheDocument();
   });
 
+  it('displays the Other bucket in Browser and OS breakdowns when Other > 0', () => {
+    const summaryWithOther = {
+      ...mockSummary,
+      browsers: { ...mockSummary.browsers, Other: 50 },
+      os: { ...mockSummary.os, Other: 30 }
+    };
+
+    render(
+      <ConfirmProvider>
+        <AdminAnalyticsTab
+          initialSummary={summaryWithOther}
+          initialDaily={mockDaily}
+          showToast={vi.fn()}
+        />
+      </ConfirmProvider>
+    );
+
+    expect(screen.getAllByText('Other')).toHaveLength(2);
+  });
+
   it('requires confirmation dialog before resetting analytics data (Review Focus #4)', async () => {
     render(
       <ConfirmProvider>

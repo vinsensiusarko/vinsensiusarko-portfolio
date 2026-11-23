@@ -235,4 +235,38 @@ describe('AdminSkillsTab Drag and Drop Reordering', () => {
       );
     });
   });
+
+  it('supports keyboard and touch reordering via Move Up / Move Down buttons', async () => {
+    const setSkillsMock = vi.fn();
+    const showToastMock = vi.fn();
+
+    render(
+      <ConfirmProvider>
+        <AdminSkillsTab
+          skills={mockSkills}
+          setSkills={setSkillsMock}
+          reloadSkills={vi.fn()}
+          showToast={showToastMock}
+        />
+      </ConfirmProvider>
+    );
+
+    const moveJsDownBtn = screen.getByRole('button', { name: /Move JavaScript down/i });
+    const moveJsUpBtn = screen.getByRole('button', { name: /Move JavaScript up/i });
+    expect(moveJsUpBtn).toBeDisabled();
+    expect(moveJsDownBtn).not.toBeDisabled();
+
+    fireEvent.click(moveJsDownBtn);
+    expect(setSkillsMock).toHaveBeenCalledTimes(1);
+    const updated = setSkillsMock.mock.calls[0][0];
+    expect(updated.find((s) => s.id === 's1').order).toBe(2);
+    expect(updated.find((s) => s.id === 's2').order).toBe(1);
+
+    await waitFor(() => {
+      expect(showToastMock).toHaveBeenCalledWith(
+        expect.stringMatching(/Moved "JavaScript" to position #2/i),
+        'success'
+      );
+    });
+  });
 });

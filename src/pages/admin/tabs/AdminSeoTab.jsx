@@ -218,7 +218,7 @@ export function AdminSeoTab({ showToast }) {
                       size="sm"
                       aria-pressed={isActive}
                       variant={isActive ? 'default' : 'ghost'}
-                      className={`h-8 px-2.5 text-xs ${isActive ? 'active' : ''}`}
+                      className={`h-11 px-3 text-xs sm:h-8 sm:px-2.5 ${isActive ? 'active' : ''}`}
                       onClick={() => setPreviewPlatform(id)}
                       title={title}
                     >
@@ -250,9 +250,9 @@ export function AdminSeoTab({ showToast }) {
                   <span className="font-mono text-[11px] text-muted-foreground">
                     {formData.website}
                   </span>
-                  <h4 className="text-sm font-semibold text-foreground">
+                  <p className="text-sm font-semibold text-foreground">
                     {formData.title} | {formData.role}
-                  </h4>
+                  </p>
                   <p className="line-clamp-2 text-xs text-muted-foreground">
                     {formData.description}
                   </p>
@@ -261,7 +261,7 @@ export function AdminSeoTab({ showToast }) {
 
               {previewPlatform === 'whatsapp' && (
                 <div className="flex flex-col gap-1 border-t border-border border-l-4 border-l-success bg-card p-3.5">
-                  <h4 className="text-sm font-semibold text-foreground">{formData.title}</h4>
+                  <p className="text-sm font-semibold text-foreground">{formData.title}</p>
                   <p className="line-clamp-2 text-xs text-muted-foreground">
                     {formData.description}
                   </p>
@@ -273,9 +273,9 @@ export function AdminSeoTab({ showToast }) {
 
               {previewPlatform === 'linkedin' && (
                 <div className="flex flex-col gap-1 border-t border-border bg-muted/50 p-3.5">
-                  <h4 className="text-sm font-semibold text-foreground">
+                  <p className="text-sm font-semibold text-foreground">
                     {formData.title} | {formData.role}
-                  </h4>
+                  </p>
                   <span className="text-xs text-muted-foreground">
                     {formData.website} &middot; 1 min read
                   </span>

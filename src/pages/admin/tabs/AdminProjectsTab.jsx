@@ -581,7 +581,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                       type="button"
                       variant="outline"
                       size="icon"
-                      className="size-8"
+                      className="size-11 sm:size-8"
                       disabled={isFirst || isReordering}
                       title="Move Earlier (Up)"
                       aria-label={`Move ${project.title} up`}
@@ -593,7 +593,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                       type="button"
                       variant="outline"
                       size="icon"
-                      className="size-8"
+                      className="size-11 sm:size-8"
                       disabled={isLast || isReordering}
                       title="Move Later (Down)"
                       aria-label={`Move ${project.title} down`}
@@ -608,7 +608,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="h-8"
+                      className="h-11 sm:h-8"
                       onClick={() => openEditModal(project)}
                     >
                       <IconPencil className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
@@ -618,7 +618,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      className="size-11 text-muted-foreground hover:bg-destructive/10 hover:text-destructive-text sm:size-8"
                       aria-label={`Delete ${project.title}`}
                       onClick={() => handleDelete(project)}
                     >
@@ -887,7 +887,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                           type="button"
                           size="icon"
                           variant="secondary"
-                          className="size-8 bg-background/90 shadow-xs"
+                          className="size-11 bg-background/90 shadow-xs sm:size-8"
                           title="Set as Cover Image"
                           aria-label={`Set screenshot ${gIdx + 1} as cover image`}
                           onClick={(e) => {
@@ -901,7 +901,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                           type="button"
                           size="icon"
                           variant="destructive"
-                          className="size-8 shadow-xs"
+                          className="size-11 shadow-xs sm:size-8"
                           title="Remove screenshot"
                           aria-label={`Remove screenshot ${gIdx + 1}`}
                           onClick={(e) => {

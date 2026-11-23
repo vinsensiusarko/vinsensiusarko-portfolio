@@ -5,7 +5,9 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { AdminLogin } from '../../../src/pages/admin/AdminLogin';
 import { AdminPage } from '../../../src/pages/admin/AdminPage';
+import { ConfirmProvider } from '../../../src/context/ConfirmContext';
 import { ThemeProvider } from '../../../src/context/ThemeContext';
+import { TooltipProvider } from '../../../src/components/ui/tooltip';
 
 vi.mock('firebase/auth', async (importOriginal) => {
   const actual = await importOriginal();
@@ -70,7 +72,11 @@ describe('AdminLogin & AdminPage Shell', () => {
     const { container } = render(
       <MemoryRouter>
         <ThemeProvider>
-          <AdminPage />
+          <ConfirmProvider>
+            <TooltipProvider>
+              <AdminPage />
+            </TooltipProvider>
+          </ConfirmProvider>
         </ThemeProvider>
       </MemoryRouter>
     );

@@ -10,6 +10,8 @@ import {
 } from 'firebase/firestore';
 import {
   IconAdjustmentsHorizontal,
+  IconArrowDown,
+  IconArrowUp,
   IconCloudUpload,
   IconCode,
   IconStack2,
@@ -217,6 +219,68 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
     }
   };
 
+  const handleMoveSkill = async (skill, direction) => {
+    if (isReordering || !db) return;
+    const categorySkills = (skills || [])
+      .filter((s) => s.category === skill.category)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+    const currentIdx = categorySkills.findIndex((s) => s.id === skill.id);
+    const targetIdx = currentIdx + direction;
+    if (currentIdx === -1 || targetIdx < 0 || targetIdx >= categorySkills.length) return;
+
+    setIsReordering(true);
+    const previousSkills = skills;
+    const reorderedCategory = [...categorySkills];
+    const [moved] = reorderedCategory.splice(currentIdx, 1);
+    reorderedCategory.splice(targetIdx, 0, moved);
+
+    const normalized = reorderedCategory.map((s, idx) => ({ ...s, order: idx + 1 }));
+    const updatedSkills = (skills || []).map((s) => {
+      if (s.category === skill.category) {
+        return normalized.find((item) => item.id === s.id) || s;
+      }
+      return s;
+    });
+
+    if (setSkills) {
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem('portfolio_skills_cache', JSON.stringify(updatedSkills));
+        }
+      } catch {
+        // ignore
+      }
+      setSkills(updatedSkills);
+    }
+
+    try {
+      const batch = writeBatch(db);
+      normalized.forEach((s) => {
+        batch.update(doc(db, 'skills', s.id), {
+          order: s.order,
+          updatedAt: serverTimestamp()
+        });
+      });
+      await batch.commit();
+      showToast(`Moved "${moved.name}" to position #${targetIdx + 1}!`, 'success');
+      if (reloadSkills) await reloadSkills();
+    } catch (err) {
+      console.error('Error reordering skill:', err);
+      if (setSkills) setSkills(previousSkills);
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem('portfolio_skills_cache', JSON.stringify(previousSkills));
+        }
+      } catch {
+        // ignore
+      }
+      showToast('Failed to update skill order: ' + err.message, 'error');
+      if (reloadSkills) await reloadSkills();
+    } finally {
+      setIsReordering(false);
+    }
+  };
+
   const openAddModal = () => {
     setEditingId(null);
     setFormData({
@@ -407,8 +471,10 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
     }
   };
 
-  const renderSkillRow = (skill) => {
+  const renderSkillRow = (skill, index, listLength) => {
     const isExperienced = skill.level === 'Experienced';
+    const isFirst = index === 0;
+    const isLast = index === listLength - 1;
     return (
       <div
         key={skill.id}
@@ -445,14 +511,39 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1.5">
+        <div className="flex flex-wrap shrink-0 items-center gap-1.5">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="size-11 sm:size-8"
+            disabled={isFirst || isReordering}
+            title="Move Earlier (Up)"
+            aria-label={`Move ${skill.name} up`}
+            onClick={() => handleMoveSkill(skill, -1)}
+          >
+            <IconArrowUp className="size-3.5" stroke={1.75} aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="size-11 sm:size-8"
+            disabled={isLast || isReordering}
+            title="Move Later (Down)"
+            aria-label={`Move ${skill.name} down`}
+            onClick={() => handleMoveSkill(skill, 1)}
+          >
+            <IconArrowDown className="size-3.5" stroke={1.75} aria-hidden="true" />
+          </Button>
+
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => handleToggleLevel(skill)}
             title="Click to toggle level (Experienced / Intermediate)"
-            className={`h-7 gap-1.5 px-2.5 text-xs ${
+            className={`h-11 gap-1.5 px-2.5 text-xs sm:h-7 ${
               isExperienced
                 ? 'border-success/40 bg-success/10 text-success hover:bg-success/15 hover:text-success'
                 : 'border-warning/40 bg-warning/10 text-warning hover:bg-warning/15 hover:text-warning'
@@ -466,7 +557,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
             type="button"
             variant="outline"
             size="icon"
-            className="size-8"
+            className="size-11 sm:size-8"
             onClick={() => openEditModal(skill)}
             title="Edit Skill"
             aria-label={`Edit ${skill.name}`}
@@ -478,7 +569,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
             type="button"
             variant="ghost"
             size="icon"
-            className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            className="size-11 text-muted-foreground hover:bg-destructive/10 hover:text-destructive-text sm:size-8"
             onClick={() => handleDelete(skill)}
             title="Delete Skill"
             aria-label={`Delete ${skill.name}`}
@@ -524,7 +615,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
                   No programming languages found.
                 </p>
               ) : (
-                languages.map(renderSkillRow)
+                languages.map((skill, idx) => renderSkillRow(skill, idx, languages.length))
               )}
             </CardContent>
           </Card>
@@ -545,7 +636,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
                   No frameworks or tools found.
                 </p>
               ) : (
-                frameworks.map(renderSkillRow)
+                frameworks.map((skill, idx) => renderSkillRow(skill, idx, frameworks.length))
               )}
             </CardContent>
           </Card>
@@ -673,7 +764,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-7 gap-1.5 px-2.5 text-xs"
+                        className="h-10 gap-1.5 px-2.5 text-xs sm:h-7"
                         onClick={() => {
                           setFormData({
                             ...formData,
@@ -795,7 +886,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
                     ) : null}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Mendukung file PNG, SVG, atau WebP transparan (Maksimal 1 MB). Otomatis menyesuaikan tema dark mode &amp; light mode.
+                    Supports transparent PNG, SVG, or WebP files (max 1 MB). Automatically adapts to light and dark themes.
                   </p>
                 </div>
               </div>

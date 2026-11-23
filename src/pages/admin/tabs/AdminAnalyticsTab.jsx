@@ -263,9 +263,9 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
                 {loading ? (
                   <Skeleton className="h-8 w-20" />
                 ) : (
-                  <h3 className="font-mono text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+                  <p className="font-mono text-2xl font-semibold tracking-tight tabular-nums text-foreground">
                     {value}
-                  </h3>
+                  </p>
                 )}
                 <span className="text-xs text-muted-foreground">{subtext}</span>
               </div>
@@ -367,7 +367,7 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 px-5">
-            {['Chrome', 'Safari', 'Firefox', 'Edge'].map((brw) => {
+            {['Chrome', 'Safari', 'Firefox', 'Edge', ...(Number(browsers.Other || 0) > 0 ? ['Other'] : [])].map((brw) => {
               const count = Number(browsers[brw] || 0);
               const pct = Math.round((count / totalBrowserViews) * 100);
               return (
@@ -393,7 +393,7 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 px-5">
-            {['Windows', 'Android', 'iOS', 'macOS', 'Linux'].map((osName) => {
+            {['Windows', 'Android', 'iOS', 'macOS', 'Linux', ...(Number(osList.Other || 0) > 0 ? ['Other'] : [])].map((osName) => {
               const count = Number(osList[osName] || 0);
               const pct = Math.round((count / totalOsViews) * 100);
               return (

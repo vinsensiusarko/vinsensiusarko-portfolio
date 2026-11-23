@@ -427,7 +427,7 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
               Full JSON Backup &amp; Restore
             </CardTitle>
             <CardDescription className="text-sm leading-relaxed">
-              Ekspor seluruh database Cloud Firestore Anda (Projects, Skills, Pengaturan Profil, Kontak, dan Privacy Policy) ke dalam satu file <code className="font-mono">.json</code> terstruktur untuk arsip lokal atau restore instan.
+              Export your complete Cloud Firestore dataset (Projects, Skills, Profile, Contact, and Privacy Policy) into one structured <code className="font-mono">.json</code> file for local archiving or instant restore.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap items-center gap-2.5 px-5">
@@ -510,7 +510,7 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
               Initial Database Seeder
             </CardTitle>
             <CardDescription className="text-sm leading-relaxed">
-              Mengisi ulang database Firestore secara otomatis dengan data awal bawaan: 9 portfolio projects, 11 tech skills, serta profil &amp; bio standar.
+              Populate Firestore with starter portfolio content: 9 portfolio projects, 11 tech skills, and baseline profile, contact, and privacy settings.
             </CardDescription>
           </CardHeader>
           <CardContent className="px-5">

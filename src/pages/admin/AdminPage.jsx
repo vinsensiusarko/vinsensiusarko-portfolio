@@ -28,7 +28,7 @@ import {
 } from '@tabler/icons-react';
 import { auth, db } from '../../services/firebase';
 import { useTheme } from '../../context/ThemeContext';
-import { ConfirmProvider, useConfirm } from '../../context/ConfirmContext';
+import { useConfirm } from '../../context/ConfirmContext';
 import { BrandLogo } from '../../components/common/BrandLogo';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
@@ -43,7 +43,6 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger
 } from '../../components/ui/tooltip';
 import { AdminLogin } from './AdminLogin';
@@ -203,7 +202,7 @@ function SidebarNavContent({
                 id={`${idPrefix}logout-btn`}
                 variant="ghost"
                 size="icon"
-                className="size-9 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive-text"
+                className="size-11 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive-text sm:size-9"
                 aria-label="Sign Out"
                 onClick={onLogout}
               >
@@ -413,8 +412,7 @@ function AdminDashboardContent() {
   const userEmail = user?.email || 'Admin';
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <div data-admin="true" className="min-h-dvh bg-background text-foreground">
+    <div data-admin="true" className="min-h-dvh bg-background text-foreground">
         {authStatus === 'checking' && <AdminDashboardSkeleton />}
 
         {authStatus === 'unauthenticated' && (
@@ -542,7 +540,7 @@ function AdminDashboardContent() {
                     id="sidebar-toggle-btn"
                     variant="outline"
                     size="icon"
-                    className="size-10 shrink-0 lg:hidden"
+                    className="size-11 shrink-0 lg:hidden"
                     aria-label="Toggle Menu"
                     onClick={() => setMobileMenuOpen(true)}
                   >
@@ -557,7 +555,7 @@ function AdminDashboardContent() {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
-                  <Button asChild variant="outline" size="sm" className="h-9">
+                  <Button asChild variant="outline" size="sm" className="h-11 min-w-11 sm:h-9 sm:min-w-0">
                     <a
                       href="https://vinsensiusarka.id"
                       target="_blank"
@@ -578,7 +576,7 @@ function AdminDashboardContent() {
                     id="admin-theme-toggle"
                     variant="outline"
                     size="icon"
-                    className="size-9"
+                    className="size-11 sm:size-9"
                     aria-label="Toggle Dark/Light Mode"
                     onClick={toggleTheme}
                   >
@@ -622,15 +620,10 @@ function AdminDashboardContent() {
             </div>
           </div>
         )}
-      </div>
-    </TooltipProvider>
+    </div>
   );
 }
 
 export function AdminPage() {
-  return (
-    <ConfirmProvider>
-      <AdminDashboardContent />
-    </ConfirmProvider>
-  );
+  return <AdminDashboardContent />;
 }

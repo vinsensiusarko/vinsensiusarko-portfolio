@@ -4,14 +4,20 @@ import { MemoryRouter } from 'react-router';
 import { AppRoutes } from '../src/App';
 import { ThemeProvider } from '../src/context/ThemeContext';
 import { SeasonProvider } from '../src/context/SeasonContext';
+import { ConfirmProvider } from '../src/context/ConfirmContext';
+import { TooltipProvider } from '../src/components/ui/tooltip';
 
 function renderRoute(initialEntry = '/') {
   return render(
     <ThemeProvider>
       <SeasonProvider>
-        <MemoryRouter initialEntries={[initialEntry]}>
-          <AppRoutes />
-        </MemoryRouter>
+        <ConfirmProvider>
+          <TooltipProvider>
+            <MemoryRouter initialEntries={[initialEntry]}>
+              <AppRoutes />
+            </MemoryRouter>
+          </TooltipProvider>
+        </ConfirmProvider>
       </SeasonProvider>
     </ThemeProvider>
   );
