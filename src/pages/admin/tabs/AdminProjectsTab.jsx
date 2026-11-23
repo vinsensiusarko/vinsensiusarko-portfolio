@@ -8,12 +8,63 @@ import {
   writeBatch,
   serverTimestamp
 } from 'firebase/firestore';
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconBolt,
+  IconCheck,
+  IconClock,
+  IconCloudUpload,
+  IconFolderOff,
+  IconGripVertical,
+  IconLoader2,
+  IconPencil,
+  IconPhotoPlus,
+  IconPlus,
+  IconStar,
+  IconTrash
+} from '@tabler/icons-react';
 import { db } from '../../../services/firebase';
 import { useConfirm } from '../../../context/ConfirmContext';
 import { formatRichDescription } from '../../../utils/formatDescription';
 import { compressImageToBase64 } from '../../../utils/imageCompressor';
 import { resolveProjectImage } from '../../../utils/resolveProjectImage';
+import { Badge } from '../../../components/ui/badge';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '../../../components/ui/dialog';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../../../components/ui/select';
+import { Separator } from '../../../components/ui/separator';
+import { Switch } from '../../../components/ui/switch';
+import { Textarea } from '../../../components/ui/textarea';
+import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminProjectsShimmer } from '../AdminShimmer';
+
+const PROJECT_CATEGORIES = [
+  'Mobile Application',
+  'Web Application',
+  'Backend API',
+  'Desktop Application',
+  'Web Portal',
+  'Enterprise System'
+];
+
+const DEMO_LABELS = ['Live Demo', 'Play Store', 'App Store', 'View Site'];
 
 const INITIAL_FORM = {
   title: '',
@@ -276,8 +327,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       message: `Apakah Anda yakin ingin menghapus proyek "${project.title}"? Tindakan ini permanen dan tidak dapat dibatalkan.`,
       confirmText: 'Ya, Hapus Proyek',
       cancelText: 'Batal',
-      variant: 'danger',
-      icon: 'fa-solid fa-trash'
+      variant: 'danger'
     });
     if (!ok) return;
 
@@ -362,570 +412,590 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
         imageUrl: formData.imageUrl
       })
     : '';
+  const liveDescPreviewHtml = formData.description.trim()
+    ? formatRichDescription(formData.description)
+    : '';
 
   return (
-    <section id="tab-projects" className="tab-section">
-      <div className="card">
-        <div className="card-header">
-          <div>
-            <h2 className="card-title">Portfolio Projects</h2>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-              Add, edit, reorder, or delete projects displayed on the public website.
-            </p>
-          </div>
-          <button
-            type="button"
-            id="btn-add-project"
-            className="btn btn-primary"
-            onClick={openAddModal}
-          >
-            <i className="fa-solid fa-plus"></i> Add New Project
-          </button>
-        </div>
+    <section id="tab-projects" className="flex flex-col gap-6">
+      <AdminPageHeader
+        title="Portfolio Projects"
+        badge={`${projects.length} total`}
+        description="Add, edit, drag to reorder, or delete projects displayed on the public website."
+        actions={
+          <Button type="button" id="btn-add-project" onClick={openAddModal}>
+            <IconPlus className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+            Add New Project
+          </Button>
+        }
+      />
 
-        <div id="projects-grid" className="admin-grid">
-          {loading ? (
-            <AdminProjectsShimmer count={6} />
-          ) : projects.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem 1rem' }}>
-              <i
-                className="fa-solid fa-folder-open"
-                style={{ fontSize: '2.5rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}
-              ></i>
-              <p style={{ color: 'var(--text-muted)' }}>
-                No projects found in Firestore. Click <strong>Add New Project</strong> or go to{' '}
-                <strong>Database Seeder</strong> to import your default portfolio projects.
+      {loading ? (
+        <AdminProjectsShimmer count={6} />
+      ) : projects.length === 0 ? (
+        <Card className="border-dashed py-12">
+          <CardContent className="flex flex-col items-center gap-3 text-center">
+            <div className="flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+              <IconFolderOff className="size-6" stroke={1.75} aria-hidden="true" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <p className="text-sm font-medium text-foreground">No projects found in Firestore</p>
+              <p className="max-w-md text-sm text-muted-foreground">
+                Click <strong>Add New Project</strong> or open <strong>Backup &amp; Database</strong> to seed your default portfolio projects.
               </p>
             </div>
-          ) : (
-            projects.map((project, index) => {
-              const imgSrc = resolveProjectImage(project);
-              const isBase64 = imgSrc.startsWith('data:');
-              const isFirst = index === 0;
-              const isLast = index === projects.length - 1;
-              const descHtml = formatRichDescription(project.description || '');
+          </CardContent>
+        </Card>
+      ) : (
+        <div
+          id="projects-grid"
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+        >
+          {projects.map((project, index) => {
+            const imgSrc = resolveProjectImage(project);
+            const isBase64 = imgSrc.startsWith('data:');
+            const isFirst = index === 0;
+            const isLast = index === projects.length - 1;
+            const descHtml = formatRichDescription(project.description || '');
+            const galleryCount = Array.isArray(project.gallery) ? project.gallery.length : 0;
 
-              return (
-                <div
-                  className={`admin-project-card ${draggedProjectId === project.id ? 'is-dragging' : ''} ${dragOverProjectId === project.id ? 'drag-target' : ''}`}
-                  key={project.id}
-                  draggable={true}
-                  onDragStart={(e) => handleCardDragStart(e, project)}
-                  onDragOver={handleCardDragOver}
-                  onDragEnter={() => handleCardDragEnter(project)}
-                  onDragLeave={(e) => handleCardDragLeave(e, project)}
-                  onDragEnd={handleCardDragEnd}
-                  onDrop={(e) => handleCardDrop(e, project)}
-                >
-                  <div className="admin-project-thumb">
-                    <div
-                      className="admin-project-thumb-bg"
-                      style={{ backgroundImage: `url('${imgSrc}')` }}
-                    ></div>
-                    <div className="admin-card-drag-handle" title="Drag to reorder">
-                      <i className="fa-solid fa-grip-vertical"></i>
-                    </div>
-                    <span className="project-order-badge" title="Display Order">
-                      #{index + 1}
-                    </span>
+            return (
+              <Card
+                key={project.id}
+                draggable={true}
+                onDragStart={(e) => handleCardDragStart(e, project)}
+                onDragOver={handleCardDragOver}
+                onDragEnter={() => handleCardDragEnter(project)}
+                onDragLeave={(e) => handleCardDragLeave(e, project)}
+                onDragEnd={handleCardDragEnd}
+                onDrop={(e) => handleCardDrop(e, project)}
+                className={`admin-project-card flex flex-col justify-between overflow-hidden py-0 gap-0 transition-all ${
+                  draggedProjectId === project.id ? 'opacity-50 scale-[0.98]' : ''
+                } ${
+                  dragOverProjectId === project.id ? 'ring-2 ring-foreground border-foreground' : ''
+                }`}
+              >
+                <div className="flex flex-col">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-border bg-muted">
                     <img
                       src={imgSrc}
                       alt={project.title}
                       loading="lazy"
                       draggable="false"
+                      className="size-full object-cover"
                       onError={(e) => {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = '/assets/images/portfolio-1.png';
                       }}
                     />
-                  </div>
-                  <div className="admin-project-body">
+
                     <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        marginBottom: '0.35rem',
-                        flexWrap: 'wrap'
-                      }}
+                      title="Drag to reorder"
+                      className="absolute top-2.5 left-2.5 inline-flex size-8 cursor-grab items-center justify-center rounded-md border border-border/80 bg-background/90 text-foreground shadow-xs active:cursor-grabbing"
                     >
-                      <span
-                        style={{
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          color: 'var(--text-muted)',
-                          textTransform: 'uppercase'
-                        }}
-                      >
+                      <IconGripVertical className="size-4" stroke={1.75} aria-hidden="true" />
+                    </div>
+
+                    <Badge
+                      variant="secondary"
+                      title="Display Order"
+                      className="absolute top-2.5 right-2.5 border border-border/80 bg-background/90 font-mono text-xs tabular-nums text-foreground"
+                    >
+                      #{index + 1}
+                    </Badge>
+                  </div>
+
+                  <CardContent className="flex flex-col gap-3 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5">
+                      <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
                         {project.category || 'Uncategorized'}
                       </span>
-                      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                      <div className="flex flex-wrap items-center gap-1.5">
                         {project.isComingSoon ? (
-                          <span
-                            className="compression-badge"
-                            style={{ backgroundColor: 'var(--accent-warning)' }}
+                          <Badge
+                            variant="outline"
+                            className="border-warning/40 bg-warning/10 text-warning text-[11px]"
                           >
-                            <i className="fa-solid fa-clock"></i> Coming Soon
-                          </span>
+                            <IconClock className="size-3" stroke={1.75} aria-hidden="true" />
+                            Coming Soon
+                          </Badge>
                         ) : (
-                          <span
-                            className="compression-badge"
-                            style={{ backgroundColor: 'var(--accent-success)' }}
+                          <Badge
+                            variant="outline"
+                            className="border-success/40 bg-success/10 text-success text-[11px]"
                           >
-                            <i className="fa-solid fa-check"></i> Live
-                          </span>
+                            <IconCheck className="size-3" stroke={1.75} aria-hidden="true" />
+                            Live
+                          </Badge>
                         )}
-                        {isBase64 && (
-                          <span className="compression-badge">
-                            <i className="fa-solid fa-bolt"></i> Base64
-                          </span>
-                        )}
+                        {isBase64 ? (
+                          <Badge variant="secondary" className="font-mono text-[10px]">
+                            <IconBolt className="size-3" stroke={1.75} aria-hidden="true" />
+                            Base64
+                          </Badge>
+                        ) : null}
+                        {galleryCount > 0 ? (
+                          <Badge variant="outline" className="font-mono text-[10px] tabular-nums">
+                            +{galleryCount} imgs
+                          </Badge>
+                        ) : null}
                       </div>
                     </div>
-                    <h3>{project.title}</h3>
+
+                    <h3 className="font-display line-clamp-1 text-base font-semibold tracking-tight text-foreground">
+                      {project.title}
+                    </h3>
+
                     <div
-                      className="admin-project-desc"
+                      className="line-clamp-3 text-xs leading-relaxed text-muted-foreground [&_p]:m-0"
                       dangerouslySetInnerHTML={{ __html: descHtml }}
                     />
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: '0.35rem',
-                        marginBottom: '1rem'
-                      }}
+
+                    {(project.techStack || []).length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5 pt-0.5">
+                        {(project.techStack || []).slice(0, 6).map((t, tIdx) => (
+                          <Badge
+                            key={tIdx}
+                            variant="secondary"
+                            className="px-2 py-0.5 text-[11px] font-normal"
+                          >
+                            {t}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : null}
+                  </CardContent>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 border-t border-border bg-muted/30 px-4 py-2.5">
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-8"
+                      disabled={isFirst || isReordering}
+                      title="Move Earlier (Up)"
+                      aria-label={`Move ${project.title} up`}
+                      onClick={() => handleMoveProject(index, -1)}
                     >
-                      {(project.techStack || []).map((t, tIdx) => (
-                        <span
-                          key={tIdx}
-                          style={{
-                            fontSize: '0.72rem',
-                            padding: '0.15rem 0.5rem',
-                            borderRadius: '1rem',
-                            background: 'var(--bg-card-alt)',
-                            border: '1px solid var(--border-color)'
-                          }}
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="admin-card-actions">
-                      <div className="admin-card-reorder">
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-sm"
-                          disabled={isFirst || isReordering}
-                          title="Move Earlier (Up)"
-                          onClick={() => handleMoveProject(index, -1)}
-                        >
-                          <i className="fa-solid fa-arrow-up"></i>
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-sm"
-                          disabled={isLast || isReordering}
-                          title="Move Later (Down)"
-                          onClick={() => handleMoveProject(index, 1)}
-                        >
-                          <i className="fa-solid fa-arrow-down"></i>
-                        </button>
-                      </div>
-                      <div className="admin-card-buttons">
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => openEditModal(project)}
-                        >
-                          <i className="fa-solid fa-pen"></i> Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(project)}
-                        >
-                          <i className="fa-solid fa-trash"></i>
-                        </button>
-                      </div>
-                    </div>
+                      <IconArrowUp className="size-3.5" stroke={1.75} aria-hidden="true" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="size-8"
+                      disabled={isLast || isReordering}
+                      title="Move Later (Down)"
+                      aria-label={`Move ${project.title} down`}
+                      onClick={() => handleMoveProject(index, 1)}
+                    >
+                      <IconArrowDown className="size-3.5" stroke={1.75} aria-hidden="true" />
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => openEditModal(project)}
+                    >
+                      <IconPencil className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+                      Edit
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      aria-label={`Delete ${project.title}`}
+                      onClick={() => handleDelete(project)}
+                    >
+                      <IconTrash className="size-4" stroke={1.75} aria-hidden="true" />
+                    </Button>
                   </div>
                 </div>
-              );
-            })
-          )}
+              </Card>
+            );
+          })}
         </div>
-      </div>
+      )}
 
-      {/* ADD / EDIT PROJECT MODAL */}
-      <div
-        id="project-modal"
-        className={`modal-backdrop ${modalOpen ? 'show' : ''}`}
-        onClick={(e) => {
-          if (e.target.id === 'project-modal') setModalOpen(false);
-        }}
-      >
-        <div className="modal-content">
-          <div className="modal-header">
-            <h3 style={{ fontSize: '1.25rem' }}>
+      {/* ADD / EDIT PROJECT DIALOG */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl">
               {editingId ? 'Edit Project' : 'Add New Project'}
-            </h3>
-            <button
-              type="button"
-              className="btn-icon"
-              onClick={() => setModalOpen(false)}
-              aria-label="Close modal"
-            >
-              <i className="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="modal-body">
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="project-title">
-                    Project Title *
-                  </label>
-                  <input
-                    type="text"
-                    id="project-title"
-                    className="form-input"
-                    required
-                    placeholder="e.g. Solo Parent App"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="project-category">
-                    Category *
-                  </label>
-                  <select
-                    id="project-category"
-                    className="form-select"
-                    required
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  >
-                    <option value="Mobile Application">Mobile Application</option>
-                    <option value="Web Application">Web Application</option>
-                    <option value="Backend API">Backend API</option>
-                    <option value="Desktop Application">Desktop Application</option>
-                    <option value="Web Portal">Web Portal</option>
-                    <option value="Enterprise System">Enterprise System</option>
-                  </select>
-                </div>
-              </div>
+            </DialogTitle>
+            <DialogDescription>
+              Configure project metadata, cover thumbnail, screenshot gallery, and public links.
+            </DialogDescription>
+          </DialogHeader>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="project-order">
-                    Display Order (1 = First)
-                  </label>
-                  <input
-                    type="number"
-                    id="project-order"
-                    className="form-input"
-                    min="1"
-                    value={formData.order}
-                    onChange={(e) => setFormData({ ...formData, order: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="project-tech">
-                    Tech Stack (Comma separated) *
-                  </label>
-                  <input
-                    type="text"
-                    id="project-tech"
-                    className="form-input"
-                    required
-                    placeholder="Flutter, Dart, Firebase"
-                    value={formData.techStack}
-                    onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="project-desc">
-                  Description *
-                </label>
-                <textarea
-                  id="project-desc"
-                  className="form-textarea"
-                  required
-                  placeholder="Describe the project's purpose, key features, and impact..."
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                ></textarea>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  Project Thumbnail (Auto-Compressed to WebP/JPEG Base64)
-                </label>
-                <div
-                  className={`image-dropzone ${dragOver ? 'dragover' : ''}`}
-                  onClick={() => fileInputRef.current?.click()}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDragOver(true);
-                  }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setDragOver(false);
-                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                      handleImageFile(e.dataTransfer.files[0]);
-                    }
-                  }}
-                >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        handleImageFile(e.target.files[0]);
-                      }
-                      e.target.value = '';
-                    }}
-                  />
-                  <div className="dropzone-icon">
-                    <i className="fa-solid fa-cloud-arrow-up"></i>
-                  </div>
-                  <p style={{ fontWeight: 600, fontSize: '0.95rem' }}>
-                    Click or Drag &amp; Drop an Image Here
-                  </p>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    Automatically resized to 800px &amp; compressed (~40KB) — No paid storage needed!
-                  </p>
-
-                  {previewImgSrc && (
-                    <div className="dropzone-preview" onClick={(e) => e.stopPropagation()}>
-                      <div className="dropzone-img-box" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <img
-                          src={previewImgSrc}
-                          alt="Preview"
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/assets/images/portfolio-1.png';
-                          }}
-                        />
-                      </div>
-                      <div style={{ marginTop: '0.65rem' }}>
-                        <span className="compression-badge">
-                          <i className="fa-solid fa-bolt"></i>{' '}
-                          {compressedKB
-                            ? `Compressed (${compressedKB} KB)`
-                            : formData.imageBase64
-                            ? 'Stored as Base64'
-                            : 'Current Image Loaded'}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <label className="form-label" style={{ marginBottom: 0 }}>
-                    Project Screenshot Gallery ({formData.gallery?.length || 0}/6)
-                  </label>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                    Multiple screenshots shown in Quick View detail modal
-                  </span>
-                </div>
-
-                <div
-                  className="gallery-upload-dropzone"
-                  onClick={() => galleryInputRef.current?.click()}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    if (e.dataTransfer.files) {
-                      handleGalleryFiles(e.dataTransfer.files);
-                    }
-                  }}
-                >
-                  <input
-                    ref={galleryInputRef}
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={(e) => {
-                      if (e.target.files) {
-                        handleGalleryFiles(e.target.files);
-                      }
-                      e.target.value = '';
-                    }}
-                  />
-                  <i className="fa-solid fa-images" style={{ fontSize: '1.4rem', color: 'var(--primary)', marginBottom: '0.35rem' }}></i>
-                  <p style={{ fontWeight: 600, fontSize: '0.88rem', margin: '0 0 0.2rem 0' }}>
-                    Click or Drag screenshots to add to gallery (Up to 6)
-                  </p>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
-                    Auto-compressed via Canvas WebP/JPEG — Client can view full multi-image gallery
-                  </p>
-                </div>
-
-                {formData.gallery && formData.gallery.length > 0 && (
-                  <div className="admin-gallery-grid">
-                    {formData.gallery.map((img, gIdx) => (
-                      <div className="admin-gallery-item" key={gIdx}>
-                        <img
-                          src={img}
-                          alt={`Screenshot ${gIdx + 1}`}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = '/assets/images/portfolio-1.png';
-                          }}
-                        />
-                        <div className="admin-gallery-actions">
-                          <button
-                            type="button"
-                            className="btn-gallery-action cover"
-                            title="Set as Cover Image"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setGalleryImageAsCover(gIdx);
-                            }}
-                          >
-                            <i className="fa-solid fa-star"></i>
-                          </button>
-                          <button
-                            type="button"
-                            className="btn-gallery-action delete"
-                            title="Remove screenshot"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeGalleryImage(gIdx);
-                            }}
-                          >
-                            <i className="fa-solid fa-trash"></i>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="project-image-url">
-                  Or External / Local Image Path (Fallback)
-                </label>
-                <input
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5 pt-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="project-title">Project Title *</Label>
+                <Input
                   type="text"
-                  id="project-image-url"
-                  className="form-input"
-                  placeholder="/assets/images/portfolio-1.png or https://..."
-                  value={formData.imageUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, imageUrl: e.target.value, imageBase64: '' })
-                  }
+                  id="project-title"
+                  required
+                  placeholder="e.g. Solo Parent App"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="project-github">
-                    GitHub Repository URL
-                  </label>
-                  <input
-                    type="url"
-                    id="project-github"
-                    className="form-input"
-                    placeholder="https://github.com/vinsensiusarko/..."
-                    value={formData.githubUrl}
-                    onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="project-demo">
-                    Live Demo / Store URL
-                  </label>
-                  <input
-                    type="url"
-                    id="project-demo"
-                    className="form-input"
-                    placeholder="https://play.google.com/store/..."
-                    value={formData.demoUrl}
-                    onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="form-row" style={{ alignItems: 'center' }}>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="project-demo-label">
-                    Demo Button Label
-                  </label>
-                  <select
-                    id="project-demo-label"
-                    className="form-select"
-                    value={formData.demoLabel}
-                    onChange={(e) => setFormData({ ...formData, demoLabel: e.target.value })}
-                  >
-                    <option value="Live Demo">Live Demo</option>
-                    <option value="Play Store">Play Store</option>
-                    <option value="App Store">App Store</option>
-                    <option value="View Site">View Site</option>
-                  </select>
-                </div>
-                <div
-                  className="form-group"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.6rem',
-                    paddingTop: '1.2rem'
-                  }}
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="project-category">Category *</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => setFormData({ ...formData, category: value })}
                 >
-                  <input
-                    type="checkbox"
-                    id="project-coming-soon"
-                    style={{ width: '1.15rem', height: '1.15rem', cursor: 'pointer' }}
-                    checked={formData.isComingSoon}
-                    onChange={(e) =>
-                      setFormData({ ...formData, isComingSoon: e.target.checked })
-                    }
-                  />
-                  <label
-                    htmlFor="project-coming-soon"
-                    style={{ fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}
-                  >
-                    Mark as &quot;Coming Soon&quot; (Disables Links)
-                  </label>
-                </div>
+                  <SelectTrigger id="project-category" className="w-full">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PROJECT_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setModalOpen(false)}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="project-order">Display Order (1 = First)</Label>
+                <Input
+                  type="number"
+                  id="project-order"
+                  min="1"
+                  value={formData.order}
+                  onChange={(e) => setFormData({ ...formData, order: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="project-tech">Tech Stack (Comma separated) *</Label>
+                <Input
+                  type="text"
+                  id="project-tech"
+                  required
+                  placeholder="Flutter, Dart, Firebase"
+                  value={formData.techStack}
+                  onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="project-desc">Description *</Label>
+              <Textarea
+                id="project-desc"
+                rows={4}
+                required
+                placeholder="Describe the project's purpose, key features, and impact..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+              {liveDescPreviewHtml ? (
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <div className="mb-1.5 font-mono text-[11px] font-medium text-muted-foreground uppercase">
+                    Formatted Preview
+                  </div>
+                  <div
+                    className="text-xs leading-relaxed text-foreground"
+                    dangerouslySetInnerHTML={{ __html: liveDescPreviewHtml }}
+                  />
+                </div>
+              ) : null}
+            </div>
+
+            <Separator />
+
+            {/* COVER THUMBNAIL DROPZONE */}
+            <div className="flex flex-col gap-2">
+              <Label>Project Thumbnail (Auto-Compressed to WebP/JPEG Base64)</Label>
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => fileInputRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    fileInputRef.current?.click();
+                  }
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleImageFile(e.dataTransfer.files[0]);
+                  }
+                }}
+                className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-5 text-center transition-colors ${
+                  dragOver
+                    ? 'border-foreground bg-muted'
+                    : 'border-border bg-muted/30 hover:border-foreground/50 hover:bg-muted/50'
+                }`}
               >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleImageFile(e.target.files[0]);
+                    }
+                    e.target.value = '';
+                  }}
+                />
+                <div className="flex size-10 items-center justify-center rounded-lg bg-background border border-border text-foreground">
+                  <IconCloudUpload className="size-5" stroke={1.75} aria-hidden="true" />
+                </div>
+                <p className="text-sm font-medium text-foreground">
+                  Click or Drag &amp; Drop an Image Here
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Automatically resized to 800px &amp; compressed (~40 KB). No external storage needed.
+                </p>
+
+                {previewImgSrc ? (
+                  <div
+                    className="mt-2 flex w-full flex-col items-center gap-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="overflow-hidden rounded-lg border border-border bg-background">
+                      <img
+                        src={previewImgSrc}
+                        alt="Cover Preview"
+                        className="max-h-44 w-auto object-contain"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/assets/images/portfolio-1.png';
+                        }}
+                      />
+                    </div>
+                    <Badge variant="secondary" className="font-mono text-xs">
+                      <IconBolt className="size-3" stroke={1.75} aria-hidden="true" />
+                      {compressedKB
+                        ? `Compressed (${compressedKB} KB)`
+                        : formData.imageBase64
+                          ? 'Stored as Base64'
+                          : 'Current Image Loaded'}
+                    </Badge>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            {/* SCREENSHOT GALLERY */}
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Label>Project Screenshot Gallery ({formData.gallery?.length || 0}/6)</Label>
+                <span className="text-xs text-muted-foreground">
+                  Multiple screenshots shown in Quick View detail modal
+                </span>
+              </div>
+
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => galleryInputRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    galleryInputRef.current?.click();
+                  }
+                }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (e.dataTransfer.files) {
+                    handleGalleryFiles(e.dataTransfer.files);
+                  }
+                }}
+                className="flex cursor-pointer flex-col items-center gap-1.5 rounded-xl border border-dashed border-border bg-muted/20 p-4 text-center transition-colors hover:border-foreground/50 hover:bg-muted/40"
+              >
+                <input
+                  ref={galleryInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      handleGalleryFiles(e.target.files);
+                    }
+                    e.target.value = '';
+                  }}
+                />
+                <IconPhotoPlus className="size-5 text-foreground" stroke={1.75} aria-hidden="true" />
+                <p className="text-sm font-medium text-foreground">
+                  Click or Drag screenshots to add to gallery (Up to 6)
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Auto-compressed via Canvas WebP/JPEG for the multi-image detail gallery.
+                </p>
+              </div>
+
+              {formData.gallery && formData.gallery.length > 0 ? (
+                <div className="grid grid-cols-2 gap-2.5 pt-1 sm:grid-cols-3">
+                  {formData.gallery.map((img, gIdx) => (
+                    <div
+                      key={gIdx}
+                      className="group relative aspect-[16/10] overflow-hidden rounded-lg border border-border bg-muted"
+                    >
+                      <img
+                        src={img}
+                        alt={`Screenshot ${gIdx + 1}`}
+                        className="size-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/assets/images/portfolio-1.png';
+                        }}
+                      />
+                      <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="secondary"
+                          className="size-7 bg-background/90 shadow-xs"
+                          title="Set as Cover Image"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setGalleryImageAsCover(gIdx);
+                          }}
+                        >
+                          <IconStar className="size-3.5" stroke={1.75} aria-hidden="true" />
+                        </Button>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="destructive"
+                          className="size-7 shadow-xs"
+                          title="Remove screenshot"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeGalleryImage(gIdx);
+                          }}
+                        >
+                          <IconTrash className="size-3.5" stroke={1.75} aria-hidden="true" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="project-image-url">Or External / Local Image Path (Fallback)</Label>
+              <Input
+                type="text"
+                id="project-image-url"
+                placeholder="/assets/images/portfolio-1.png or https://..."
+                value={formData.imageUrl}
+                onChange={(e) =>
+                  setFormData({ ...formData, imageUrl: e.target.value, imageBase64: '' })
+                }
+              />
+            </div>
+
+            <Separator />
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="project-github">GitHub Repository URL</Label>
+                <Input
+                  type="url"
+                  id="project-github"
+                  placeholder="https://github.com/vinsensiusarko/..."
+                  value={formData.githubUrl}
+                  onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="project-demo">Live Demo / Store URL</Label>
+                <Input
+                  type="url"
+                  id="project-demo"
+                  placeholder="https://play.google.com/store/..."
+                  value={formData.demoUrl}
+                  onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="project-demo-label">Demo Button Label</Label>
+                <Select
+                  value={formData.demoLabel}
+                  onValueChange={(value) => setFormData({ ...formData, demoLabel: value })}
+                >
+                  <SelectTrigger id="project-demo-label" className="w-full">
+                    <SelectValue placeholder="Select label" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DEMO_LABELS.map((lbl) => (
+                      <SelectItem key={lbl} value={lbl}>
+                        {lbl}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3.5 py-2.5">
+                <Label htmlFor="project-coming-soon" className="cursor-pointer text-sm">
+                  Mark as &quot;Coming Soon&quot; (Disables Links)
+                </Label>
+                <Switch
+                  id="project-coming-soon"
+                  checked={formData.isComingSoon}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isComingSoon: checked })
+                  }
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="border-t border-border pt-4">
+              <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
                 Cancel
-              </button>
-              <button type="submit" className="btn btn-primary" disabled={saving}>
+              </Button>
+              <Button type="submit" disabled={saving}>
                 {saving ? (
                   <>
-                    <i className="fa-solid fa-spinner fa-spin"></i> Saving...
+                    <IconLoader2
+                      className="size-4 animate-spin"
+                      stroke={1.75}
+                      data-icon="inline-start"
+                      aria-hidden="true"
+                    />
+                    Saving...
                   </>
                 ) : (
                   'Save Project'
                 )}
-              </button>
-            </div>
+              </Button>
+            </DialogFooter>
           </form>
-        </div>
-      </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
