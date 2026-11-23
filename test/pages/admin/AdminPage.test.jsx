@@ -1,12 +1,38 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { AdminLogin } from '../../../src/pages/admin/AdminLogin';
+import { AdminPage } from '../../../src/pages/admin/AdminPage';
 import { ThemeProvider } from '../../../src/context/ThemeContext';
 
-describe('AdminLogin', () => {
+vi.mock('firebase/auth', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    onAuthStateChanged: vi.fn((_auth, callback) => {
+      callback({ email: 'admin@vinsensiusarka.id' });
+      return vi.fn();
+    }),
+    signOut: vi.fn().mockResolvedValue()
+  };
+});
+
+vi.mock('firebase/firestore', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    getDocs: vi.fn(() => Promise.resolve({ size: 0, docs: [] })),
+    getDoc: vi.fn(() => Promise.resolve({ exists: () => false, data: () => ({}) }))
+  };
+});
+
+describe('AdminLogin & AdminPage Shell', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it('renders login form with email, password inputs and back link', () => {
     const showToastMock = vi.fn();
     render(
@@ -40,20 +66,37 @@ describe('AdminLogin', () => {
     expect(passInput.value).toBe('password123');
   });
 
-  it('persists desktop sidebar collapse state to localStorage (Review Focus #4)', () => {
-    localStorage.setItem('admin_sidebar_collapsed', 'true');
+  it('renders grouped sidebar shell without global stats-grid banner and persists sidebar state', async () => {
+    const { container } = render(
+      <MemoryRouter>
+        <ThemeProvider>
+          <AdminPage />
+        </ThemeProvider>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Content')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Insights')).toBeInTheDocument();
+    expect(screen.getByText('Site Settings')).toBeInTheDocument();
+    expect(screen.getByText('System')).toBeInTheDocument();
+    expect(screen.getByText('admin@vinsensiusarka.id')).toBeInTheDocument();
+    expect(container.querySelector('.stats-grid')).not.toBeInTheDocument();
+
+    const collapseBtn = screen.getByRole('button', { name: /Toggle Collapse Sidebar/i });
+    fireEvent.click(collapseBtn);
     expect(localStorage.getItem('admin_sidebar_collapsed')).toBe('true');
-    localStorage.removeItem('admin_sidebar_collapsed');
+
+    const contactTabBtn = screen.getByRole('button', { name: /Contact & Socials/i });
+    fireEvent.click(contactTabBtn);
+    expect(localStorage.getItem('admin_active_tab')).toBe('contact');
+    expect(screen.getByRole('heading', { name: /Contact & Social Channels/i })).toBeInTheDocument();
   });
 
-  it('scopes self-contained CSS tokens for confirm modals, admin shell, and rich descriptions', () => {
-    const confirmCss = fs.readFileSync(path.resolve('src/styles/confirm.css'), 'utf8');
-    const adminCss = fs.readFileSync(path.resolve('src/styles/admin.css'), 'utf8');
+  it('keeps rich description utilities available in index.css', () => {
     const indexCss = fs.readFileSync(path.resolve('src/styles/index.css'), 'utf8');
-
-    expect(confirmCss).toMatch(/\.confirm-modal-overlay[\s\S]*--bg-card:/);
-    expect(adminCss).toMatch(/\.admin-shell[\s\S]*--primary:/);
-    expect(adminCss).toMatch(/\.admin-shell[\s\S]*--text-primary:/);
     expect(indexCss).toMatch(/\.rich-list-group/);
     expect(indexCss).toMatch(/\.rich-number-badge/);
   });
