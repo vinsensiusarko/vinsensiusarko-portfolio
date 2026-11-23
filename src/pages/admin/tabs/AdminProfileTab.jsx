@@ -1,8 +1,27 @@
 import { useState, useEffect, useRef } from 'react';
 import { doc, getDoc, setDoc, deleteField, serverTimestamp } from 'firebase/firestore';
+import {
+  IconBolt,
+  IconCamera,
+  IconCircleCheck,
+  IconDeviceFloppy,
+  IconFileTypePdf,
+  IconIdBadge2,
+  IconLoader2,
+  IconRotate,
+  IconUserCircle
+} from '@tabler/icons-react';
 import { db } from '../../../services/firebase';
 import { FALLBACK_SITE_SETTINGS } from '../../../data/fallbackData';
 import { compressImageToBase64 } from '../../../utils/imageCompressor';
+import { Badge } from '../../../components/ui/badge';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Separator } from '../../../components/ui/separator';
+import { Textarea } from '../../../components/ui/textarea';
+import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminFormShimmer } from '../AdminShimmer';
 
 export function AdminProfileTab({ showToast }) {
@@ -185,421 +204,370 @@ export function AdminProfileTab({ showToast }) {
   };
 
   return (
-    <section id="tab-profile" className="tab-section">
-      <div className="card">
-        <div className="card-header">
-          <div>
-            <h2 className="card-title">Profile, Bio &amp; Resume Settings</h2>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-              Update hero headline, typewriter roles, about me bio, and CV file.
-            </p>
-          </div>
-        </div>
+    <section id="tab-profile" className="flex flex-col gap-6">
+      <AdminPageHeader
+        title="Profile, Bio & Resume Settings"
+        description="Update hero headline, typewriter roles, about biography, portraits, and CV file."
+      />
 
-        {loading ? (
-          <AdminFormShimmer fields={6} />
-        ) : (
-          <form id="profile-form" onSubmit={handleSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="profile-name">
-                Full Display Name
-              </label>
-              <input
-                type="text"
-                id="profile-name"
-                className="form-input"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="profile-greeting">
-                Hero Greeting
-              </label>
-              <input
-                type="text"
-                id="profile-greeting"
-                className="form-input"
-                value={formData.heroGreeting}
-                onChange={(e) => setFormData({ ...formData, heroGreeting: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="profile-roles">
-              Typewriter Animated Roles (Comma-separated)
-            </label>
-            <input
-              type="text"
-              id="profile-roles"
-              className="form-input"
-              placeholder="Web Developer, Mobile Developer, Tech Enthusiast"
-              value={formData.typewriterRoles}
-              onChange={(e) => setFormData({ ...formData, typewriterRoles: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="profile-bio">
-              About Me Biography Paragraph
-            </label>
-            <textarea
-              id="profile-bio"
-              className="form-textarea"
-              rows="4"
-              required
-              value={formData.bioText}
-              onChange={(e) => setFormData({ ...formData, bioText: e.target.value })}
-            ></textarea>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="profile-exp-years">
-                Experience Badge Title
-              </label>
-              <input
-                type="text"
-                id="profile-exp-years"
-                className="form-input"
-                placeholder="1+ years"
-                value={formData.expYears}
-                onChange={(e) => setFormData({ ...formData, expYears: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="profile-exp-sub">
-                Experience Subtitle
-              </label>
-              <input
-                type="text"
-                id="profile-exp-sub"
-                className="form-input"
-                placeholder="Web & Mobile Development"
-                value={formData.expSub}
-                onChange={(e) => setFormData({ ...formData, expSub: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="profile-edu-degree">
-                Education Degree
-              </label>
-              <input
-                type="text"
-                id="profile-edu-degree"
-                className="form-input"
-                placeholder="B.Sc. Bachelors Degree"
-                value={formData.eduDegree}
-                onChange={(e) => setFormData({ ...formData, eduDegree: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="profile-edu-major">
-                Education Major / Field
-              </label>
-              <input
-                type="text"
-                id="profile-edu-major"
-                className="form-input"
-                placeholder="Information Technology"
-                value={formData.eduMajor}
-                onChange={(e) => setFormData({ ...formData, eduMajor: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {/* Profile Photos Section */}
-          <div
-            style={{
-              borderTop: '1px solid var(--border-color)',
-              margin: '1.5rem 0',
-              paddingTop: '1.5rem'
-            }}
-          >
-            <h3 style={{ fontSize: '1.05rem', marginBottom: '0.5rem' }}>
-              <i className="fa-solid fa-camera-retro"></i> Profile &amp; About Photos (Zero-Cost
-              Auto-Compressed)
-            </h3>
-            <p
-              style={{
-                fontSize: '0.85rem',
-                color: 'var(--text-muted)',
-                marginBottom: '1.25rem'
-              }}
-            >
-              Upload custom portrait photos for the Hero section and About section. Images are
-              automatically resized and compressed to WebP/JPEG Base64 (~35KB) inside your browser.
-            </p>
-
-            <div className="form-row">
-              {/* Hero Portrait Dropzone */}
-              <div className="form-group">
-                <label className="form-label">Hero Section Portrait Photo</label>
-                <div
-                  className="image-dropzone"
-                  style={{ padding: '1.25rem' }}
-                  onClick={() => heroInputRef.current?.click()}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    if (e.dataTransfer.files?.[0]) {
-                      handlePhotoSelect(e.dataTransfer.files[0], 'hero');
-                    }
-                  }}
-                >
-                  <input
-                    ref={heroInputRef}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={(e) => {
-                      if (e.target.files?.[0]) {
-                        handlePhotoSelect(e.target.files[0], 'hero');
-                      }
-                    }}
-                  />
-                  <div
-                    className="dropzone-icon"
-                    style={{ fontSize: '1.75rem', marginBottom: '0.35rem' }}
-                  >
-                    <i className="fa-solid fa-user-circle"></i>
-                  </div>
-                  <p style={{ fontWeight: 600, fontSize: '0.88rem' }}>
-                    Click or Drop Hero Photo Here
-                  </p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Default fallback: <code>/assets/images/arko-pic.png</code>
-                  </p>
-
-                  <div className="dropzone-preview">
-                    <img
-                      src={
-                        heroImage && !heroImageRemoved
-                          ? heroImage
-                          : '/assets/images/arko-pic.png'
-                      }
-                      alt="Hero Preview"
-                      style={{
-                        width: '120px',
-                        height: '120px',
-                        objectFit: 'cover',
-                        borderRadius: '50%'
-                      }}
+      <Card className="py-6">
+        <CardContent className="px-5 sm:px-6">
+          {loading ? (
+            <AdminFormShimmer fields={6} />
+          ) : (
+            <form id="profile-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
+              {/* IDENTITY & BIO */}
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="profile-name">Full Display Name</Label>
+                    <Input
+                      type="text"
+                      id="profile-name"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="profile-greeting">Hero Greeting</Label>
+                    <Input
+                      type="text"
+                      id="profile-greeting"
+                      value={formData.heroGreeting}
+                      onChange={(e) => setFormData({ ...formData, heroGreeting: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="profile-roles">
+                    Typewriter Animated Roles (Comma-separated)
+                  </Label>
+                  <Input
+                    type="text"
+                    id="profile-roles"
+                    placeholder="Web Developer, Mobile Developer, Tech Enthusiast"
+                    value={formData.typewriterRoles}
+                    onChange={(e) => setFormData({ ...formData, typewriterRoles: e.target.value })}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="profile-bio">About Me Biography Paragraph</Label>
+                  <Textarea
+                    id="profile-bio"
+                    rows={4}
+                    required
+                    value={formData.bioText}
+                    onChange={(e) => setFormData({ ...formData, bioText: e.target.value })}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="profile-exp-years">Experience Badge Title</Label>
+                    <Input
+                      type="text"
+                      id="profile-exp-years"
+                      placeholder="1+ years"
+                      value={formData.expYears}
+                      onChange={(e) => setFormData({ ...formData, expYears: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="profile-exp-sub">Experience Subtitle</Label>
+                    <Input
+                      type="text"
+                      id="profile-exp-sub"
+                      placeholder="Web & Mobile Development"
+                      value={formData.expSub}
+                      onChange={(e) => setFormData({ ...formData, expSub: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="profile-edu-degree">Education Degree</Label>
+                    <Input
+                      type="text"
+                      id="profile-edu-degree"
+                      placeholder="B.Sc. Bachelors Degree"
+                      value={formData.eduDegree}
+                      onChange={(e) => setFormData({ ...formData, eduDegree: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="profile-edu-major">Education Major / Field</Label>
+                    <Input
+                      type="text"
+                      id="profile-edu-major"
+                      placeholder="Information Technology"
+                      value={formData.eduMajor}
+                      onChange={(e) => setFormData({ ...formData, eduMajor: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* PROFILE PHOTOS */}
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <h3 className="font-display flex items-center gap-2 text-base font-semibold text-foreground">
+                    <IconCamera className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                    Profile &amp; About Photos (Zero-Cost Auto-Compressed)
+                  </h3>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    Upload custom portrait photos for the Hero section and About section. Images are automatically resized and compressed to WebP/JPEG Base64 (~35 KB) inside your browser.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {/* Hero Portrait */}
+                  <div className="flex flex-col gap-2">
+                    <Label>Hero Section Portrait Photo</Label>
                     <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        marginTop: '0.5rem',
-                        flexWrap: 'wrap'
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => heroInputRef.current?.click()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          heroInputRef.current?.click();
+                        }
                       }}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (e.dataTransfer.files?.[0]) {
+                          handlePhotoSelect(e.dataTransfer.files[0], 'hero');
+                        }
+                      }}
+                      className="flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/25 p-5 text-center transition-colors hover:border-foreground/50 hover:bg-muted/40"
                     >
-                      <span className="compression-badge" style={{ marginTop: 0 }}>
-                        <i className="fa-solid fa-bolt"></i>{' '}
-                        {heroCompressedKB
-                          ? `Compressed (${heroCompressedKB} KB)`
-                          : heroImage && !heroImageRemoved
-                          ? 'Stored in Firestore'
-                          : 'Default Static Photo'}
-                      </span>
-                      {heroImage && !heroImageRemoved && (
-                        <button
-                          type="button"
-                          className="btn btn-danger btn-sm"
-                          style={{ padding: '0.25rem 0.65rem', fontSize: '0.72rem' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setHeroImage(null);
-                            setHeroImageRemoved(true);
-                            showToast(
-                              'Hero photo will revert to default after you click Save Changes.',
-                              'info'
-                            );
-                          }}
-                        >
-                          <i className="fa-solid fa-rotate-left"></i> Reset Default
-                        </button>
-                      )}
+                      <input
+                        ref={heroInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            handlePhotoSelect(e.target.files[0], 'hero');
+                          }
+                        }}
+                      />
+                      <IconUserCircle className="size-6 text-muted-foreground" stroke={1.5} aria-hidden="true" />
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-medium text-foreground">
+                          Click or Drop Hero Photo Here
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          Fallback: <code className="font-mono">/assets/images/arko-pic.png</code>
+                        </span>
+                      </div>
+                      <img
+                        src={
+                          heroImage && !heroImageRemoved
+                            ? heroImage
+                            : '/assets/images/arko-pic.png'
+                        }
+                        alt="Hero Preview"
+                        className="size-28 rounded-full border border-border object-cover"
+                      />
+                      <div className="flex flex-wrap items-center justify-center gap-2">
+                        <Badge variant="secondary" className="font-mono text-[11px]">
+                          <IconBolt className="size-3" stroke={1.75} aria-hidden="true" />
+                          {heroCompressedKB
+                            ? `Compressed (${heroCompressedKB} KB)`
+                            : heroImage && !heroImageRemoved
+                              ? 'Stored in Firestore'
+                              : 'Default Static Photo'}
+                        </Badge>
+                        {heroImage && !heroImageRemoved ? (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="h-7 px-2.5 text-xs"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setHeroImage(null);
+                              setHeroImageRemoved(true);
+                              showToast(
+                                'Hero photo will revert to default after you click Save Changes.',
+                                'info'
+                              );
+                            }}
+                          >
+                            <IconRotate className="size-3" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+                            Reset Default
+                          </Button>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* About Portrait */}
+                  <div className="flex flex-col gap-2">
+                    <Label>About Me Section Photo</Label>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => aboutInputRef.current?.click()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          aboutInputRef.current?.click();
+                        }
+                      }}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (e.dataTransfer.files?.[0]) {
+                          handlePhotoSelect(e.dataTransfer.files[0], 'about');
+                        }
+                      }}
+                      className="flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/25 p-5 text-center transition-colors hover:border-foreground/50 hover:bg-muted/40"
+                    >
+                      <input
+                        ref={aboutInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            handlePhotoSelect(e.target.files[0], 'about');
+                          }
+                        }}
+                      />
+                      <IconIdBadge2 className="size-6 text-muted-foreground" stroke={1.5} aria-hidden="true" />
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-medium text-foreground">
+                          Click or Drop About Photo Here
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          Fallback: <code className="font-mono">/assets/images/arko-about.jpg</code>
+                        </span>
+                      </div>
+                      <img
+                        src={
+                          aboutImage && !aboutImageRemoved
+                            ? aboutImage
+                            : '/assets/images/arko-about.jpg'
+                        }
+                        alt="About Preview"
+                        className="size-28 rounded-2xl border border-border object-cover"
+                      />
+                      <div className="flex flex-wrap items-center justify-center gap-2">
+                        <Badge variant="secondary" className="font-mono text-[11px]">
+                          <IconBolt className="size-3" stroke={1.75} aria-hidden="true" />
+                          {aboutCompressedKB
+                            ? `Compressed (${aboutCompressedKB} KB)`
+                            : aboutImage && !aboutImageRemoved
+                              ? 'Stored in Firestore'
+                              : 'Default Static Photo'}
+                        </Badge>
+                        {aboutImage && !aboutImageRemoved ? (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="h-7 px-2.5 text-xs"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAboutImage(null);
+                              setAboutImageRemoved(true);
+                              showToast(
+                                'About photo will revert to default after you click Save Changes.',
+                                'info'
+                              );
+                            }}
+                          >
+                            <IconRotate className="size-3" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+                            Reset Default
+                          </Button>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* About Portrait Dropzone */}
-              <div className="form-group">
-                <label className="form-label">About Me Section Photo</label>
-                <div
-                  className="image-dropzone"
-                  style={{ padding: '1.25rem' }}
-                  onClick={() => aboutInputRef.current?.click()}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    if (e.dataTransfer.files?.[0]) {
-                      handlePhotoSelect(e.dataTransfer.files[0], 'about');
-                    }
-                  }}
-                >
-                  <input
-                    ref={aboutInputRef}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={(e) => {
-                      if (e.target.files?.[0]) {
-                        handlePhotoSelect(e.target.files[0], 'about');
-                      }
-                    }}
-                  />
-                  <div
-                    className="dropzone-icon"
-                    style={{ fontSize: '1.75rem', marginBottom: '0.35rem' }}
-                  >
-                    <i className="fa-solid fa-id-badge"></i>
-                  </div>
-                  <p style={{ fontWeight: 600, fontSize: '0.88rem' }}>
-                    Click or Drop About Photo Here
-                  </p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Default fallback: <code>/assets/images/arko-about.jpg</code>
-                  </p>
+              <Separator />
 
-                  <div className="dropzone-preview">
-                    <img
-                      src={
-                        aboutImage && !aboutImageRemoved
-                          ? aboutImage
-                          : '/assets/images/arko-about.jpg'
-                      }
-                      alt="About Preview"
-                      style={{
-                        width: '120px',
-                        height: '120px',
-                        objectFit: 'cover',
-                        borderRadius: '1rem'
-                      }}
+              {/* CV RESUME */}
+              <div className="flex flex-col gap-4">
+                <h3 className="font-display flex items-center gap-2 text-base font-semibold text-foreground">
+                  <IconFileTypePdf className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                  Curriculum Vitae (CV) Resume
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="profile-cv-url">CV File Path or Google Drive Link</Label>
+                    <Input
+                      type="text"
+                      id="profile-cv-url"
+                      placeholder="/assets/docs/cv-vinsensiusarka.pdf"
+                      value={formData.cvUrl}
+                      onChange={(e) => setFormData({ ...formData, cvUrl: e.target.value })}
                     />
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        marginTop: '0.5rem',
-                        flexWrap: 'wrap'
-                      }}
-                    >
-                      <span className="compression-badge" style={{ marginTop: 0 }}>
-                        <i className="fa-solid fa-bolt"></i>{' '}
-                        {aboutCompressedKB
-                          ? `Compressed (${aboutCompressedKB} KB)`
-                          : aboutImage && !aboutImageRemoved
-                          ? 'Stored in Firestore'
-                          : 'Default Static Photo'}
-                      </span>
-                      {aboutImage && !aboutImageRemoved && (
-                        <button
-                          type="button"
-                          className="btn btn-danger btn-sm"
-                          style={{ padding: '0.25rem 0.65rem', fontSize: '0.72rem' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setAboutImage(null);
-                            setAboutImageRemoved(true);
-                            showToast(
-                              'About photo will revert to default after you click Save Changes.',
-                              'info'
-                            );
-                          }}
-                        >
-                          <i className="fa-solid fa-rotate-left"></i> Reset Default
-                        </button>
-                      )}
-                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Default static file: <code className="font-mono">/assets/docs/cv-vinsensiusarka.pdf</code>
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="profile-cv-upload">
+                      Or Upload New PDF (Under 700KB for Firestore Direct Storage)
+                    </Label>
+                    <Input
+                      type="file"
+                      id="profile-cv-upload"
+                      accept="application/pdf"
+                      onChange={handleCvFileChange}
+                    />
+                    {cvStatusText ? (
+                      <p className="flex items-center gap-1.5 text-xs font-medium text-success">
+                        <IconCircleCheck className="size-3.5 shrink-0" stroke={1.75} aria-hidden="true" />
+                        <span>{cvStatusText}</span>
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* CV Resume Section */}
-          <div
-            style={{
-              borderTop: '1px solid var(--border-color)',
-              margin: '1.5rem 0',
-              paddingTop: '1.5rem'
-            }}
-          >
-            <h3 style={{ fontSize: '1.05rem', marginBottom: '1rem' }}>
-              <i className="fa-solid fa-file-pdf"></i> Curriculum Vitae (CV) Resume
-            </h3>
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label" htmlFor="profile-cv-url">
-                  CV File Path or Google Drive Link
-                </label>
-                <input
-                  type="text"
-                  id="profile-cv-url"
-                  className="form-input"
-                  placeholder="/assets/docs/cv-vinsensiusarka.pdf"
-                  value={formData.cvUrl}
-                  onChange={(e) => setFormData({ ...formData, cvUrl: e.target.value })}
-                />
-                <small style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
-                  Default static file: <code>/assets/docs/cv-vinsensiusarka.pdf</code>
-                </small>
+              <div className="flex justify-start border-t border-border pt-4">
+                <Button type="submit" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <IconLoader2
+                        className="size-4 animate-spin"
+                        stroke={1.75}
+                        data-icon="inline-start"
+                        aria-hidden="true"
+                      />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <IconDeviceFloppy
+                        className="size-4"
+                        stroke={1.75}
+                        data-icon="inline-start"
+                        aria-hidden="true"
+                      />
+                      Save Profile &amp; Bio Changes
+                    </>
+                  )}
+                </Button>
               </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="profile-cv-upload">
-                  Or Upload New PDF (Under 700KB for Firestore Direct Storage)
-                </label>
-                <input
-                  type="file"
-                  id="profile-cv-upload"
-                  accept="application/pdf"
-                  className="form-input"
-                  style={{ padding: '0.5rem' }}
-                  onChange={handleCvFileChange}
-                />
-                {cvStatusText && (
-                  <small
-                    style={{
-                      color: 'var(--accent-success)',
-                      fontSize: '0.78rem',
-                      display: 'block',
-                      marginTop: '0.25rem'
-                    }}
-                  >
-                    <i className="fa-solid fa-check-circle"></i> {cvStatusText}
-                  </small>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? (
-              <>
-                <i className="fa-solid fa-spinner fa-spin"></i> Saving...
-              </>
-            ) : (
-              <>
-                <i className="fa-solid fa-floppy-disk"></i> Save Profile &amp; Bio Changes
-              </>
-            )}
-          </button>
-        </form>
-        )}
-      </div>
+            </form>
+          )}
+        </CardContent>
+      </Card>
     </section>
   );
 }

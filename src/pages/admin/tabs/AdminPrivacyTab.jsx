@@ -1,9 +1,26 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  IconCalendarCheck,
+  IconDeviceFloppy,
+  IconExternalLink,
+  IconFileText,
+  IconHeading,
+  IconLoader2,
+  IconRotate,
+  IconStar
+} from '@tabler/icons-react';
 import { db } from '../../../services/firebase';
 import { useConfirm } from '../../../context/ConfirmContext';
 import { FALLBACK_PRIVACY_POLICY } from '../../../data/fallbackData';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Separator } from '../../../components/ui/separator';
+import { Textarea } from '../../../components/ui/textarea';
+import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminFormShimmer } from '../AdminShimmer';
 
 export function AdminPrivacyTab({ showToast }) {
@@ -49,8 +66,7 @@ export function AdminPrivacyTab({ showToast }) {
         'Reset semua input Privacy Policy ke template bawaan? Klik "Save Privacy Policy Changes" setelahnya untuk menyimpan perubahan.',
       confirmText: 'Reset Defaults',
       cancelText: 'Batal',
-      variant: 'warning',
-      icon: 'fa-solid fa-rotate-left'
+      variant: 'warning'
     });
     if (!ok) return;
 
@@ -86,365 +102,292 @@ export function AdminPrivacyTab({ showToast }) {
   };
 
   return (
-    <section id="tab-privacy" className="tab-section">
-      <div className="card">
-        <div className="card-header">
-          <div>
-            <h2 className="card-title">Privacy Policy Page Management</h2>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-              Customize the public Privacy Policy page (<code>/privacy-policy</code>) used for
-              Google Play Store, Apple App Store, and web compliance.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-            <Link to="/privacy-policy" target="_blank" className="btn btn-secondary btn-sm">
-              <i className="fa-solid fa-arrow-up-right-from-square"></i> Preview Page
-            </Link>
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={handleResetDefaults}
-            >
-              <i className="fa-solid fa-rotate-left"></i> Reset Defaults
-            </button>
-          </div>
-        </div>
+    <section id="tab-privacy" className="flex flex-col gap-6">
+      <AdminPageHeader
+        title="Privacy Policy Page Management"
+        description="Customize the public Privacy Policy page (/privacy-policy) used for Google Play Store, Apple App Store, and web compliance."
+        actions={
+          <>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/privacy-policy" target="_blank">
+                <IconExternalLink className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+                Preview Page
+              </Link>
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={handleResetDefaults}>
+              <IconRotate className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+              Reset Defaults
+            </Button>
+          </>
+        }
+      />
 
-        {loading ? (
-          <AdminFormShimmer fields={6} />
-        ) : (
-          <form id="privacy-form" onSubmit={handleSubmit}>
-          <h3 style={{ fontSize: '1.05rem', marginBottom: '1rem' }}>
-            <i className="fa-solid fa-heading"></i> Page Header &amp; Metadata
-          </h3>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="privacy-title">
-                Page Title
-              </label>
-              <input
-                type="text"
-                id="privacy-title"
-                className="form-input"
-                required
-                value={formData.title}
-                onChange={updateField('title')}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="privacy-last-updated">
-                Last Updated Date
-              </label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <input
-                  type="text"
-                  id="privacy-last-updated"
-                  className="form-input"
-                  required
-                  value={formData.lastUpdated}
-                  onChange={updateField('lastUpdated')}
-                />
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
-                  onClick={handleSetToday}
-                >
-                  <i className="fa-solid fa-calendar-check"></i> Today
-                </button>
-              </div>
-            </div>
-          </div>
+      <Card className="py-6">
+        <CardContent className="px-5 sm:px-6">
+          {loading ? (
+            <AdminFormShimmer fields={6} />
+          ) : (
+            <form id="privacy-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
+              {/* HEADER & METADATA */}
+              <div className="flex flex-col gap-4">
+                <h3 className="font-display flex items-center gap-2 text-base font-semibold text-foreground">
+                  <IconHeading className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                  Page Header &amp; Metadata
+                </h3>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="privacy-badge">
-                Compliance Badge Label
-              </label>
-              <input
-                type="text"
-                id="privacy-badge"
-                className="form-input"
-                value={formData.complianceBadge}
-                onChange={updateField('complianceBadge')}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="privacy-developer">
-                Developer / Entity Name
-              </label>
-              <input
-                type="text"
-                id="privacy-developer"
-                className="form-input"
-                required
-                value={formData.developerName}
-                onChange={updateField('developerName')}
-              />
-            </div>
-          </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="privacy-title">Page Title</Label>
+                    <Input
+                      type="text"
+                      id="privacy-title"
+                      required
+                      value={formData.title}
+                      onChange={updateField('title')}
+                    />
+                  </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="privacy-subtitle">
-              Header Subtitle / Introduction
-            </label>
-            <textarea
-              id="privacy-subtitle"
-              className="form-textarea"
-              rows="2"
-              required
-              value={formData.subtitle}
-              onChange={updateField('subtitle')}
-            ></textarea>
-          </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="privacy-last-updated">Last Updated Date</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="text"
+                        id="privacy-last-updated"
+                        required
+                        value={formData.lastUpdated}
+                        onChange={updateField('lastUpdated')}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-9 shrink-0"
+                        onClick={handleSetToday}
+                      >
+                        <IconCalendarCheck
+                          className="size-4"
+                          stroke={1.75}
+                          data-icon="inline-start"
+                          aria-hidden="true"
+                        />
+                        Today
+                      </Button>
+                    </div>
+                  </div>
+                </div>
 
-          {/* Highlight Cards */}
-          <div
-            style={{
-              borderTop: '1px solid var(--border-color)',
-              margin: '1.5rem 0',
-              paddingTop: '1.5rem'
-            }}
-          >
-            <h3 style={{ fontSize: '1.05rem', marginBottom: '0.35rem' }}>
-              <i className="fa-solid fa-star"></i> Top Highlight Summary Cards (3 Pillars)
-            </h3>
-            <p
-              style={{
-                fontSize: '0.83rem',
-                color: 'var(--text-muted)',
-                marginBottom: '1.25rem'
-              }}
-            >
-              Quick visual badges shown at the top of the Privacy Policy page.
-            </p>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="privacy-badge">Compliance Badge Label</Label>
+                    <Input
+                      type="text"
+                      id="privacy-badge"
+                      value={formData.complianceBadge}
+                      onChange={updateField('complianceBadge')}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="privacy-developer">Developer / Entity Name</Label>
+                    <Input
+                      type="text"
+                      id="privacy-developer"
+                      required
+                      value={formData.developerName}
+                      onChange={updateField('developerName')}
+                    />
+                  </div>
+                </div>
 
-            <div className="form-row">
-              <div className="card" style={{ marginBottom: 0, background: 'var(--bg-card-alt)' }}>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="privacy-hl1-title">
-                    Card 1 Title
-                  </label>
-                  <input
-                    type="text"
-                    id="privacy-hl1-title"
-                    className="form-input"
-                    value={formData.highlight1Title}
-                    onChange={updateField('highlight1Title')}
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="privacy-subtitle">Header Subtitle / Introduction</Label>
+                  <Textarea
+                    id="privacy-subtitle"
+                    rows={2}
+                    required
+                    value={formData.subtitle}
+                    onChange={updateField('subtitle')}
                   />
                 </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label" htmlFor="privacy-hl1-desc">
-                    Card 1 Description
-                  </label>
-                  <textarea
-                    id="privacy-hl1-desc"
-                    className="form-textarea"
-                    rows="2"
-                    value={formData.highlight1Desc}
-                    onChange={updateField('highlight1Desc')}
-                  ></textarea>
+              </div>
+
+              <Separator />
+
+              {/* HIGHLIGHT SUMMARY CARDS */}
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <h3 className="font-display flex items-center gap-2 text-base font-semibold text-foreground">
+                    <IconStar className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                    Top Highlight Summary Cards (3 Pillars)
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Quick visual cards shown at the top of the Privacy Policy page.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                  {[
+                    { idx: 1, titleKey: 'highlight1Title', descKey: 'highlight1Desc' },
+                    { idx: 2, titleKey: 'highlight2Title', descKey: 'highlight2Desc' },
+                    { idx: 3, titleKey: 'highlight3Title', descKey: 'highlight3Desc' }
+                  ].map(({ idx, titleKey, descKey }) => (
+                    <div
+                      key={idx}
+                      className="flex flex-col gap-3 rounded-xl border border-border bg-muted/30 p-4"
+                    >
+                      <div className="flex flex-col gap-2">
+                        <Label htmlFor={`privacy-hl${idx}-title`}>Card {idx} Title</Label>
+                        <Input
+                          type="text"
+                          id={`privacy-hl${idx}-title`}
+                          value={formData[titleKey]}
+                          onChange={updateField(titleKey)}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label htmlFor={`privacy-hl${idx}-desc`}>Card {idx} Description</Label>
+                        <Textarea
+                          id={`privacy-hl${idx}-desc`}
+                          rows={2}
+                          value={formData[descKey]}
+                          onChange={updateField(descKey)}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="card" style={{ marginBottom: 0, background: 'var(--bg-card-alt)' }}>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="privacy-hl2-title">
-                    Card 2 Title
-                  </label>
-                  <input
-                    type="text"
-                    id="privacy-hl2-title"
-                    className="form-input"
-                    value={formData.highlight2Title}
-                    onChange={updateField('highlight2Title')}
+              <Separator />
+
+              {/* POLICY CONTENT SECTIONS */}
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <h3 className="font-display flex items-center gap-2 text-base font-semibold text-foreground">
+                    <IconFileText className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                    Policy Content Sections
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Supports paragraphs and bullet lists (start a line with <code className="font-mono">- </code> to create a bullet item).
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="privacy-sec-scope">1. Scope &amp; Overview</Label>
+                  <Textarea
+                    id="privacy-sec-scope"
+                    rows={3}
+                    value={formData.sectionScope}
+                    onChange={updateField('sectionScope')}
                   />
                 </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label" htmlFor="privacy-hl2-desc">
-                    Card 2 Description
-                  </label>
-                  <textarea
-                    id="privacy-hl2-desc"
-                    className="form-textarea"
-                    rows="2"
-                    value={formData.highlight2Desc}
-                    onChange={updateField('highlight2Desc')}
-                  ></textarea>
-                </div>
-              </div>
 
-              <div className="card" style={{ marginBottom: 0, background: 'var(--bg-card-alt)' }}>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="privacy-hl3-title">
-                    Card 3 Title
-                  </label>
-                  <input
-                    type="text"
-                    id="privacy-hl3-title"
-                    className="form-input"
-                    value={formData.highlight3Title}
-                    onChange={updateField('highlight3Title')}
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="privacy-sec-data">2. Information Collection &amp; Use</Label>
+                  <Textarea
+                    id="privacy-sec-data"
+                    rows={5}
+                    value={formData.sectionDataCollection}
+                    onChange={updateField('sectionDataCollection')}
                   />
                 </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label" htmlFor="privacy-hl3-desc">
-                    Card 3 Description
-                  </label>
-                  <textarea
-                    id="privacy-hl3-desc"
-                    className="form-textarea"
-                    rows="2"
-                    value={formData.highlight3Desc}
-                    onChange={updateField('highlight3Desc')}
-                  ></textarea>
+
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="privacy-sec-permissions">3. Device Permissions</Label>
+                  <Textarea
+                    id="privacy-sec-permissions"
+                    rows={4}
+                    value={formData.sectionPermissions}
+                    onChange={updateField('sectionPermissions')}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="privacy-sec-thirdparty">4. Third-Party Services &amp; SDKs</Label>
+                  <Textarea
+                    id="privacy-sec-thirdparty"
+                    rows={4}
+                    value={formData.sectionThirdParty}
+                    onChange={updateField('sectionThirdParty')}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="privacy-sec-retention">
+                    5. Data Retention, Deletion &amp; Children&apos;s Privacy
+                  </Label>
+                  <Textarea
+                    id="privacy-sec-retention"
+                    rows={3}
+                    value={formData.sectionDataDeletion}
+                    onChange={updateField('sectionDataDeletion')}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="privacy-sec-contact">
+                    6. Changes to Policy &amp; Contact Statement
+                  </Label>
+                  <Textarea
+                    id="privacy-sec-contact"
+                    rows={3}
+                    value={formData.sectionContact}
+                    onChange={updateField('sectionContact')}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="privacy-contact-email">Privacy Contact Email</Label>
+                    <Input
+                      type="email"
+                      id="privacy-contact-email"
+                      value={formData.contactEmail}
+                      onChange={updateField('contactEmail')}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="privacy-contact-website">
+                      Official Portfolio / Developer Website URL
+                    </Label>
+                    <Input
+                      type="url"
+                      id="privacy-contact-website"
+                      value={formData.contactWebsite}
+                      onChange={updateField('contactWebsite')}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Policy Content Sections */}
-          <div
-            style={{
-              borderTop: '1px solid var(--border-color)',
-              margin: '1.5rem 0',
-              paddingTop: '1.5rem'
-            }}
-          >
-            <h3 style={{ fontSize: '1.05rem', marginBottom: '0.35rem' }}>
-              <i className="fa-solid fa-file-lines"></i> Policy Content Sections
-            </h3>
-            <p
-              style={{
-                fontSize: '0.83rem',
-                color: 'var(--text-muted)',
-                marginBottom: '1.25rem'
-              }}
-            >
-              Supports paragraphs and bullet lists (start a line with <code>- </code> to create a
-              bullet item).
-            </p>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="privacy-sec-scope">
-                1. Scope &amp; Overview
-              </label>
-              <textarea
-                id="privacy-sec-scope"
-                className="form-textarea"
-                rows="3"
-                value={formData.sectionScope}
-                onChange={updateField('sectionScope')}
-              ></textarea>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="privacy-sec-data">
-                2. Information Collection &amp; Use
-              </label>
-              <textarea
-                id="privacy-sec-data"
-                className="form-textarea"
-                rows="5"
-                value={formData.sectionDataCollection}
-                onChange={updateField('sectionDataCollection')}
-              ></textarea>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="privacy-sec-permissions">
-                3. Device Permissions
-              </label>
-              <textarea
-                id="privacy-sec-permissions"
-                className="form-textarea"
-                rows="4"
-                value={formData.sectionPermissions}
-                onChange={updateField('sectionPermissions')}
-              ></textarea>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="privacy-sec-thirdparty">
-                4. Third-Party Services &amp; SDKs
-              </label>
-              <textarea
-                id="privacy-sec-thirdparty"
-                className="form-textarea"
-                rows="4"
-                value={formData.sectionThirdParty}
-                onChange={updateField('sectionThirdParty')}
-              ></textarea>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="privacy-sec-retention">
-                5. Data Retention, Deletion &amp; Children&apos;s Privacy
-              </label>
-              <textarea
-                id="privacy-sec-retention"
-                className="form-textarea"
-                rows="3"
-                value={formData.sectionDataDeletion}
-                onChange={updateField('sectionDataDeletion')}
-              ></textarea>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="privacy-sec-contact">
-                6. Changes to Policy &amp; Contact Statement
-              </label>
-              <textarea
-                id="privacy-sec-contact"
-                className="form-textarea"
-                rows="3"
-                value={formData.sectionContact}
-                onChange={updateField('sectionContact')}
-              ></textarea>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label" htmlFor="privacy-contact-email">
-                  Privacy Contact Email
-                </label>
-                <input
-                  type="email"
-                  id="privacy-contact-email"
-                  className="form-input"
-                  value={formData.contactEmail}
-                  onChange={updateField('contactEmail')}
-                />
+              <div className="flex justify-start border-t border-border pt-4">
+                <Button type="submit" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <IconLoader2
+                        className="size-4 animate-spin"
+                        stroke={1.75}
+                        data-icon="inline-start"
+                        aria-hidden="true"
+                      />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <IconDeviceFloppy
+                        className="size-4"
+                        stroke={1.75}
+                        data-icon="inline-start"
+                        aria-hidden="true"
+                      />
+                      Save Privacy Policy Changes
+                    </>
+                  )}
+                </Button>
               </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="privacy-contact-website">
-                  Official Portfolio / Developer Website URL
-                </label>
-                <input
-                  type="url"
-                  id="privacy-contact-website"
-                  className="form-input"
-                  value={formData.contactWebsite}
-                  onChange={updateField('contactWebsite')}
-                />
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? (
-              <>
-                <i className="fa-solid fa-spinner fa-spin"></i> Saving...
-              </>
-            ) : (
-              <>
-                <i className="fa-solid fa-floppy-disk"></i> Save Privacy Policy Changes
-              </>
-            )}
-          </button>
-        </form>
-        )}
-      </div>
+            </form>
+          )}
+        </CardContent>
+      </Card>
     </section>
   );
 }

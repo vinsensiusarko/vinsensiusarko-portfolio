@@ -1,7 +1,24 @@
 import { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  IconBrandFacebook,
+  IconBrandGithub,
+  IconBrandInstagram,
+  IconBrandLinkedin,
+  IconBrandWhatsapp,
+  IconBrandX,
+  IconDeviceFloppy,
+  IconLoader2,
+  IconMail
+} from '@tabler/icons-react';
 import { db } from '../../../services/firebase';
 import { FALLBACK_CONTACT_SETTINGS } from '../../../data/fallbackData';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Separator } from '../../../components/ui/separator';
+import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminFormShimmer } from '../AdminShimmer';
 
 export function AdminContactTab({ showToast }) {
@@ -76,131 +93,151 @@ export function AdminContactTab({ showToast }) {
   };
 
   return (
-    <section id="tab-contact" className="tab-section">
-      <div className="card">
-        <div className="card-header">
-          <div>
-            <h2 className="card-title">Contact &amp; Social Media Links</h2>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-              Update your public email, WhatsApp floating button, and social links.
-            </p>
-          </div>
-        </div>
+    <section id="tab-contact" className="flex flex-col gap-6">
+      <AdminPageHeader
+        title="Contact & Social Media Links"
+        description="Update your public email, WhatsApp floating button, and social profile URLs."
+      />
 
-        {loading ? (
-          <AdminFormShimmer fields={4} />
-        ) : (
-          <form id="contact-form" onSubmit={handleSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="contact-email">
-                <i className="fa-solid fa-envelope"></i> Email Address
-              </label>
-              <input
-                type="email"
-                id="contact-email"
-                className="form-input"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="contact-whatsapp">
-                <i className="fa-brands fa-whatsapp"></i> WhatsApp Link (wa.me)
-              </label>
-              <input
-                type="url"
-                id="contact-whatsapp"
-                className="form-input"
-                required
-                value={formData.whatsapp}
-                onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-              />
-            </div>
-          </div>
+      <Card className="py-6">
+        <CardContent className="px-5 sm:px-6">
+          {loading ? (
+            <AdminFormShimmer fields={4} />
+          ) : (
+            <form id="contact-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
+                <h3 className="font-display text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+                  Direct Channels
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="contact-email">
+                      <IconMail className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                      Email Address
+                    </Label>
+                    <Input
+                      type="email"
+                      id="contact-email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="contact-whatsapp">
+                      <IconBrandWhatsapp className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                      WhatsApp Link (wa.me)
+                    </Label>
+                    <Input
+                      type="url"
+                      id="contact-whatsapp"
+                      required
+                      value={formData.whatsapp}
+                      onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="contact-linkedin">
-                <i className="fa-brands fa-linkedin"></i> LinkedIn URL
-              </label>
-              <input
-                type="url"
-                id="contact-linkedin"
-                className="form-input"
-                value={formData.linkedin}
-                onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="contact-github">
-                <i className="fa-brands fa-github"></i> GitHub URL
-              </label>
-              <input
-                type="url"
-                id="contact-github"
-                className="form-input"
-                value={formData.github}
-                onChange={(e) => setFormData({ ...formData, github: e.target.value })}
-              />
-            </div>
-          </div>
+              <Separator />
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="contact-instagram">
-                <i className="fa-brands fa-instagram"></i> Instagram URL
-              </label>
-              <input
-                type="url"
-                id="contact-instagram"
-                className="form-input"
-                value={formData.instagram}
-                onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="contact-facebook">
-                <i className="fa-brands fa-facebook"></i> Facebook URL
-              </label>
-              <input
-                type="url"
-                id="contact-facebook"
-                className="form-input"
-                value={formData.facebook}
-                onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
-              />
-            </div>
-          </div>
+              <div className="flex flex-col gap-4">
+                <h3 className="font-display text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+                  Social Profiles
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="contact-linkedin">
+                      <IconBrandLinkedin className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                      LinkedIn URL
+                    </Label>
+                    <Input
+                      type="url"
+                      id="contact-linkedin"
+                      value={formData.linkedin}
+                      onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="contact-github">
+                      <IconBrandGithub className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                      GitHub URL
+                    </Label>
+                    <Input
+                      type="url"
+                      id="contact-github"
+                      value={formData.github}
+                      onChange={(e) => setFormData({ ...formData, github: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="contact-instagram">
+                      <IconBrandInstagram className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                      Instagram URL
+                    </Label>
+                    <Input
+                      type="url"
+                      id="contact-instagram"
+                      value={formData.instagram}
+                      onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="contact-facebook">
+                      <IconBrandFacebook className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                      Facebook URL
+                    </Label>
+                    <Input
+                      type="url"
+                      id="contact-facebook"
+                      value={formData.facebook}
+                      onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 sm:col-span-2">
+                    <Label htmlFor="contact-twitter">
+                      <IconBrandX className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                      X / Twitter URL
+                    </Label>
+                    <Input
+                      type="url"
+                      id="contact-twitter"
+                      value={formData.twitter}
+                      onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="contact-twitter">
-              <i className="fa-brands fa-x-twitter"></i> X / Twitter URL
-            </label>
-            <input
-              type="url"
-              id="contact-twitter"
-              className="form-input"
-              value={formData.twitter}
-              onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
-            />
-          </div>
-
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? (
-              <>
-                <i className="fa-solid fa-spinner fa-spin"></i> Saving...
-              </>
-            ) : (
-              <>
-                <i className="fa-solid fa-floppy-disk"></i> Save Contact Channels
-              </>
-            )}
-          </button>
-        </form>
-        )}
-      </div>
+              <div className="flex justify-start border-t border-border pt-4">
+                <Button type="submit" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <IconLoader2
+                        className="size-4 animate-spin"
+                        stroke={1.75}
+                        data-icon="inline-start"
+                        aria-hidden="true"
+                      />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <IconDeviceFloppy
+                        className="size-4"
+                        stroke={1.75}
+                        data-icon="inline-start"
+                        aria-hidden="true"
+                      />
+                      Save Contact Channels
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
+        </CardContent>
+      </Card>
     </section>
   );
 }
