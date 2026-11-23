@@ -61,4 +61,16 @@ describe('ExperienceSection Component', () => {
     expect(badgeAfter).toHaveClass('experienced');
     expect(cardBefore).toBe(cardAfter);
   });
+
+  it('displays honest empty states when a skill category has no items', () => {
+    render(
+      <ExperienceSection
+        skills={[
+          { id: 'html5', name: 'HTML5', category: 'language', level: 'Experienced', iconClass: 'fa-brands fa-html5' }
+        ]}
+      />
+    );
+    expect(screen.getByText('HTML5')).toBeInTheDocument();
+    expect(screen.getByText(/No frameworks or tools listed yet/i)).toBeInTheDocument();
+  });
 });

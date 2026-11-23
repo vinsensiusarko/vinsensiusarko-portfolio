@@ -1,6 +1,21 @@
 import { useState, useEffect } from 'react';
-import { useSeason } from '../../context/SeasonContext';
-import { trackCvDownload } from '../../services/visitorTracker';
+import {
+  IconDownload,
+  IconSend,
+  IconBrandLinkedin,
+  IconBrandGithub,
+  IconBrandInstagram,
+  IconMail
+} from '@tabler/icons-react';
+import { useSeason } from '@/context/SeasonContext';
+import { trackCvDownload } from '@/services/visitorTracker';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 export function HeroSection({ siteSettings, contactSettings }) {
   const { seasonMeta } = useSeason();
@@ -42,115 +57,164 @@ export function HeroSection({ siteSettings, contactSettings }) {
     '/assets/docs/cv-vinsensiusarka.pdf';
   const isBase64Cv = Boolean(siteSettings.cvBase64);
 
+  const socialLinks = [
+    {
+      label: 'LinkedIn Profile',
+      tooltip: 'LinkedIn',
+      href: contactSettings.linkedin || 'https://www.linkedin.com/in/vinsensiusarka/',
+      external: true,
+      Icon: IconBrandLinkedin
+    },
+    {
+      label: 'GitHub Profile',
+      tooltip: 'GitHub',
+      href: contactSettings.github || 'https://github.com/vinsensiusarko',
+      external: true,
+      Icon: IconBrandGithub
+    },
+    {
+      label: 'Instagram Profile',
+      tooltip: 'Instagram',
+      href: contactSettings.instagram || 'https://www.instagram.com/vinsensiusarko/',
+      external: true,
+      Icon: IconBrandInstagram
+    },
+    {
+      label: 'Send Email',
+      tooltip: 'Email Me',
+      href: `mailto:${contactSettings.email || 'me@vinsensiusarka.id'}`,
+      external: false,
+      Icon: IconMail
+    }
+  ];
+
   return (
-    <section id="profile">
-      <div className="section__pic-container">
-        <div className="hero-avatar-glow" aria-hidden="true"></div>
-        <img
-          id="hero-img"
-          src={siteSettings.heroImage || '/assets/images/arko-pic.png'}
-          alt={`Portrait of ${siteSettings.name || 'Vinsensius Arka'}`}
-          width="380"
-          height="380"
-          fetchPriority="high"
-          decoding="async"
-          onError={(e) => {
-            e.currentTarget.onerror = null;
-            e.currentTarget.src = '/assets/images/arko-pic.png';
-          }}
-        />
-      </div>
-      <div className="section__text">
-        <div
-          className="hero-season-badge"
-          aria-label={`Active season: ${seasonMeta.labelEn}`}
-        >
-          <span>{seasonMeta.badgeText}</span>
+    <TooltipProvider delayDuration={200}>
+      <section
+        id="profile"
+        className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-10 pb-20 lg:pt-20 lg:pb-28"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          <div className="lg:col-span-7 flex flex-col gap-5 order-2 lg:order-1">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">
+                {siteSettings.heroGreeting || "Hello, I'm"}
+              </span>
+              <span className="h-3.5 w-px bg-border" aria-hidden="true" />
+              <span
+                className="inline-flex items-center gap-1.5 text-xs font-mono text-season-foreground"
+                aria-label={`Active season: ${seasonMeta.labelEn}`}
+              >
+                <span
+                  className="size-2 rounded-full bg-season-accent"
+                  aria-hidden="true"
+                />
+                {seasonMeta.labelEn} Edition
+              </span>
+            </div>
+
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.08]">
+              {siteSettings.name || 'Vinsensius Arka'}
+            </h1>
+
+            <p className="text-xl sm:text-2xl font-medium text-muted-foreground min-h-8">
+              <span className="typeWriter">{displayText || '\u00A0'}</span>
+              <span className="typewriter-cursor" aria-hidden="true">
+                |
+              </span>
+            </p>
+
+            <p className="max-w-xl text-sm sm:text-base leading-relaxed text-muted-foreground">
+              Building reliable cross-platform mobile apps with Flutter and full-stack web
+              applications with Laravel, Java, and modern React.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <Button asChild size="lg" className="min-h-11">
+                <a
+                  href={cvHref}
+                  download={
+                    isBase64Cv || cvHref.endsWith('.pdf')
+                      ? siteSettings.cvFileName || 'CV-VinsensiusArka.pdf'
+                      : undefined
+                  }
+                  target={
+                    !isBase64Cv && cvHref.startsWith('http') ? '_blank' : undefined
+                  }
+                  rel={
+                    !isBase64Cv && cvHref.startsWith('http')
+                      ? 'noopener noreferrer'
+                      : undefined
+                  }
+                  onClick={() => trackCvDownload()}
+                >
+                  <IconDownload data-icon="inline-start" aria-hidden="true" />
+                  Download CV
+                </a>
+              </Button>
+
+              <Button asChild variant="outline" size="lg" className="min-h-11">
+                <a href="#contact">
+                  <IconSend data-icon="inline-start" aria-hidden="true" />
+                  Contact Info
+                </a>
+              </Button>
+            </div>
+
+            <div
+              id="socials-container"
+              className="flex items-center gap-1.5 pt-2"
+              aria-label="Social links"
+            >
+              {socialLinks.map(({ label, tooltip, href, external, Icon }) => (
+                <Tooltip key={label}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="icon"
+                      className="size-11 text-muted-foreground hover:text-foreground"
+                    >
+                      <a
+                        href={href}
+                        target={external ? '_blank' : undefined}
+                        rel={external ? 'noopener noreferrer' : undefined}
+                        aria-label={label}
+                      >
+                        <Icon className="size-5" aria-hidden="true" />
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{tooltip}</TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+          </div>
+
+          <div className="lg:col-span-5 flex justify-center lg:justify-end order-1 lg:order-2">
+            <div className="relative w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[380px] rounded-2xl border border-border bg-card p-2.5 shadow-sm">
+              <div
+                className="pointer-events-none absolute -right-2 -bottom-2 h-16 w-16 rounded-br-2xl border-r-2 border-b-2 border-season-accent"
+                aria-hidden="true"
+              />
+              <img
+                id="hero-img"
+                src={siteSettings.heroImage || '/assets/images/arko-pic.png'}
+                alt={`Portrait of ${siteSettings.name || 'Vinsensius Arka'}`}
+                width="380"
+                height="380"
+                fetchPriority="high"
+                decoding="async"
+                className="aspect-square w-full rounded-xl object-cover bg-muted"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = '/assets/images/arko-pic.png';
+                }}
+              />
+            </div>
+          </div>
         </div>
-        <p className="section__text__p1">
-          {siteSettings.heroGreeting || "Hello, I'm"}
-        </p>
-        <h1 className="title">{siteSettings.name || 'Vinsensius Arka'}</h1>
-        <p className="section__text__p2">
-          <span className="typeWriter">{displayText || '\u00A0'}</span>
-          <span className="cursor" aria-hidden="true">
-            |
-          </span>
-        </p>
-        <div className="btn-container">
-          <a
-            href={cvHref}
-            download={
-              isBase64Cv || cvHref.endsWith('.pdf')
-                ? siteSettings.cvFileName || 'CV-VinsensiusArka.pdf'
-                : undefined
-            }
-            target={
-              !isBase64Cv && cvHref.startsWith('http') ? '_blank' : undefined
-            }
-            rel={
-              !isBase64Cv && cvHref.startsWith('http')
-                ? 'noopener noreferrer'
-                : undefined
-            }
-            className="btn btn-color-2"
-            onClick={() => trackCvDownload()}
-          >
-            <i className="fa-solid fa-file-arrow-down"></i> Download CV
-          </a>
-          <a href="#contact" className="btn btn-color-1">
-            <i className="fa-solid fa-paper-plane"></i> Contact Info
-          </a>
-        </div>
-        <div id="socials-container">
-          <a
-            href={
-              contactSettings.linkedin ||
-              'https://www.linkedin.com/in/vinsensiusarka/'
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            className="social-link"
-            aria-label="LinkedIn Profile"
-            title="LinkedIn"
-          >
-            <i className="fa-brands fa-linkedin"></i>
-          </a>
-          <a
-            href={
-              contactSettings.github || 'https://github.com/vinsensiusarko'
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            className="social-link"
-            aria-label="GitHub Profile"
-            title="GitHub"
-          >
-            <i className="fa-brands fa-github"></i>
-          </a>
-          <a
-            href={
-              contactSettings.instagram ||
-              'https://www.instagram.com/vinsensiusarko/'
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            className="social-link"
-            aria-label="Instagram Profile"
-            title="Instagram"
-          >
-            <i className="fa-brands fa-instagram"></i>
-          </a>
-          <a
-            href={`mailto:${contactSettings.email || 'me@vinsensiusarka.id'}`}
-            className="social-link"
-            aria-label="Send Email"
-            title="Email Me"
-          >
-            <i className="fa-solid fa-envelope"></i>
-          </a>
-        </div>
-      </div>
-    </section>
+      </section>
+    </TooltipProvider>
   );
 }

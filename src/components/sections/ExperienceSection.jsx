@@ -1,5 +1,9 @@
 import { useMemo } from 'react';
-import { SkillIcon } from '../common/SkillIcon';
+import { cn } from 'cn';
+import { IconCode, IconStack2 } from '@tabler/icons-react';
+import { SkillIcon } from '@/components/common/SkillIcon';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export function ExperienceSection({ skills }) {
   const languages = useMemo(
@@ -17,51 +21,89 @@ export function ExperienceSection({ skills }) {
     const itemKey = (skill.name || skill.id || '').toLowerCase().trim();
 
     return (
-      <div className="skill-item" key={itemKey}>
-        <div className="skill-icon-box">
-          <SkillIcon skill={skill} />
+      <div
+        className="skill-item flex items-center gap-3 rounded-lg border border-border bg-background/70 px-3.5 py-3 transition-colors hover:border-season-border"
+        key={itemKey}
+      >
+        <div className="skill-icon-box flex size-10 shrink-0 items-center justify-center rounded-lg border border-season-border bg-season-surface text-season-foreground">
+          <SkillIcon skill={skill} size="1.25rem" />
         </div>
-        <div className="skill-info">
-          <h3>{skill.name}</h3>
-          <span
-            className={`skill-level-badge ${
-              isExperienced ? 'experienced' : 'intermediate'
-            }`}
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-sm font-semibold text-foreground">
+            {skill.name}
+          </h3>
+          <Badge
+            variant={isExperienced ? 'secondary' : 'outline'}
+            className={cn(
+              'mt-1 text-[11px] font-medium transition-colors',
+              isExperienced
+                ? 'experienced border-status-success-border bg-status-success-bg text-status-success-fg'
+                : 'intermediate border-status-warn-border bg-status-warn-bg text-status-warn-fg'
+            )}
           >
             {level}
-          </span>
+          </Badge>
         </div>
       </div>
     );
   };
 
   return (
-    <section id="experience" className="reveal-on-scroll">
-      <p className="section__text__p1">Explore My</p>
-      <h2 className="title">Experience &amp; Skills</h2>
-      <div className="experience-details-container">
-        <div className="experience-box">
-          <h3 className="experience-sub-title">
-            <i className="fa-solid fa-code"></i> Programming Languages
-          </h3>
-          <div className="article-container">
-            {languages.map(renderSkillCard)}
-          </div>
+    <section
+      id="experience"
+      className="reveal-on-scroll relative z-10 border-y border-border bg-muted/40 py-20 lg:py-24"
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-1.5">
+          <p className="font-mono text-xs uppercase tracking-wider text-season-foreground">
+            Technical Stack
+          </p>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+            Experience &amp; Skills
+          </h2>
         </div>
 
-        <div className="experience-box">
-          <h3 className="experience-sub-title">
-            <i className="fa-solid fa-cubes"></i> Frameworks &amp; Tools
-          </h3>
-          <div className="article-container">
-            {tools.map(renderSkillCard)}
-          </div>
+        <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader className="border-b border-border pb-4">
+              <CardTitle className="flex items-center gap-2.5 font-display text-lg">
+                <IconCode className="size-5 text-season-accent" aria-hidden="true" />
+                Programming Languages
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-5">
+              {languages.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No programming languages listed yet.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {languages.map(renderSkillCard)}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="border-b border-border pb-4">
+              <CardTitle className="flex items-center gap-2.5 font-display text-lg">
+                <IconStack2 className="size-5 text-season-accent" aria-hidden="true" />
+                Frameworks &amp; Tools
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-5">
+              {tools.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No frameworks or tools listed yet.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {tools.map(renderSkillCard)}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-      </div>
-      <div className="arrow">
-        <a href="#projects" aria-label="Scroll down to Projects section">
-          <i className="fa-solid fa-chevron-down"></i>
-        </a>
       </div>
     </section>
   );
