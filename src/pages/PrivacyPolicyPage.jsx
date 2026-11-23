@@ -36,7 +36,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const TOC_ITEMS = [
   { href: '#section-1', label: '1. Scope' },
@@ -114,7 +113,7 @@ function SectionHeading({ number, title }) {
 }
 
 export function PrivacyPolicyPage() {
-  const { policy, loading } = usePrivacyPolicy();
+  const { policy } = usePrivacyPolicy();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') {
@@ -139,15 +138,7 @@ export function PrivacyPolicyPage() {
       <Navbar variant="policy" siteName={policy.developerName || 'Vinsensius Arka'} />
 
       <main className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 py-12 lg:py-16 flex flex-col gap-10">
-        {loading && !policy?.title ? (
-          <div className="flex flex-col gap-4">
-            <Skeleton className="h-6 w-40" />
-            <Skeleton className="h-12 w-3/4" />
-            <Skeleton className="h-32 w-full" />
-          </div>
-        ) : (
-          <>
-            <header className="flex flex-col gap-4">
+        <header className="flex flex-col gap-4">
               <p
                 className="font-mono text-xs uppercase tracking-wider text-season-foreground"
                 id="policy-subtitle"
@@ -602,8 +593,6 @@ export function PrivacyPolicyPage() {
                 </a>
               </Button>
             </div>
-          </>
-        )}
       </main>
 
       <Footer variant="policy" siteName={policy.developerName || 'Vinsensius Arka'} />

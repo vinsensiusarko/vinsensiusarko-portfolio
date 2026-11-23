@@ -4,7 +4,11 @@ import {
   IconChevronDown,
   IconCheck,
   IconRotateClockwise,
-  IconSparkles
+  IconSparkles,
+  IconSeeding,
+  IconSun,
+  IconLeaf,
+  IconSnowflake
 } from '@tabler/icons-react';
 import { useSeason } from '@/context/SeasonContext';
 import { Button } from '@/components/ui/button';
@@ -15,6 +19,13 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover';
+
+const SEASON_ICONS = {
+  spring: IconSeeding,
+  summer: IconSun,
+  autumn: IconLeaf,
+  winter: IconSnowflake
+};
 
 export function SeasonSwitcher() {
   const {
@@ -29,6 +40,7 @@ export function SeasonSwitcher() {
   } = useSeason();
 
   const [open, setOpen] = useState(false);
+  const ActiveSeasonIcon = SEASON_ICONS[season] || IconSeeding;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -43,7 +55,7 @@ export function SeasonSwitcher() {
           title={`Season Theme: ${seasonMeta.labelEn} (${seasonMeta.description})`}
           className="h-11 sm:h-9 min-w-11 sm:min-w-0 gap-1.5 border-season-border bg-season-surface text-season-foreground hover:bg-season-surface/80"
         >
-          <span aria-hidden="true">{seasonMeta.emoji}</span>
+          <ActiveSeasonIcon data-icon="inline-start" aria-hidden="true" />
           <span className="hidden sm:inline text-xs font-medium">{seasonMeta.labelEn}</span>
           <IconChevronDown
             data-icon="inline-end"
@@ -68,6 +80,7 @@ export function SeasonSwitcher() {
         <div className="grid grid-cols-2 gap-1.5">
           {Object.values(seasons).map((item) => {
             const isActive = item.id === season;
+            const SeasonItemIcon = SEASON_ICONS[item.id] || IconSeeding;
             return (
               <button
                 key={item.id}
@@ -84,9 +97,7 @@ export function SeasonSwitcher() {
                     : 'border-border bg-card hover:bg-muted/60 text-foreground'
                 )}
               >
-                <span className="text-base leading-none mt-0.5" aria-hidden="true">
-                  {item.emoji}
-                </span>
+                <SeasonItemIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-1">
                     <span className="text-xs font-semibold truncate">{item.labelEn}</span>
@@ -105,7 +116,7 @@ export function SeasonSwitcher() {
           <button
             type="button"
             onClick={toggleParticles}
-            className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted min-h-10"
+            className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted min-h-11"
           >
             <span className="flex items-center gap-2">
               <IconSparkles className="size-4 text-season-accent" aria-hidden="true" />
@@ -121,7 +132,7 @@ export function SeasonSwitcher() {
               type="button"
               variant="ghost"
               size="sm"
-              className="w-full justify-start text-xs text-muted-foreground"
+              className="w-full min-h-11 justify-start text-xs text-muted-foreground"
               onClick={() => {
                 resetToAutoSeason();
                 setOpen(false);

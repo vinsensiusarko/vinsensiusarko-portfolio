@@ -162,34 +162,41 @@ export function ProjectsSection({ projects }) {
           </h2>
         </div>
 
-        <div className="relative w-full lg:max-w-sm">
-          <IconSearch
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            type="text"
-            id="project-search-input"
-            placeholder="Search projects by title or tech stack..."
-            aria-label="Search projects"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setIsExpanded(false);
-            }}
-            className="h-10 pl-9 pr-9"
-          />
-          {searchQuery.length > 0 && (
-            <button
-              type="button"
-              id="project-search-clear"
-              aria-label="Clear search"
-              onClick={() => setSearchQuery('')}
-              className="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <IconX className="size-4" aria-hidden="true" />
-            </button>
-          )}
+        <div className="w-full lg:max-w-sm">
+          <label
+            htmlFor="project-search-input"
+            className="mb-1.5 block text-xs font-medium text-muted-foreground"
+          >
+            Search projects
+          </label>
+          <div className="relative">
+            <IconSearch
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              type="text"
+              id="project-search-input"
+              placeholder="Search projects by title or tech stack..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setIsExpanded(false);
+              }}
+              className="h-11 sm:h-10 pl-9 pr-11"
+            />
+            {searchQuery.length > 0 && (
+              <button
+                type="button"
+                id="project-search-clear"
+                aria-label="Clear search"
+                onClick={() => setSearchQuery('')}
+                className="absolute top-1/2 right-0 flex size-11 sm:size-10 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <IconX className="size-4" aria-hidden="true" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -205,7 +212,7 @@ export function ProjectsSection({ projects }) {
               key={value}
               type="button"
               className={cn(
-                'filter-chip inline-flex min-h-10 items-center gap-2 rounded-lg border px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors',
+                'filter-chip inline-flex min-h-11 sm:min-h-10 items-center gap-2 rounded-lg border px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors',
                 isActive
                   ? 'active border-primary bg-primary text-primary-foreground'
                   : 'border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground'

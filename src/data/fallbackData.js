@@ -58,7 +58,7 @@ export const FALLBACK_PROJECTS = [
   {
     id: 'arkommerce-admin-fe',
     order: 5,
-    title: 'Arkommerce — Admin FE',
+    title: 'Arkommerce: Admin FE',
     description:
       'Modern responsive administration dashboard for shoes e-commerce with order and inventory management.',
     category: 'Web Application',
@@ -72,7 +72,7 @@ export const FALLBACK_PROJECTS = [
   {
     id: 'arkommerce-admin-be',
     order: 6,
-    title: 'Arkommerce — Admin BE',
+    title: 'Arkommerce: Admin BE',
     description:
       'RESTful API backend service powering products, authentication, transactions, and admin operations.',
     category: 'Backend API',
@@ -117,7 +117,7 @@ export const FALLBACK_PROJECTS = [
     order: 9,
     title: 'SMArT',
     description:
-      'Sistem Manajemen Administrasi Terpadu — integrated administrative and institutional management system.',
+      'Sistem Manajemen Administrasi Terpadu, integrated administrative and institutional management system.',
     category: 'Web Application',
     image: '/assets/images/portfolio-9.png',
     techStack: ['PHP', 'MySQL', 'Bootstrap', 'Management'],

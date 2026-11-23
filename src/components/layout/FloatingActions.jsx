@@ -91,8 +91,7 @@ export function FloatingActions({ whatsapp = '6285179793167' }) {
             <Button
               asChild
               size="icon"
-              className="size-11 rounded-full shadow-md"
-              style={{ backgroundColor: '#15803d', color: '#ffffff' }}
+              className="size-11 rounded-full bg-brand-whatsapp text-brand-whatsapp-foreground shadow-md hover:bg-brand-whatsapp/90"
             >
               <a
                 href={`https://api.whatsapp.com/send?phone=${cleanWa}`}

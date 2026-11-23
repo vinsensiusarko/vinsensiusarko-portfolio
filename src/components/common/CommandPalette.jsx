@@ -351,12 +351,16 @@ export function CommandPalette({
           Search sections, filter projects, or switch theme and season preferences.
         </DialogDescription>
 
-        <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
+        <div className="flex items-center gap-2.5 border-b border-border px-4 py-3 transition-shadow focus-within:ring-2 focus-within:ring-season-accent focus-within:ring-inset">
           <IconSearch className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <label htmlFor="command-palette-input" className="sr-only">
+            Search commands
+          </label>
           <input
+            id="command-palette-input"
             ref={inputRef}
             type="text"
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none"
             placeholder="Type a command or search sections (Esc to exit)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}

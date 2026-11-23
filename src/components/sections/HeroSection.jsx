@@ -17,13 +17,15 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 
-export function HeroSection({ siteSettings, contactSettings }) {
+const DEFAULT_ROLES = ['Web Developer', 'Mobile Developer'];
+
+export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
   const { seasonMeta } = useSeason();
   const roles =
     Array.isArray(siteSettings.typewriterRoles) &&
     siteSettings.typewriterRoles.length > 0
       ? siteSettings.typewriterRoles
-      : ['Web Developer', 'Mobile Developer'];
+      : DEFAULT_ROLES;
 
   const [roleIndex, setRoleIndex] = useState(0);
   const [displayText, setDisplayText] = useState(roles[0] || 'Web Developer');

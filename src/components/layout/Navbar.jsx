@@ -193,12 +193,13 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
               <SheetTrigger asChild>
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
+                  variant="outline"
+                  size="sm"
                   aria-label="Toggle navigation menu"
-                  className="lg:hidden size-11"
+                  className="lg:hidden h-11 gap-1.5 px-3"
                 >
-                  <IconMenu2 className="size-5" aria-hidden="true" />
+                  <IconMenu2 data-icon="inline-start" aria-hidden="true" />
+                  <span className="text-xs font-medium">Menu</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-72 sm:max-w-sm">

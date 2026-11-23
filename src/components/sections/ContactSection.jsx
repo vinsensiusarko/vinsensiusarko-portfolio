@@ -109,7 +109,7 @@ export function ContactSection({ contactSettings }) {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <Button asChild size="sm" className="min-h-10">
+                <Button asChild size="sm" className="min-h-11 sm:min-h-10">
                   <a href={`mailto:${email}`}>
                     <IconMail data-icon="inline-start" aria-hidden="true" />
                     Send Email
@@ -122,7 +122,7 @@ export function ContactSection({ contactSettings }) {
                   onClick={handleCopyEmail}
                   aria-label="Copy email address"
                   title="Copy email to clipboard"
-                  className="min-h-10"
+                  className="min-h-11 sm:min-h-10"
                 >
                   <IconCopy data-icon="inline-start" aria-hidden="true" />
                   Copy Address

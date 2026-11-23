@@ -23,7 +23,7 @@ export function HomePage() {
 
   useEffect(() => {
     const pageTitle =
-      siteSettings.ogTitle || `${siteSettings.name || 'Vinsensius Arka'} — Web & Mobile Developer`;
+      siteSettings.ogTitle || `${siteSettings.name || 'Vinsensius Arka'} | Web & Mobile Developer`;
     document.title = pageTitle;
 
     const ogTitle = document.querySelector('meta[property="og:title"]');

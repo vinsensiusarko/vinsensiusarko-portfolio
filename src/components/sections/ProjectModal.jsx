@@ -143,7 +143,7 @@ export function ProjectModal({ project, onClose }) {
                 type="button"
                 variant="secondary"
                 size="icon"
-                className="absolute top-1/2 left-3 z-20 size-9 -translate-y-1/2 rounded-full shadow-sm"
+                className="absolute top-1/2 left-3 z-20 size-11 sm:size-10 -translate-y-1/2 rounded-full shadow-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   handlePrev();
@@ -156,7 +156,7 @@ export function ProjectModal({ project, onClose }) {
                 type="button"
                 variant="secondary"
                 size="icon"
-                className="absolute top-1/2 right-3 z-20 size-9 -translate-y-1/2 rounded-full shadow-sm"
+                className="absolute top-1/2 right-3 z-20 size-11 sm:size-10 -translate-y-1/2 rounded-full shadow-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleNext();

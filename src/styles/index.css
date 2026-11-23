@@ -1,8 +1,11 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
+  --brand-whatsapp: #15803d;
+  --brand-whatsapp-foreground: #ffffff;
   --radius: 0.625rem;
   --background: #faf9f6;
   --foreground: #141413;
@@ -153,6 +156,9 @@ html[data-theme="dark"][data-season="winter"] {
   --color-status-warn-bg: var(--status-warn-bg);
   --color-status-warn-fg: var(--status-warn-fg);
   --color-status-warn-border: var(--status-warn-border);
+
+  --color-brand-whatsapp: var(--brand-whatsapp);
+  --color-brand-whatsapp-foreground: var(--brand-whatsapp-foreground);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
