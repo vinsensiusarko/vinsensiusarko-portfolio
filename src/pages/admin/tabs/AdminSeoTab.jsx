@@ -240,7 +240,7 @@ export function AdminSeoTab({ showToast }) {
                 <canvas
                   ref={canvasRef}
                   id="og-canvas-preview"
-                  className="block aspect-[1200/630] h-auto w-full"
+                  className="block aspect-1200/630 h-auto w-full"
                   aria-label="OpenGraph Social Card Preview"
                 />
               </div>
