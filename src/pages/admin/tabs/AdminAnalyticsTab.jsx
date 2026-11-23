@@ -1,7 +1,35 @@
 import { useState, useEffect, useCallback } from 'react';
-import { doc, getDoc, collection, getDocs, query, orderBy, limit, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  setDoc,
+  deleteDoc,
+  writeBatch
+} from 'firebase/firestore';
+import {
+  IconBrowser,
+  IconChartBar,
+  IconCpu,
+  IconDeviceMobile,
+  IconDevices,
+  IconEye,
+  IconFileDownload,
+  IconSparkles,
+  IconTrash,
+  IconUsers
+} from '@tabler/icons-react';
 import { db } from '../../../services/firebase';
 import { useConfirm } from '../../../context/ConfirmContext';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
+import { Progress } from '../../../components/ui/progress';
+import { Skeleton } from '../../../components/ui/skeleton';
+import { AdminPageHeader } from '../components/AdminPageHeader';
 
 const DEFAULT_SUMMARY = {
   totalViews: 0,
@@ -23,13 +51,11 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
     if (!db) return;
     try {
       setLoading(true);
-      // Load overview summary
       const sumSnap = await getDoc(doc(db, 'analytics_summary', 'overview'));
       if (sumSnap.exists()) {
         setSummary({ ...DEFAULT_SUMMARY, ...sumSnap.data() });
       }
 
-      // Load last 7 daily buckets efficiently
       const q = query(collection(db, 'analytics_daily'), orderBy('date', 'desc'), limit(7));
       const dailySnap = await getDocs(q);
       const days = dailySnap.docs.map((d) => d.data()).reverse();
@@ -63,17 +89,16 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
   const osList = summary.os || {};
   const totalOsViews = Object.values(osList).reduce((a, b) => a + Number(b || 0), 0) || 1;
 
-  // 7-day max views for proportional bar heights
   const maxDailyViews = Math.max(...dailyStats.map((d) => Number(d.views || 0)), 10);
 
   const handleReset = async () => {
     const ok = await confirm({
       title: 'Reset Analytics Data?',
-      message: 'Apakah Anda yakin ingin mereset seluruh data statistik dan traffic pengunjung? Tindakan ini tidak dapat dibatalkan.',
+      message:
+        'Apakah Anda yakin ingin mereset seluruh data statistik dan traffic pengunjung? Tindakan ini tidak dapat dibatalkan.',
       confirmText: 'Ya, Reset Data',
       cancelText: 'Batal',
-      variant: 'danger',
-      icon: 'fa-solid fa-triangle-exclamation'
+      variant: 'danger'
     });
     if (!ok) return;
 
@@ -109,11 +134,11 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
   const handleSeedDemoData = async () => {
     const ok = await confirm({
       title: 'Seed Demo Traffic Data?',
-      message: 'Ingin mengisi contoh data analytics untuk preview dashboard? Ini akan menggantikan statistik yang ada saat ini.',
+      message:
+        'Ingin mengisi contoh data analytics untuk preview dashboard? Ini akan menggantikan statistik yang ada saat ini.',
       confirmText: 'Ya, Isi Demo Data',
       cancelText: 'Batal',
-      variant: 'info',
-      icon: 'fa-solid fa-chart-column'
+      variant: 'info'
     });
     if (!ok) return;
 
@@ -165,203 +190,223 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
     }
   };
 
+  const kpiCards = [
+    {
+      label: 'Total Page Views',
+      value: totalViews.toLocaleString(),
+      subtext: 'All visitor page loads',
+      Icon: IconEye
+    },
+    {
+      label: 'Unique Visitors',
+      value: uniqueVisitors.toLocaleString(),
+      subtext: 'Deduplicated sessions',
+      Icon: IconUsers
+    },
+    {
+      label: 'CV Resume Downloads',
+      value: cvDownloads.toLocaleString(),
+      subtext: 'Recruiter conversion rate',
+      Icon: IconFileDownload
+    },
+    {
+      label: 'Mobile Traffic Share',
+      value: `${mobileSharePct}%`,
+      subtext: `${mobileCount.toLocaleString()} mobile visits`,
+      Icon: IconDeviceMobile
+    }
+  ];
+
   return (
-    <section id="tab-analytics" className="tab-section">
-      <div className="card">
-        <div className="card-header">
-          <div>
-            <h2 className="card-title">Visitor Analytics &amp; Traffic Insights</h2>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-              Real-time privacy-preserving portfolio metrics, device distribution, and conversion tracking.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-            <button
+    <section id="tab-analytics" className="flex flex-col gap-6">
+      <AdminPageHeader
+        title="Visitor Analytics & Traffic Insights"
+        description="Real-time privacy-preserving portfolio metrics, device distribution, and conversion tracking."
+        actions={
+          <>
+            <Button
               type="button"
-              className="btn btn-secondary btn-sm"
+              variant="outline"
+              size="sm"
               onClick={handleSeedDemoData}
               disabled={processing}
               title="Populate demo statistics for visualization"
             >
-              <i className="fa-solid fa-wand-magic-sparkles"></i> Seed Demo Data
-            </button>
-            <button
+              <IconSparkles className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+              Seed Demo Data
+            </Button>
+            <Button
               type="button"
-              className="btn btn-danger btn-sm"
+              variant="destructive"
+              size="sm"
               onClick={handleReset}
               disabled={processing}
               title="Reset all recorded traffic metrics"
             >
-              <i className="fa-solid fa-trash"></i> Reset Analytics
-            </button>
-          </div>
-        </div>
+              <IconTrash className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+              Reset Analytics
+            </Button>
+          </>
+        }
+      />
 
-        {/* TOP KPI CARDS */}
-        <div className="analytics-kpi-grid">
-          <div className="analytics-kpi-card">
-            <div className="kpi-icon-box" style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1' }}>
-              <i className="fa-solid fa-eye"></i>
-            </div>
-            <div className="kpi-info">
-              <span className="kpi-label">Total Page Views</span>
-              <h3 className="kpi-value">{totalViews.toLocaleString()}</h3>
-              <span className="kpi-subtext">All visitor page loads</span>
-            </div>
-          </div>
+      {/* TOP KPI CARDS */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {kpiCards.map(({ label, value, subtext, Icon }) => (
+          <Card key={label} className="gap-3 py-5">
+            <CardContent className="flex items-start justify-between gap-3 px-5">
+              <div className="flex min-w-0 flex-col gap-1">
+                <span className="text-xs font-medium text-muted-foreground">{label}</span>
+                {loading ? (
+                  <Skeleton className="h-8 w-20" />
+                ) : (
+                  <h3 className="font-mono text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+                    {value}
+                  </h3>
+                )}
+                <span className="text-xs text-muted-foreground">{subtext}</span>
+              </div>
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted text-foreground">
+                <Icon className="size-5" stroke={1.75} aria-hidden="true" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-          <div className="analytics-kpi-card">
-            <div className="kpi-icon-box" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
-              <i className="fa-solid fa-users"></i>
-            </div>
-            <div className="kpi-info">
-              <span className="kpi-label">Unique Visitors</span>
-              <h3 className="kpi-value">{uniqueVisitors.toLocaleString()}</h3>
-              <span className="kpi-subtext">Deduplicated sessions</span>
-            </div>
-          </div>
-
-          <div className="analytics-kpi-card">
-            <div className="kpi-icon-box" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
-              <i className="fa-solid fa-file-arrow-down"></i>
-            </div>
-            <div className="kpi-info">
-              <span className="kpi-label">CV Resume Downloads</span>
-              <h3 className="kpi-value">{cvDownloads.toLocaleString()}</h3>
-              <span className="kpi-subtext">Recruiter conversion rate</span>
-            </div>
-          </div>
-
-          <div className="analytics-kpi-card">
-            <div className="kpi-icon-box" style={{ background: 'rgba(14, 165, 233, 0.15)', color: '#0ea5e9' }}>
-              <i className="fa-solid fa-mobile-screen"></i>
-            </div>
-            <div className="kpi-info">
-              <span className="kpi-label">Mobile Traffic Share</span>
-              <h3 className="kpi-value">{mobileSharePct}%</h3>
-              <span className="kpi-subtext">{mobileCount.toLocaleString()} mobile visits</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 7-DAY TRAFFIC TREND (Dependency-Free Pure CSS Flex Chart) */}
-        <div className="analytics-panel" style={{ marginTop: '1.75rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <h3 style={{ fontSize: '1.05rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <i className="fa-solid fa-chart-column" style={{ color: 'var(--primary)' }}></i>
+      {/* 7-DAY TRAFFIC TREND (Pure CSS/Flex Bar Chart, no external chart libraries) */}
+      <Card className="gap-4 py-5">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 px-5 pb-0">
+          <div className="flex items-center gap-2">
+            <IconChartBar className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+            <CardTitle className="font-display text-base font-semibold">
               7-Day Traffic Trend
-            </h3>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Pageviews &amp; Unique Visitors
-            </span>
+            </CardTitle>
           </div>
+          <CardDescription className="text-xs">Pageviews &amp; Unique Visitors</CardDescription>
+        </CardHeader>
 
-          {dailyStats.length === 0 ? (
-            <div style={{ padding: '2.5rem 1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-              <i className="fa-solid fa-chart-area" style={{ fontSize: '2.2rem', marginBottom: '0.75rem', opacity: 0.5 }}></i>
-              <p style={{ margin: 0 }}>No daily traffic data recorded yet. Click <strong>Seed Demo Data</strong> to preview chart.</p>
+        <CardContent className="px-5">
+          {loading ? (
+            <div className="grid h-52 grid-cols-7 items-end gap-3 pt-4">
+              {[40, 65, 55, 80, 90, 70, 95].map((h, i) => (
+                <Skeleton key={i} className="w-full rounded-t-md" style={{ height: `${h}%` }} />
+              ))}
+            </div>
+          ) : dailyStats.length === 0 ? (
+            <div className="flex flex-col items-center gap-2.5 rounded-lg border border-dashed border-border py-12 text-center text-muted-foreground">
+              <IconChartBar className="size-8 opacity-50" stroke={1.5} aria-hidden="true" />
+              <p className="text-sm">
+                No daily traffic data recorded yet. Click <strong>Seed Demo Data</strong> to preview chart.
+              </p>
             </div>
           ) : (
-            <div className="analytics-bar-chart">
+            <div className="grid h-56 grid-cols-7 items-end gap-2 pt-6 sm:gap-4">
               {dailyStats.map((day) => {
                 const heightPct = Math.max(Math.round(((day.views || 0) / maxDailyViews) * 100), 8);
                 const dayLabel = day.date ? day.date.substring(5) : 'Day';
                 return (
-                  <div className="chart-bar-col" key={day.date}>
-                    <div className="chart-bar-track">
+                  <div className="flex h-full flex-col items-center gap-2" key={day.date}>
+                    <span className="font-mono text-[11px] font-medium tabular-nums text-muted-foreground">
+                      {day.views}
+                    </span>
+                    <div className="flex w-full flex-1 items-end rounded-md bg-muted/50 p-1">
                       <div
-                        className="chart-bar-fill"
+                        className="w-full rounded-sm bg-foreground/85 transition-colors hover:bg-foreground"
                         style={{ height: `${heightPct}%` }}
                         title={`${day.date}: ${day.views} views, ${day.uniques || 0} unique visitors`}
-                      >
-                        <span className="chart-bar-tooltip">{day.views}</span>
-                      </div>
+                      />
                     </div>
-                    <span className="chart-bar-date">{dayLabel}</span>
+                    <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+                      {dayLabel}
+                    </span>
                   </div>
                 );
               })}
             </div>
           )}
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* AUDIENCE BREAKDOWN CARDS */}
-        <div className="analytics-breakdown-grid" style={{ marginTop: '1.75rem' }}>
-          {/* Device Distribution */}
-          <div className="analytics-panel">
-            <h3 style={{ fontSize: '1rem', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <i className="fa-solid fa-laptop-mobile" style={{ color: '#0ea5e9' }}></i>
+      {/* AUDIENCE BREAKDOWN CARDS */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="gap-4 py-5">
+          <CardHeader className="px-5 pb-0">
+            <CardTitle className="font-display flex items-center gap-2 text-base font-semibold">
+              <IconDevices className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
               Device Breakdown
-            </h3>
-            <div className="distribution-list">
-              {['Desktop', 'Mobile', 'Tablet'].map((dev) => {
-                const count = Number(devices[dev] || 0);
-                const pct = Math.round((count / totalDeviceViews) * 100);
-                return (
-                  <div className="distribution-row" key={dev}>
-                    <div className="distribution-label">
-                      <span>{dev}</span>
-                      <span className="distribution-count">{count} ({pct}%)</span>
-                    </div>
-                    <div className="distribution-bar-track">
-                      <div className="distribution-bar-fill" style={{ width: `${pct}%`, background: dev === 'Mobile' ? '#0ea5e9' : dev === 'Tablet' ? '#f59e0b' : '#6366f1' }}></div>
-                    </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 px-5">
+            {['Desktop', 'Mobile', 'Tablet'].map((dev) => {
+              const count = Number(devices[dev] || 0);
+              const pct = Math.round((count / totalDeviceViews) * 100);
+              return (
+                <div className="flex flex-col gap-1.5" key={dev}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-foreground">{dev}</span>
+                    <span className="font-mono tabular-nums text-muted-foreground">
+                      {count} ({pct}%)
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          </div>
+                  <Progress value={pct} className="h-2" />
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
 
-          {/* Browser Distribution */}
-          <div className="analytics-panel">
-            <h3 style={{ fontSize: '1rem', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <i className="fa-brands fa-chrome" style={{ color: '#10b981' }}></i>
+        <Card className="gap-4 py-5">
+          <CardHeader className="px-5 pb-0">
+            <CardTitle className="font-display flex items-center gap-2 text-base font-semibold">
+              <IconBrowser className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
               Browser Distribution
-            </h3>
-            <div className="distribution-list">
-              {['Chrome', 'Safari', 'Firefox', 'Edge'].map((brw) => {
-                const count = Number(browsers[brw] || 0);
-                const pct = Math.round((count / totalBrowserViews) * 100);
-                return (
-                  <div className="distribution-row" key={brw}>
-                    <div className="distribution-label">
-                      <span>{brw}</span>
-                      <span className="distribution-count">{count} ({pct}%)</span>
-                    </div>
-                    <div className="distribution-bar-track">
-                      <div className="distribution-bar-fill" style={{ width: `${pct}%`, background: '#10b981' }}></div>
-                    </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 px-5">
+            {['Chrome', 'Safari', 'Firefox', 'Edge'].map((brw) => {
+              const count = Number(browsers[brw] || 0);
+              const pct = Math.round((count / totalBrowserViews) * 100);
+              return (
+                <div className="flex flex-col gap-1.5" key={brw}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-foreground">{brw}</span>
+                    <span className="font-mono tabular-nums text-muted-foreground">
+                      {count} ({pct}%)
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          </div>
+                  <Progress value={pct} className="h-2" />
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
 
-          {/* Operating Systems */}
-          <div className="analytics-panel">
-            <h3 style={{ fontSize: '1rem', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <i className="fa-solid fa-microchip" style={{ color: '#ec4899' }}></i>
+        <Card className="gap-4 py-5">
+          <CardHeader className="px-5 pb-0">
+            <CardTitle className="font-display flex items-center gap-2 text-base font-semibold">
+              <IconCpu className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
               Operating Systems
-            </h3>
-            <div className="distribution-list">
-              {['Windows', 'Android', 'iOS', 'macOS', 'Linux'].map((osName) => {
-                const count = Number(osList[osName] || 0);
-                const pct = Math.round((count / totalOsViews) * 100);
-                return (
-                  <div className="distribution-row" key={osName}>
-                    <div className="distribution-label">
-                      <span>{osName}</span>
-                      <span className="distribution-count">{count} ({pct}%)</span>
-                    </div>
-                    <div className="distribution-bar-track">
-                      <div className="distribution-bar-fill" style={{ width: `${pct}%`, background: '#ec4899' }}></div>
-                    </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 px-5">
+            {['Windows', 'Android', 'iOS', 'macOS', 'Linux'].map((osName) => {
+              const count = Number(osList[osName] || 0);
+              const pct = Math.round((count / totalOsViews) * 100);
+              return (
+                <div className="flex flex-col gap-1.5" key={osName}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-foreground">{osName}</span>
+                    <span className="font-mono tabular-nums text-muted-foreground">
+                      {count} ({pct}%)
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+                  <Progress value={pct} className="h-2" />
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
       </div>
     </section>
   );
