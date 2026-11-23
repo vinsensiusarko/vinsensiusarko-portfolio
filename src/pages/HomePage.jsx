@@ -53,7 +53,10 @@ export function HomePage() {
 
   return (
     <>
-      <a href="#profile" className="skip-link">
+      <a
+        href="#profile"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2.5 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-lg"
+      >
         Skip to main content
       </a>
       <Navbar variant="home" siteName={siteSettings.name} />
