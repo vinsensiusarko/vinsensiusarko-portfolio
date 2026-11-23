@@ -3,7 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { CommandPalette } from '../../../src/components/common/CommandPalette';
 import { SeasonProvider } from '../../../src/context/SeasonContext';
-import { SoundProvider } from '../../../src/context/SoundContext';
 import { ThemeProvider } from '../../../src/context/ThemeContext';
 
 function renderPalette(props = {}) {
@@ -11,9 +10,7 @@ function renderPalette(props = {}) {
     <MemoryRouter>
       <ThemeProvider>
         <SeasonProvider>
-          <SoundProvider>
-            <CommandPalette {...props} />
-          </SoundProvider>
+          <CommandPalette {...props} />
         </SeasonProvider>
       </ThemeProvider>
     </MemoryRouter>

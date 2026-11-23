@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
 import { ThemeProvider } from './context/ThemeContext';
 import { SeasonProvider } from './context/SeasonContext';
 import { ConfirmProvider } from './context/ConfirmContext';
-import { SoundProvider } from './context/SoundContext';
 import { SeasonalCanvas } from './features/season/SeasonalCanvas';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
@@ -35,14 +34,12 @@ export default function App() {
     <ThemeProvider>
       <SeasonProvider>
         <ConfirmProvider>
-          <SoundProvider>
-            <TooltipProvider delayDuration={200}>
-              <BrowserRouter>
-                <AppRoutes />
-              </BrowserRouter>
-              <Toaster position="bottom-right" closeButton />
-            </TooltipProvider>
-          </SoundProvider>
+          <TooltipProvider delayDuration={200}>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+            <Toaster position="bottom-right" closeButton />
+          </TooltipProvider>
         </ConfirmProvider>
       </SeasonProvider>
     </ThemeProvider>

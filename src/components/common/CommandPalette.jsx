@@ -15,15 +15,12 @@ import {
   IconDeviceMobile,
   IconSun,
   IconMoon,
-  IconVolume,
-  IconVolumeOff,
   IconSeeding,
   IconLeaf,
   IconSnowflake,
   IconArrowRight
 } from '@tabler/icons-react';
 import { useSeason } from '@/context/SeasonContext';
-import { useSound } from '@/context/SoundContext';
 import { useTheme } from '@/context/ThemeContext';
 import {
   Dialog,
@@ -45,8 +42,6 @@ export function CommandPalette({
 
   const navigate = useNavigate();
   const { season, setSeason } = useSeason();
-  const { playClick, playModalOpen, playModalClose, playChime, isMuted, toggleMute } =
-    useSound();
   const { theme, toggleTheme } = useTheme();
 
   const isControlled = controlledIsOpen !== undefined;
@@ -85,19 +80,17 @@ export function CommandPalette({
     };
   }, [isOpen]);
 
-  // Focus input and sound on open
+  // Focus input on open
   useEffect(() => {
     if (isOpen) {
       setQuery('');
       setSelectedIndex(0);
-      playModalOpen();
       const timer = setTimeout(() => inputRef.current?.focus(), 30);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, playModalOpen]);
+  }, [isOpen]);
 
   const handleClose = () => {
-    playModalClose();
     if (isControlled) {
       onClose?.();
     } else {
@@ -214,18 +207,6 @@ export function CommandPalette({
         Icon: theme === 'dark' ? IconSun : IconMoon,
         onSelect: () => {
           toggleTheme();
-          playClick();
-          handleClose();
-        }
-      },
-      {
-        id: 'action-sound',
-        label: isMuted ? 'Enable Sound Effects' : 'Mute Sound Effects',
-        category: 'Preferences',
-        Icon: isMuted ? IconVolume : IconVolumeOff,
-        onSelect: () => {
-          if (isMuted) playClick({ force: true });
-          toggleMute();
           handleClose();
         }
       },
@@ -236,7 +217,6 @@ export function CommandPalette({
         Icon: IconSeeding,
         onSelect: () => {
           setSeason('spring');
-          playChime();
           handleClose();
         }
       },
@@ -247,7 +227,6 @@ export function CommandPalette({
         Icon: IconSun,
         onSelect: () => {
           setSeason('summer');
-          playChime();
           handleClose();
         }
       },
@@ -258,7 +237,6 @@ export function CommandPalette({
         Icon: IconLeaf,
         onSelect: () => {
           setSeason('autumn');
-          playChime();
           handleClose();
         }
       },
@@ -269,13 +247,12 @@ export function CommandPalette({
         Icon: IconSnowflake,
         onSelect: () => {
           setSeason('winter');
-          playChime();
           handleClose();
         }
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [theme, isMuted, season]
+    [theme, season]
   );
 
   const allActions = useMemo(

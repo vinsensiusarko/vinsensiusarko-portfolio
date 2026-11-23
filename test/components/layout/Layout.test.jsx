@@ -29,12 +29,7 @@ describe('Layout components (Navbar, Footer, FloatingActions)', () => {
       'href',
       'https://api.whatsapp.com/send?phone=6285179793167'
     );
-
-    // Sound toggle button in FloatingActions is clickable and toggles mute state
-    const soundBtn = screen.getByRole('button', { name: /(Enable|Mute) Sound Effects/i });
-    expect(soundBtn).toBeInTheDocument();
-    fireEvent.click(soundBtn);
-    expect(screen.getByRole('button', { name: /(Enable|Mute) Sound Effects/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /(Enable|Mute) Sound Effects/i })).not.toBeInTheDocument();
   });
 
   it('renders Privacy Policy link in desktop navigation and opens mobile sheet drawer', () => {
