@@ -367,14 +367,14 @@ export function AdminProfileTab({ showToast }) {
                           Click or Drop Hero Photo Here
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          Fallback: <code className="font-mono">/assets/images/arko-pic.png</code>
+                          Fallback: <code className="font-mono">/assets/images/arko-pic.jpg</code>
                         </span>
                       </div>
                       <img
                         src={
                           heroImage && !heroImageRemoved
                             ? heroImage
-                            : '/assets/images/arko-pic.png'
+                            : '/assets/images/arko-pic.jpg'
                         }
                         alt="Hero Preview"
                         className="size-28 rounded-full border border-border object-cover"

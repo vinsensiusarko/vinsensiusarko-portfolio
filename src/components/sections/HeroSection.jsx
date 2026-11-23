@@ -201,7 +201,7 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
               />
               <img
                 id="hero-img"
-                src={siteSettings.heroImage || '/assets/images/arko-pic.png'}
+                src={siteSettings.heroImage || '/assets/images/arko-pic.jpg'}
                 alt={`Portrait of ${siteSettings.name || 'Vinsensius Arka'}`}
                 width="380"
                 height="380"
@@ -210,7 +210,7 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
                 className="aspect-square w-full rounded-xl object-cover bg-muted"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
-                  e.currentTarget.src = '/assets/images/arko-pic.png';
+                  e.currentTarget.src = '/assets/images/arko-pic.jpg';
                 }}
               />
             </div>

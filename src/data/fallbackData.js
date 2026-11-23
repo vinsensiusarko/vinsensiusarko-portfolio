@@ -155,7 +155,7 @@ export const FALLBACK_SITE_SETTINGS = {
   cvUrl: '/assets/docs/cv-vinsensiusarka.pdf',
   cvBase64: '',
   cvFileName: 'CV-VinsensiusArka.pdf',
-  heroImage: '/assets/images/arko-pic.png',
+  heroImage: '/assets/images/arko-pic.jpg',
   aboutImage: '/assets/images/arko-about.jpg'
 };
 

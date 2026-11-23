@@ -47,7 +47,7 @@ export function AdminSeoTab({ showToast }) {
   });
 
   const [avatarImage, setAvatarImage] = useState(
-    FALLBACK_SITE_SETTINGS.heroImage || '/assets/images/arko-pic.png'
+    FALLBACK_SITE_SETTINGS.heroImage || '/assets/images/arko-pic.jpg'
   );
 
   useEffect(() => {

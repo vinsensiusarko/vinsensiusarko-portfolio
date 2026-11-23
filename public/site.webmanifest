@@ -13,7 +13,7 @@
       "type": "image/x-icon"
     },
     {
-      "src": "assets/images/arko-pic.png",
+      "src": "assets/images/arko-pic.jpg",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

@@ -14,7 +14,7 @@ vi.mock('firebase/firestore', async (importOriginal) => {
           ogTitle: 'Vinsensius Arka — Custom OG',
           ogRole: 'Mobile & Web Specialist',
           ogDescription: 'Custom social preview description',
-          heroImage: '/assets/images/arko-pic.png'
+          heroImage: '/assets/images/arko-pic.jpg'
         })
       })
     ),
