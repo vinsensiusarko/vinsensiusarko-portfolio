@@ -8,9 +8,46 @@ import {
   writeBatch,
   serverTimestamp
 } from 'firebase/firestore';
+import {
+  IconAdjustmentsHorizontal,
+  IconCloudUpload,
+  IconCode,
+  IconStack2,
+  IconDiamond,
+  IconGripVertical,
+  IconIcons,
+  IconInfoCircle,
+  IconLoader2,
+  IconPalette,
+  IconPencil,
+  IconPlus,
+  IconSparkles,
+  IconTrash
+} from '@tabler/icons-react';
 import { db } from '../../../services/firebase';
 import { useConfirm } from '../../../context/ConfirmContext';
 import { SkillIcon } from '../../../components/common/SkillIcon';
+import { Badge } from '../../../components/ui/badge';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '../../../components/ui/dialog';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../../../components/ui/select';
+import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminSkillsShimmer } from '../AdminShimmer';
 
 const INITIAL_SKILL_FORM = {
@@ -109,7 +146,6 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
     const sourceSkill = (skills || []).find((s) => s.id === sourceId);
     if (!sourceSkill) return;
 
-    // Review Focus #5: Category isolation check
     if (sourceSkill.category !== targetSkill.category) {
       showToast('Cannot move skills across different categories.', 'warning');
       return;
@@ -286,8 +322,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
       message: `Apakah Anda yakin ingin menghapus "${skill.name}"?`,
       confirmText: 'Ya, Hapus',
       cancelText: 'Batal',
-      variant: 'danger',
-      icon: 'fa-solid fa-trash'
+      variant: 'danger'
     });
     if (!ok) return;
 
@@ -362,7 +397,6 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
     const isExperienced = skill.level === 'Experienced';
     return (
       <div
-        className={`skill-item-row ${draggedSkillId === skill.id ? 'is-dragging' : ''} ${dragOverSkillId === skill.id ? 'drag-target' : ''}`}
         key={skill.id}
         draggable={true}
         onDragStart={(e) => handleSkillDragStart(e, skill)}
@@ -371,393 +405,395 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
         onDragLeave={(e) => handleSkillDragLeave(e, skill)}
         onDragEnd={handleSkillDragEnd}
         onDrop={(e) => handleSkillDrop(e, skill)}
+        className={`skill-item-row flex flex-wrap items-center justify-between gap-2.5 rounded-lg border border-border bg-background/60 p-2.5 transition-all hover:bg-muted/40 ${
+          draggedSkillId === skill.id ? 'opacity-50' : ''
+        } ${
+          dragOverSkillId === skill.id ? 'border-foreground ring-2 ring-foreground/40' : ''
+        }`}
       >
-        <div className="skill-item-info">
-          <div className="skill-drag-handle" title="Drag to reorder">
-            <i className="fa-solid fa-grip-vertical"></i>
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <div
+            title="Drag to reorder"
+            className="flex size-7 shrink-0 cursor-grab items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground active:cursor-grabbing"
+          >
+            <IconGripVertical className="size-4" stroke={1.75} aria-hidden="true" />
           </div>
-          <div className="skill-icon-box">
-            <SkillIcon skill={skill} size="1.25rem" />
+
+          <div className="skill-icon-box flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground">
+            <SkillIcon skill={skill} size="1.2rem" />
           </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 600, fontSize: '0.95rem', wordBreak: 'break-word' }}>
-              {skill.name}
-            </div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold text-foreground">{skill.name}</div>
+            <div className="font-mono text-[11px] tabular-nums text-muted-foreground">
               Order #{skill.order || 1}
             </div>
           </div>
         </div>
-        <div className="skill-item-actions">
-          <button
+
+        <div className="flex shrink-0 items-center gap-1.5">
+          <Button
             type="button"
-            className="btn btn-sm"
-            style={{
-              background: isExperienced
-                ? 'rgba(16, 185, 129, 0.15)'
-                : 'rgba(245, 158, 11, 0.15)',
-              color: isExperienced ? '#10b981' : '#f59e0b',
-              border: `1px solid ${isExperienced ? '#10b981' : '#f59e0b'}`
-            }}
+            variant="outline"
+            size="sm"
             onClick={() => handleToggleLevel(skill)}
             title="Click to toggle level (Experienced / Intermediate)"
+            className={`h-7 gap-1.5 px-2.5 text-xs ${
+              isExperienced
+                ? 'border-success/40 bg-success/10 text-success hover:bg-success/15 hover:text-success'
+                : 'border-warning/40 bg-warning/10 text-warning hover:bg-warning/15 hover:text-warning'
+            }`}
           >
-            <i className="fa-solid fa-sliders"></i> {skill.level}
-          </button>
-          <button
+            <IconAdjustmentsHorizontal className="size-3.5" stroke={1.75} aria-hidden="true" />
+            {skill.level}
+          </Button>
+
+          <Button
             type="button"
-            className="btn-icon"
-            style={{ width: '2rem', height: '2rem' }}
+            variant="outline"
+            size="icon"
+            className="size-8"
             onClick={() => openEditModal(skill)}
             title="Edit Skill"
+            aria-label={`Edit ${skill.name}`}
           >
-            <i className="fa-solid fa-pen" style={{ fontSize: '0.8rem' }}></i>
-          </button>
-          <button
+            <IconPencil className="size-3.5" stroke={1.75} aria-hidden="true" />
+          </Button>
+
+          <Button
             type="button"
-            className="btn-icon"
-            style={{
-              width: '2rem',
-              height: '2rem',
-              color: 'var(--accent-danger)',
-              borderColor: 'var(--accent-danger)'
-            }}
+            variant="ghost"
+            size="icon"
+            className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
             onClick={() => handleDelete(skill)}
             title="Delete Skill"
+            aria-label={`Delete ${skill.name}`}
           >
-            <i className="fa-solid fa-trash" style={{ fontSize: '0.8rem' }}></i>
-          </button>
+            <IconTrash className="size-3.5" stroke={1.75} aria-hidden="true" />
+          </Button>
         </div>
       </div>
     );
   };
 
   return (
-    <section id="tab-skills" className="tab-section">
-      <div className="card">
-        <div className="card-header">
-          <div>
-            <h2 className="card-title">Experience &amp; Technical Skills</h2>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-              Manage programming languages, frameworks, and proficiency levels (Intermediate /
-              Experienced).
-            </p>
-          </div>
-          <button
-            type="button"
-            id="btn-add-skill"
-            className="btn btn-primary"
-            onClick={openAddModal}
-          >
-            <i className="fa-solid fa-plus"></i> Add Skill
-          </button>
+    <section id="tab-skills" className="flex flex-col gap-6">
+      <AdminPageHeader
+        title="Experience & Technical Skills"
+        badge={`${(skills || []).length} total`}
+        description="Manage programming languages, frameworks, and proficiency levels (Intermediate / Experienced). Drag rows within each category to reorder."
+        actions={
+          <Button type="button" id="btn-add-skill" onClick={openAddModal}>
+            <IconPlus className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+            Add Skill
+          </Button>
+        }
+      />
+
+      {loading ? (
+        <AdminSkillsShimmer />
+      ) : (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card className="gap-4 py-5">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 pb-4">
+              <CardTitle className="font-display flex items-center gap-2 text-base font-semibold">
+                <IconCode className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                Programming Languages
+              </CardTitle>
+              <Badge variant="secondary" className="font-mono text-xs tabular-nums">
+                {languages.length}
+              </Badge>
+            </CardHeader>
+            <CardContent id="skills-languages-list" className="flex flex-col gap-2.5 px-5">
+              {languages.length === 0 ? (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  No programming languages found.
+                </p>
+              ) : (
+                languages.map(renderSkillRow)
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="gap-4 py-5">
+            <CardHeader className="flex flex-row items-center justify-between border-b border-border px-5 pb-4">
+              <CardTitle className="font-display flex items-center gap-2 text-base font-semibold">
+                <IconStack2 className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                Frameworks &amp; Tools
+              </CardTitle>
+              <Badge variant="secondary" className="font-mono text-xs tabular-nums">
+                {frameworks.length}
+              </Badge>
+            </CardHeader>
+            <CardContent id="skills-frameworks-list" className="flex flex-col gap-2.5 px-5">
+              {frameworks.length === 0 ? (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  No frameworks or tools found.
+                </p>
+              ) : (
+                frameworks.map(renderSkillRow)
+              )}
+            </CardContent>
+          </Card>
         </div>
+      )}
 
-        {loading ? (
-          <AdminSkillsShimmer />
-        ) : (
-          <div className="form-row">
-            <div className="card" style={{ marginBottom: 0 }}>
-              <h3
-                style={{
-                  fontSize: '1.05rem',
-                  marginBottom: '1rem',
-                  borderBottom: '1px solid var(--border-color)',
-                  paddingBottom: '0.5rem'
-                }}
-              >
-                <i className="fa-solid fa-code"></i> Programming Languages
-              </h3>
-              <div
-                id="skills-languages-list"
-                style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
-              >
-                {languages.length === 0 ? (
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                    No programming languages found.
-                  </p>
-                ) : (
-                  languages.map(renderSkillRow)
-                )}
+      {/* ADD / EDIT SKILL DIALOG */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl">
+              {editingId ? 'Edit Skill' : 'Add Skill'}
+            </DialogTitle>
+            <DialogDescription>
+              Pick a preset icon or upload a custom SVG/PNG asset for your portfolio skills section.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 pt-1">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="skill-name">Skill Name *</Label>
+              <Input
+                type="text"
+                id="skill-name"
+                required
+                placeholder="e.g. Flutter, TypeScript, Docker"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="skill-category">Category</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                >
+                  <SelectTrigger id="skill-category" className="w-full">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="language">Programming Language</SelectItem>
+                    <SelectItem value="framework_tool">Framework / Tool / DB</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="skill-level">Proficiency Level</Label>
+                <Select
+                  value={formData.level}
+                  onValueChange={(value) => setFormData({ ...formData, level: value })}
+                >
+                  <SelectTrigger id="skill-level" className="w-full">
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Experienced">Experienced</SelectItem>
+                    <SelectItem value="Intermediate">Intermediate</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <div className="card" style={{ marginBottom: 0 }}>
-              <h3
-                style={{
-                  fontSize: '1.05rem',
-                  marginBottom: '1rem',
-                  borderBottom: '1px solid var(--border-color)',
-                  paddingBottom: '0.5rem'
-                }}
-              >
-                <i className="fa-solid fa-cubes"></i> Frameworks &amp; Tools
-              </h3>
-              <div
-                id="skills-frameworks-list"
-                style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
-              >
-                {frameworks.length === 0 ? (
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                    No frameworks or tools found.
-                  </p>
-                ) : (
-                  frameworks.map(renderSkillRow)
-                )}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="skill-order">Display Order</Label>
+              <Input
+                type="number"
+                id="skill-order"
+                min="1"
+                value={formData.order}
+                onChange={(e) => setFormData({ ...formData, order: e.target.value })}
+              />
+            </div>
+
+            {/* ICON SOURCE SWITCHER */}
+            <div className="flex flex-col gap-2">
+              <Label className="flex items-center gap-1.5">
+                <IconPalette className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                Icon Source &amp; Format
+              </Label>
+              <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-muted/40 p-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={formData.iconType !== 'upload' ? 'default' : 'ghost'}
+                  onClick={() => setFormData({ ...formData, iconType: 'fontawesome' })}
+                >
+                  <IconIcons className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+                  Font Awesome / Auto SVG
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={formData.iconType === 'upload' ? 'default' : 'ghost'}
+                  onClick={() => setFormData({ ...formData, iconType: 'upload' })}
+                >
+                  <IconCloudUpload className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+                  Upload PNG / SVG
+                </Button>
               </div>
             </div>
-          </div>
-        )}
-      </div>
 
-      {/* ADD / EDIT SKILL MODAL */}
-      <div
-        id="skill-modal"
-        className={`modal-backdrop ${modalOpen ? 'show' : ''}`}
-        onClick={(e) => {
-          if (e.target.id === 'skill-modal') setModalOpen(false);
-        }}
-      >
-        <div className="modal-content" style={{ maxWidth: '480px' }}>
-          <div className="modal-header">
-            <h3 style={{ fontSize: '1.25rem' }}>{editingId ? 'Edit Skill' : 'Add Skill'}</h3>
-            <button
-              type="button"
-              className="btn-icon"
-              onClick={() => setModalOpen(false)}
-              aria-label="Close modal"
-            >
-              <i className="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="modal-body">
-              <div className="form-group">
-                <label className="form-label" htmlFor="skill-name">
-                  Skill Name *
-                </label>
-                <input
-                  type="text"
-                  id="skill-name"
-                  className="form-input"
-                  required
-                  placeholder="e.g. Flutter, TypeScript, Docker"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="skill-category">
-                    Category
-                  </label>
-                  <select
-                    id="skill-category"
-                    className="form-select"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  >
-                    <option value="language">Programming Language</option>
-                    <option value="framework_tool">Framework / Tool / DB</option>
-                  </select>
+            {formData.iconType !== 'upload' ? (
+              <>
+                <div className="flex flex-col gap-2">
+                  <Label className="flex items-center gap-1.5">
+                    <IconSparkles className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+                    Preset Icons (Click to autofill)
+                  </Label>
+                  <div className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto rounded-lg border border-border bg-muted/20 p-2.5">
+                    {PRESET_ICONS.map((preset) => (
+                      <Button
+                        key={preset.name}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 gap-1.5 px-2.5 text-xs"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            name: preset.name,
+                            category: preset.category,
+                            iconType: preset.iconType,
+                            iconClass: preset.iconClass,
+                            iconUrl: preset.iconUrl || ''
+                          });
+                        }}
+                      >
+                        <SkillIcon skill={preset} size="0.9rem" />
+                        <span>{preset.name}</span>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="skill-level">
-                    Proficiency Level
-                  </label>
-                  <select
-                    id="skill-level"
-                    className="form-select"
-                    value={formData.level}
-                    onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                  >
-                    <option value="Experienced">Experienced</option>
-                    <option value="Intermediate">Intermediate</option>
-                  </select>
-                </div>
-              </div>
 
-              <div className="form-group">
-                <label className="form-label" htmlFor="skill-order">
-                  Display Order
-                </label>
-                <input
-                  type="number"
-                  id="skill-order"
-                  className="form-input"
-                  min="1"
-                  value={formData.order}
-                  onChange={(e) => setFormData({ ...formData, order: e.target.value })}
-                />
-              </div>
-
-              {/* ICON SOURCE TABS */}
-              <div className="form-group">
-                <label className="form-label">
-                  <i className="fa-solid fa-palette"></i> Icon Source &amp; Format
-                </label>
-                <div className="icon-source-tabs">
-                  <button
-                    type="button"
-                    className={`btn btn-sm ${formData.iconType !== 'upload' ? 'btn-primary' : 'btn-secondary'}`}
-                    onClick={() => setFormData({ ...formData, iconType: 'fontawesome' })}
-                  >
-                    <i className="fa-solid fa-icons"></i> Font Awesome / Auto SVG
-                  </button>
-                  <button
-                    type="button"
-                    className={`btn btn-sm ${formData.iconType === 'upload' ? 'btn-primary' : 'btn-secondary'}`}
-                    onClick={() => setFormData({ ...formData, iconType: 'upload' })}
-                  >
-                    <i className="fa-solid fa-cloud-arrow-up"></i> Upload PNG / SVG
-                  </button>
-                </div>
-              </div>
-
-              {formData.iconType !== 'upload' ? (
-                <>
-                  <div className="form-group">
-                    <label className="form-label">
-                      <i className="fa-solid fa-wand-magic-sparkles"></i> Preset Icons (Click to autofill)
-                    </label>
-                    <div className="preset-icons-container">
-                      {PRESET_ICONS.map((preset) => (
-                        <button
-                          key={preset.name}
-                          type="button"
-                          className="preset-icon-chip"
-                          onClick={() => {
-                            setFormData({
-                              ...formData,
-                              name: preset.name,
-                              category: preset.category,
-                              iconType: preset.iconType,
-                              iconClass: preset.iconClass,
-                              iconUrl: preset.iconUrl || ''
-                            });
-                          }}
-                        >
-                          <SkillIcon skill={preset} size="0.95rem" />
-                          <span>{preset.name}</span>
-                        </button>
-                      ))}
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="skill-icon-class">Font Awesome Class or Tech Name</Label>
+                  <div className="flex items-center gap-2.5">
+                    <Input
+                      type="text"
+                      id="skill-icon-class"
+                      placeholder="e.g. fa-brands fa-react, fa-brands fa-dart-lang, or fa-brands fa-flutter"
+                      value={formData.iconClass}
+                      onChange={(e) => setFormData({ ...formData, iconClass: e.target.value })}
+                    />
+                    <div
+                      className="skill-icon-box flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/40 text-foreground"
+                      title="Live Icon Preview"
+                    >
+                      <SkillIcon
+                        skill={{
+                          name: formData.name,
+                          iconClass: formData.iconClass,
+                          iconType: formData.iconType,
+                          iconUrl: formData.iconUrl
+                        }}
+                        size="1.25rem"
+                      />
                     </div>
                   </div>
-
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="skill-icon-class">
-                      Font Awesome Class or Tech Name
-                    </label>
-                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                      <input
-                        type="text"
-                        id="skill-icon-class"
-                        className="form-input"
-                        placeholder="e.g. fa-brands fa-react, fa-brands fa-dart-lang, or fa-brands fa-flutter"
-                        value={formData.iconClass}
-                        onChange={(e) => setFormData({ ...formData, iconClass: e.target.value })}
-                      />
-                      <div
-                        className="skill-icon-box"
-                        title="Live Icon Preview"
-                      >
-                        <SkillIcon
-                          skill={{
-                            name: formData.name,
-                            iconClass: formData.iconClass,
-                            iconType: formData.iconType,
-                            iconUrl: formData.iconUrl
-                          }}
-                          size="1.25rem"
-                        />
-                      </div>
-                    </div>
-                    <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.35rem', display: 'block', lineHeight: 1.4 }}>
-                      💡 <strong>Auto-renders official SVG:</strong> Flutter, Dart (misal <code>fa-brands fa-dart-lang</code>), &amp; Arko CMS otomatis menyesuaikan tema. Browse icon lainnya di{' '}
+                  <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
+                    <IconInfoCircle className="mt-0.5 size-3.5 shrink-0" stroke={1.75} aria-hidden="true" />
+                    <span>
+                      <strong>Auto-renders official SVG:</strong> Flutter, Dart (e.g.{' '}
+                      <code className="font-mono">fa-brands fa-dart-lang</code>), &amp; Arko CMS adapt automatically to theme. Browse icons at{' '}
                       <a
                         href="https://fontawesome.com/icons"
                         target="_blank"
                         rel="noopener noreferrer"
+                        className="underline hover:text-foreground"
                       >
                         fontawesome.com
-                      </a>.
-                    </small>
-                  </div>
-                </>
-              ) : (
-                <div className="form-group">
-                  <label className="form-label">
-                    Upload Custom Icon (PNG / SVG)
-                  </label>
-                  <div className="skill-upload-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                      <div className="skill-icon-box" title="Live Preview">
-                        <SkillIcon
-                          skill={{
-                            name: formData.name,
-                            iconClass: formData.iconClass,
-                            iconType: 'upload',
-                            iconUrl: formData.iconUrl
-                          }}
-                          size="1.25rem"
-                        />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <input
-                          type="file"
-                          id="skill-icon-file"
-                          aria-label="Upload Skill Icon"
-                          accept="image/png,image/svg+xml,image/webp,image/jpeg,.png,.svg"
-                          className="form-input"
-                          style={{ padding: '0.4rem 0.6rem' }}
-                          onChange={handleFileUpload}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      <button
-                        type="button"
-                        className="btn btn-secondary btn-sm"
-                        onClick={handleUseFavicon}
-                        title="Gunakan asset resmi Favicon Arko"
-                      >
-                        <i className="fa-solid fa-gem"></i> Pakai Asset Favicon Arko (/assets/favicon.png)
-                      </button>
-                      {formData.iconUrl && (
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-sm"
-                          style={{ color: 'var(--danger)' }}
-                          onClick={handleRemoveUploadedIcon}
-                        >
-                          <i className="fa-solid fa-trash"></i> Reset Icon
-                        </button>
-                      )}
-                    </div>
-                    <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                      Mendukung file PNG, SVG, atau WebP transparan (Maksimal 1 MB). Otomatis menyesuaikan tema dark mode &amp; light mode.
-                    </small>
-                  </div>
+                      </a>
+                      .
+                    </span>
+                  </p>
                 </div>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setModalOpen(false)}
-              >
+              </>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="skill-icon-file">Upload Custom Icon (PNG / SVG)</Label>
+                <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/20 p-3.5">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="skill-icon-box flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground"
+                      title="Live Preview"
+                    >
+                      <SkillIcon
+                        skill={{
+                          name: formData.name,
+                          iconClass: formData.iconClass,
+                          iconType: 'upload',
+                          iconUrl: formData.iconUrl
+                        }}
+                        size="1.25rem"
+                      />
+                    </div>
+                    <Input
+                      type="file"
+                      id="skill-icon-file"
+                      aria-label="Upload Skill Icon"
+                      accept="image/png,image/svg+xml,image/webp,image/jpeg,.png,.svg"
+                      onChange={handleFileUpload}
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleUseFavicon}
+                      title="Gunakan asset resmi Favicon Arko"
+                    >
+                      <IconDiamond className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+                      Pakai Asset Favicon Arko (/assets/favicon.png)
+                    </Button>
+                    {formData.iconUrl ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        onClick={handleRemoveUploadedIcon}
+                      >
+                        <IconTrash className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+                        Reset Icon
+                      </Button>
+                    ) : null}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Mendukung file PNG, SVG, atau WebP transparan (Maksimal 1 MB). Otomatis menyesuaikan tema dark mode &amp; light mode.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter className="border-t border-border pt-4">
+              <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
                 Cancel
-              </button>
-              <button type="submit" className="btn btn-primary" disabled={saving}>
-                {saving ? 'Saving...' : 'Save Skill'}
-              </button>
-            </div>
+              </Button>
+              <Button type="submit" disabled={saving}>
+                {saving ? (
+                  <>
+                    <IconLoader2
+                      className="size-4 animate-spin"
+                      stroke={1.75}
+                      data-icon="inline-start"
+                      aria-hidden="true"
+                    />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Skill'
+                )}
+              </Button>
+            </DialogFooter>
           </form>
-        </div>
-      </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
