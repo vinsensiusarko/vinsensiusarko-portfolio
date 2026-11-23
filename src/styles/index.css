@@ -1,0 +1,233 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --radius: 0.625rem;
+  --background: #faf9f6;
+  --foreground: #141413;
+  --card: #ffffff;
+  --card-foreground: #141413;
+  --popover: #ffffff;
+  --popover-foreground: #141413;
+  --primary: #141413;
+  --primary-foreground: #faf9f6;
+  --secondary: #f2f0eb;
+  --secondary-foreground: #141413;
+  --muted: #f2f0eb;
+  --muted-foreground: #57534e;
+  --accent: #f2f0eb;
+  --accent-foreground: #141413;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e5e2dc;
+  --input: #e5e2dc;
+  --ring: #141413;
+}
+
+html[data-theme="dark"] {
+  --background: #0e1012;
+  --foreground: #f4f3ee;
+  --card: #16191d;
+  --card-foreground: #f4f3ee;
+  --popover: #16191d;
+  --popover-foreground: #f4f3ee;
+  --primary: #f4f3ee;
+  --primary-foreground: #0e1012;
+  --secondary: #1e2228;
+  --secondary-foreground: #f4f3ee;
+  --muted: #1e2228;
+  --muted-foreground: #9ca3af;
+  --accent: #1e2228;
+  --accent-foreground: #f4f3ee;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #272c34;
+  --input: #272c34;
+  --ring: #f4f3ee;
+}
+
+/* Seasonal Accent Tokens (WCAG AA checked) */
+:root,
+html[data-season="spring"] {
+  --season-accent: #be185d;
+  --season-surface: #fdf2f8;
+  --season-foreground: #9d174d;
+  --season-border: rgba(190, 24, 93, 0.28);
+}
+
+html[data-theme="dark"][data-season="spring"] {
+  --season-accent: #f472b6;
+  --season-surface: rgba(131, 24, 67, 0.35);
+  --season-foreground: #fbcfe8;
+  --season-border: rgba(244, 114, 182, 0.35);
+}
+
+html[data-season="summer"] {
+  --season-accent: #b45309;
+  --season-surface: #fffbeb;
+  --season-foreground: #92400e;
+  --season-border: rgba(180, 83, 9, 0.28);
+}
+
+html[data-theme="dark"][data-season="summer"] {
+  --season-accent: #fbbf24;
+  --season-surface: rgba(120, 53, 15, 0.35);
+  --season-foreground: #fde68a;
+  --season-border: rgba(251, 191, 36, 0.35);
+}
+
+html[data-season="autumn"] {
+  --season-accent: #c2410c;
+  --season-surface: #fff7ed;
+  --season-foreground: #9a3412;
+  --season-border: rgba(194, 65, 12, 0.28);
+}
+
+html[data-theme="dark"][data-season="autumn"] {
+  --season-accent: #fb923c;
+  --season-surface: rgba(124, 45, 18, 0.35);
+  --season-foreground: #fed7aa;
+  --season-border: rgba(251, 146, 60, 0.35);
+}
+
+html[data-season="winter"] {
+  --season-accent: #0369a1;
+  --season-surface: #f0f9ff;
+  --season-foreground: #075985;
+  --season-border: rgba(3, 105, 161, 0.28);
+}
+
+html[data-theme="dark"][data-season="winter"] {
+  --season-accent: #38bdf8;
+  --season-surface: rgba(12, 74, 110, 0.38);
+  --season-foreground: #bae6fd;
+  --season-border: rgba(56, 189, 248, 0.35);
+}
+
+@theme inline {
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Bricolage Grotesque", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-season-accent: var(--season-accent);
+  --color-season-surface: var(--season-surface);
+  --color-season-foreground: var(--season-foreground);
+  --color-season-border: var(--season-border);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a[href],
+  button:not(:disabled),
+  summary,
+  select:not(:disabled),
+  label[for],
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--season-accent);
+    outline-offset: 2px;
+  }
+}
+
+/* BrandLogo dark/light filter parity */
+.brand-logo-light .brand-logo-img,
+.skill-icon-box .brand-logo-img {
+  filter: brightness(0.18);
+  transition: filter 0.2s ease;
+}
+
+html[data-theme="dark"] .brand-logo-dark .brand-logo-img,
+html[data-theme="dark"] .skill-icon-box .brand-logo-img {
+  filter: brightness(0) invert(1);
+}
+
+/* Scroll reveal animation (respects reduced motion) */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--stagger-idx, 0) * 65ms);
+}
+
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--season-accent);
+  animation: cursor-blink 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .typewriter-cursor {
+    animation: none;
+  }
+}

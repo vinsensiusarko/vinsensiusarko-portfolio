@@ -75,3 +75,23 @@ if (typeof HTMLCanvasElement !== 'undefined') {
     }))
   }));
 }
+
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
+if (typeof window !== 'undefined' && typeof window.HTMLElement !== 'undefined') {
+  if (!window.HTMLElement.prototype.hasPointerCapture) {
+    window.HTMLElement.prototype.hasPointerCapture = () => false;
+  }
+  if (!window.HTMLElement.prototype.setPointerCapture) {
+    window.HTMLElement.prototype.setPointerCapture = () => {};
+  }
+  if (!window.HTMLElement.prototype.releasePointerCapture) {
+    window.HTMLElement.prototype.releasePointerCapture = () => {};
+  }
+}
