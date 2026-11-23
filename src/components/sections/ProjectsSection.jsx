@@ -1,16 +1,37 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { formatRichDescription } from '../../utils/formatDescription';
-import { resolveProjectImage } from '../../utils/resolveProjectImage';
+import { cn } from 'cn';
+import {
+  IconLayoutGrid,
+  IconDeviceMobile,
+  IconDeviceLaptop,
+  IconWorld,
+  IconServer,
+  IconSearch,
+  IconX,
+  IconFolderOff,
+  IconBrandGithub,
+  IconBrandGooglePlay,
+  IconExternalLink,
+  IconClock,
+  IconChevronDown,
+  IconChevronUp,
+  IconMaximize
+} from '@tabler/icons-react';
+import { formatRichDescription } from '@/utils/formatDescription';
+import { resolveProjectImage } from '@/utils/resolveProjectImage';
 import { ProjectModal } from './ProjectModal';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
-import { trackProjectView } from '../../services/visitorTracker';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { trackProjectView } from '@/services/visitorTracker';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
 const FILTER_CHIPS = [
-  { label: 'All Projects', value: 'all', icon: 'fa-solid fa-border-all' },
-  { label: 'Mobile App', value: 'Mobile Application', icon: 'fa-solid fa-mobile-screen-button' },
-  { label: 'Web App', value: 'Web Application', icon: 'fa-solid fa-laptop-code' },
-  { label: 'Web Portal', value: 'Web Portal', icon: 'fa-solid fa-globe' },
-  { label: 'Backend API', value: 'Backend API', icon: 'fa-solid fa-server' }
+  { label: 'All Projects', value: 'all', Icon: IconLayoutGrid },
+  { label: 'Mobile App', value: 'Mobile Application', Icon: IconDeviceMobile },
+  { label: 'Web App', value: 'Web Application', Icon: IconDeviceLaptop },
+  { label: 'Web Portal', value: 'Web Portal', Icon: IconWorld },
+  { label: 'Backend API', value: 'Backend API', Icon: IconServer }
 ];
 
 function matchesProjectFilter(project, categoryFilter, searchQuery) {
@@ -84,10 +105,9 @@ export function ProjectsSection({ projects }) {
     if (!isExpanded) {
       const targetEl =
         document.getElementById('projects') ||
-        document.querySelector('.project-controls') ||
         document.getElementById('projects-grid');
       if (targetEl) {
-        const headerOffset = 90;
+        const headerOffset = 88;
         const elementPosition = targetEl.getBoundingClientRect?.()?.top ?? 0;
         const offsetPosition =
           elementPosition + (window.pageYOffset || window.scrollY || 0) - headerOffset;
@@ -110,7 +130,7 @@ export function ProjectsSection({ projects }) {
 
   const filteredProjects = useMemo(() => {
     const trimmed = searchQuery.trim();
-    return projects.filter((p) =>
+    return (projects || []).filter((p) =>
       matchesProjectFilter(p, categoryFilter, trimmed)
     );
   }, [projects, categoryFilter, searchQuery]);
@@ -123,227 +143,287 @@ export function ProjectsSection({ projects }) {
     setIsExpanded(false);
   };
 
-  return (
-    <section id="projects" className="reveal-on-scroll">
-      <p className="section__text__p1">Browse My Recent</p>
-      <h2 className="title">Projects</h2>
+  const visibleProjects = isExpanded
+    ? filteredProjects
+    : filteredProjects.slice(0, INITIAL_LIMIT);
 
-      <div className="project-controls">
-        <div className="project-search-box">
-          <i className="fa-solid fa-magnifying-glass search-icon"></i>
-          <input
+  return (
+    <section
+      id="projects"
+      className="reveal-on-scroll relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
+    >
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-1.5">
+          <p className="font-mono text-xs uppercase tracking-wider text-season-foreground">
+            Selected Work
+          </p>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+            Projects
+          </h2>
+        </div>
+
+        <div className="relative w-full lg:max-w-sm">
+          <IconSearch
+            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input
             type="text"
             id="project-search-input"
-            className="project-search-input"
-            placeholder="Search projects by title or tech stack (e.g. Flutter, React, Laravel)..."
+            placeholder="Search projects by title or tech stack..."
             aria-label="Search projects"
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
               setIsExpanded(false);
             }}
+            className="h-10 pl-9 pr-9"
           />
           {searchQuery.length > 0 && (
             <button
               type="button"
               id="project-search-clear"
-              className="project-search-clear"
               aria-label="Clear search"
               onClick={() => setSearchQuery('')}
+              className="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              <i className="fa-solid fa-xmark"></i>
+              <IconX className="size-4" aria-hidden="true" />
             </button>
           )}
         </div>
+      </div>
 
-        <div
-          className="project-filter-chips"
-          role="tablist"
-          aria-label="Filter projects by category"
-        >
-          {FILTER_CHIPS.map((chip) => {
-            const isActive = categoryFilter === chip.value;
-            return (
-              <button
-                key={chip.value}
-                type="button"
-                className={`filter-chip ${isActive ? 'active' : ''}`}
-                data-filter={chip.value}
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => {
-                  setCategoryFilter(chip.value);
-                  setIsExpanded(false);
-                }}
-              >
-                <i className={chip.icon} aria-hidden="true"></i> {chip.label}
-              </button>
-            );
-          })}
-        </div>
+      <div
+        className="mt-6 flex flex-wrap items-center gap-2"
+        role="tablist"
+        aria-label="Filter projects by category"
+      >
+        {FILTER_CHIPS.map(({ label, value, Icon }) => {
+          const isActive = categoryFilter === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              className={cn(
+                'filter-chip inline-flex min-h-10 items-center gap-2 rounded-lg border px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors',
+                isActive
+                  ? 'active border-primary bg-primary text-primary-foreground'
+                  : 'border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground'
+              )}
+              data-filter={value}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => {
+                setCategoryFilter(value);
+                setIsExpanded(false);
+              }}
+            >
+              <Icon className="size-4" aria-hidden="true" />
+              <span>{label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {filteredProjects.length === 0 ? (
-        <div id="projects-empty-state" className="projects-empty-state">
-          <i className="fa-solid fa-folder-open empty-icon"></i>
-          <h3>No matching projects found</h3>
-          <p>Try searching for a different keyword or choose another category.</p>
-          <button
+        <div
+          id="projects-empty-state"
+          className="mt-8 flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center"
+        >
+          <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
+            <IconFolderOff className="size-6" aria-hidden="true" />
+          </div>
+          <h3 className="font-display text-lg font-semibold text-foreground">
+            No matching projects found
+          </h3>
+          <p className="max-w-md text-sm text-muted-foreground">
+            Try searching for a different keyword or choose another category.
+          </p>
+          <Button
             type="button"
-            className="btn btn-color-2 btn-sm"
+            variant="outline"
+            size="sm"
             id="reset-filter-btn"
             onClick={resetFilters}
+            className="mt-1"
           >
             Reset Filters
-          </button>
+          </Button>
         </div>
       ) : (
         <>
-          <div id="projects-grid" className="projects-grid reveal-stagger">
-            {(isExpanded ? filteredProjects : filteredProjects.slice(0, INITIAL_LIMIT)).map((proj, index) => {
-            const imgSrc = resolveProjectImage(proj);
-            const isComingSoon = Boolean(proj.isComingSoon);
-            const isPlayStore =
-              proj.demoLabel === 'Play Store' ||
-              String(proj.demoUrl || '').includes('play.google.com');
-            const techStack = Array.isArray(proj.techStack) ? proj.techStack : [];
+          <div
+            id="projects-grid"
+            className="projects-grid reveal-stagger mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {visibleProjects.map((proj, index) => {
+              const imgSrc = resolveProjectImage(proj);
+              const isComingSoon = Boolean(proj.isComingSoon);
+              const isPlayStore =
+                proj.demoLabel === 'Play Store' ||
+                String(proj.demoUrl || '').includes('play.google.com');
+              const techStack = Array.isArray(proj.techStack) ? proj.techStack : [];
 
-            return (
-              <article
-                key={proj.id || proj.title}
-                className="project-card reveal-on-scroll"
-                style={{ '--stagger-idx': index % 6 }}
-                data-category={proj.category || 'Web Application'}
-                data-tech={techStack.join(', ')}
-                onClick={(e) => {
-                  if (e.target.closest('.project-btn-container a, .project-btn-container button')) {
-                    return;
-                  }
-                  handleOpenProject(proj);
-                }}
-              >
-                <div className="project-img-wrapper" title="Click to view details">
+              return (
+                <article
+                  key={proj.id || proj.title}
+                  className="project-card reveal-on-scroll group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-200 hover:border-foreground/25 hover:shadow-md cursor-pointer"
+                  style={{ '--stagger-idx': index % 6 }}
+                  data-category={proj.category || 'Web Application'}
+                  data-tech={techStack.join(', ')}
+                  onClick={(e) => {
+                    if (
+                      e.target.closest('.project-btn-container a, .project-btn-container button')
+                    ) {
+                      return;
+                    }
+                    handleOpenProject(proj);
+                  }}
+                >
                   <div
-                    className="project-img-backdrop"
-                    style={{ backgroundImage: `url('${imgSrc}')` }}
-                  ></div>
-                  <span className="project-card-category-pill">
-                    {proj.category || 'Application'}
-                  </span>
-                  <img
-                    src={imgSrc}
-                    alt={`${proj.title} preview`}
-                    loading="lazy"
-                    decoding="async"
-                    className="project-img-main"
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = '/assets/images/portfolio-1.png';
-                    }}
-                  />
-                  <span className="project-quick-view-badge">
-                    <i className="fa-solid fa-expand"></i> Quick View
-                  </span>
-                </div>
+                    className="relative aspect-[16/10] w-full overflow-hidden border-b border-border bg-muted"
+                    title="Click to view details"
+                  >
+                    <div
+                      className="absolute inset-0 scale-110 bg-cover bg-center opacity-25 blur-md"
+                      style={{ backgroundImage: `url('${imgSrc}')` }}
+                      aria-hidden="true"
+                    />
+                    <img
+                      src={imgSrc}
+                      alt={`${proj.title} preview`}
+                      width="480"
+                      height="300"
+                      loading="lazy"
+                      decoding="async"
+                      className="relative z-10 h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-[1.03]"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = '/assets/images/portfolio-1.png';
+                      }}
+                    />
+                    <Badge
+                      variant="secondary"
+                      className="absolute top-3 left-3 z-20 border-border/80 bg-background/90 text-foreground"
+                    >
+                      {proj.category || 'Application'}
+                    </Badge>
+                    <span className="pointer-events-none absolute right-3 bottom-3 z-20 inline-flex items-center gap-1 rounded-md border border-border bg-background/90 px-2 py-1 text-[11px] font-medium text-foreground opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                      <IconMaximize className="size-3" aria-hidden="true" />
+                      Quick View
+                    </span>
+                  </div>
 
-                <div className="project-content">
-                  <h3 className="project-title">{proj.title}</h3>
-                  <div
-                    className="project-desc"
-                    dangerouslySetInnerHTML={{
-                      __html: formatRichDescription(proj.description || '')
-                    }}
-                  />
+                  <div className="flex flex-1 flex-col gap-3 p-5">
+                    <h3 className="font-display text-lg font-semibold leading-snug text-foreground">
+                      {proj.title}
+                    </h3>
 
-                  {techStack.length > 0 && (
-                    <div className="project-card-tech-list">
-                      {techStack.slice(0, 4).map((tech) => (
-                        <span key={tech} className="project-card-tech-tag">
-                          {tech}
-                        </span>
-                      ))}
-                      {techStack.length > 4 && (
-                        <span className="project-card-tech-tag project-card-tech-more">
-                          +{techStack.length - 4}
-                        </span>
+                    <div
+                      className="line-clamp-3 text-sm leading-relaxed text-muted-foreground"
+                      dangerouslySetInnerHTML={{
+                        __html: formatRichDescription(proj.description || '')
+                      }}
+                    />
+
+                    {techStack.length > 0 && (
+                      <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
+                        {techStack.slice(0, 4).map((tech) => (
+                          <Badge key={tech} variant="secondary" className="text-[11px] font-normal">
+                            {tech}
+                          </Badge>
+                        ))}
+                        {techStack.length > 4 && (
+                          <Badge variant="outline" className="font-mono text-[11px]">
+                            +{techStack.length - 4}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="project-btn-container flex flex-wrap items-center gap-2 border-t border-border pt-3.5">
+                      {proj.githubUrl && (
+                        <Button asChild variant="outline" size="sm">
+                          <a
+                            href={proj.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <IconBrandGithub data-icon="inline-start" aria-hidden="true" />
+                            GitHub
+                          </a>
+                        </Button>
+                      )}
+
+                      {isComingSoon ? (
+                        <Badge
+                          variant="outline"
+                          className="gap-1 border-status-warn-border bg-status-warn-bg text-status-warn-fg"
+                        >
+                          <IconClock className="size-3" aria-hidden="true" />
+                          Coming Soon
+                        </Badge>
+                      ) : proj.demoUrl ? (
+                        <Button asChild size="sm">
+                          <a
+                            href={proj.demoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {isPlayStore ? (
+                              <IconBrandGooglePlay data-icon="inline-start" aria-hidden="true" />
+                            ) : (
+                              <IconExternalLink data-icon="inline-start" aria-hidden="true" />
+                            )}
+                            {proj.demoLabel || 'Live Demo'}
+                          </a>
+                        </Button>
+                      ) : (
+                        !proj.githubUrl && (
+                          <Badge
+                            variant="outline"
+                            className="gap-1 border-status-warn-border bg-status-warn-bg text-status-warn-fg"
+                          >
+                            <IconClock className="size-3" aria-hidden="true" />
+                            Coming Soon
+                          </Badge>
+                        )
                       )}
                     </div>
-                  )}
-
-                  <div className="project-btn-container">
-                    {proj.githubUrl && (
-                      <a
-                        href={proj.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-color-2 btn-sm"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <i className="fa-brands fa-github"></i> GitHub
-                      </a>
-                    )}
-
-                    {isComingSoon ? (
-                      <span className="badge-coming-soon">
-                        <i className="fa-solid fa-clock"></i> Coming Soon
-                      </span>
-                    ) : proj.demoUrl ? (
-                      <a
-                        href={proj.demoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-color-1 btn-sm"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <i
-                          className={
-                            isPlayStore
-                              ? 'fa-brands fa-google-play'
-                              : 'fa-solid fa-arrow-up-right-from-square'
-                          }
-                        ></i>{' '}
-                        {proj.demoLabel || 'Live Demo'}
-                      </a>
-                    ) : (
-                      !proj.githubUrl && (
-                        <span className="badge-coming-soon">
-                          <i className="fa-solid fa-clock"></i> Coming Soon
-                        </span>
-                      )
-                    )}
                   </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-
-        {filteredProjects.length > INITIAL_LIMIT && (
-          <div className="projects-show-more-wrapper">
-            <button
-              type="button"
-              className="btn btn-show-more"
-              aria-expanded={isExpanded}
-              aria-controls="projects-grid"
-              onClick={() => setIsExpanded((prev) => !prev)}
-            >
-              <span>
-                {isExpanded
-                  ? 'Show Less'
-                  : `Show More Projects (${filteredProjects.length - INITIAL_LIMIT} more)`}
-              </span>
-              <i className={`fa-solid ${isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-            </button>
+                </article>
+              );
+            })}
           </div>
-        )}
-      </>
-      )}
 
-      <div className="arrow">
-        <a href="#contact" aria-label="Scroll down to Contact section">
-          <i className="fa-solid fa-chevron-down"></i>
-        </a>
-      </div>
+          {filteredProjects.length > INITIAL_LIMIT && (
+            <div className="mt-10 flex justify-center">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                aria-expanded={isExpanded}
+                aria-controls="projects-grid"
+                onClick={() => setIsExpanded((prev) => !prev)}
+                className="min-h-11"
+              >
+                <span>
+                  {isExpanded
+                    ? 'Show Less'
+                    : `Show More Projects (${filteredProjects.length - INITIAL_LIMIT} more)`}
+                </span>
+                {isExpanded ? (
+                  <IconChevronUp data-icon="inline-end" aria-hidden="true" />
+                ) : (
+                  <IconChevronDown data-icon="inline-end" aria-hidden="true" />
+                )}
+              </Button>
+            </div>
+          )}
+        </>
+      )}
 
       <ProjectModal
         project={selectedProject}

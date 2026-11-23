@@ -1,7 +1,28 @@
 import { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { formatRichDescription } from '../../utils/formatDescription';
-import { resolveProjectImage } from '../../utils/resolveProjectImage';
+import { cn } from 'cn';
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconClock,
+  IconCircleCheck,
+  IconCpu,
+  IconBrandGithub,
+  IconBrandGooglePlay,
+  IconExternalLink,
+  IconStack2
+} from '@tabler/icons-react';
+import { formatRichDescription } from '@/utils/formatDescription';
+import { resolveProjectImage } from '@/utils/resolveProjectImage';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 export function ProjectModal({ project, onClose }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -17,9 +38,12 @@ export function ProjectModal({ project, onClose }) {
     .filter(Boolean)
     .map((img) => resolveProjectImage({ image: img }));
 
-  const allImages = normalizedGallery.length > 0
-    ? Array.from(new Set([primaryImg, ...normalizedGallery]))
-    : (primaryImg ? [primaryImg] : []);
+  const allImages =
+    normalizedGallery.length > 0
+      ? Array.from(new Set([primaryImg, ...normalizedGallery]))
+      : primaryImg
+        ? [primaryImg]
+        : [];
 
   const hasGallery = allImages.length > 1;
   const safeActiveIndex = activeImageIndex < allImages.length ? activeImageIndex : 0;
@@ -35,7 +59,6 @@ export function ProjectModal({ project, onClose }) {
 
   useEffect(() => {
     if (!project) return;
-    document.body.style.overflow = 'hidden';
 
     const handleKeyDown = (e) => {
       const targetTag = e.target?.tagName?.toLowerCase();
@@ -57,9 +80,9 @@ export function ProjectModal({ project, onClose }) {
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = '';
       document.removeEventListener('keydown', handleKeyDown);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project, onClose, hasGallery, allImages.length]);
 
   if (!project) return null;
@@ -71,95 +94,109 @@ export function ProjectModal({ project, onClose }) {
     project.demoLabel === 'Play Store' ||
     String(project.demoUrl || '').includes('play.google.com');
 
-  const modalNode = (
-    <div
-      id="project-detail-modal"
-      className="project-modal-backdrop show"
-      aria-hidden="false"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-project-title"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+  return (
+    <Dialog
+      open={Boolean(project)}
+      onOpenChange={(open) => {
+        if (!open) onClose();
       }}
     >
-      <div className="project-modal-dialog">
-        <button
-          type="button"
-          className="project-modal-close"
-          aria-label="Close project details"
-          id="modal-close-btn"
-          onClick={onClose}
-        >
-          <i className="fa-solid fa-xmark"></i>
-        </button>
-
-        <div className="project-modal-image-wrapper">
+      <DialogContent
+        id="project-detail-modal"
+        className="max-h-[90vh] overflow-y-auto p-0 gap-0 sm:max-w-3xl rounded-xl border-border bg-card"
+      >
+        <div className="relative aspect-video w-full overflow-hidden border-b border-border bg-muted">
           <div
             id="modal-project-backdrop"
-            className="project-modal-backdrop-bg"
+            className="absolute inset-0 scale-110 bg-cover bg-center opacity-25 blur-lg"
             style={{ backgroundImage: `url('${currentImg}')` }}
-          ></div>
+            aria-hidden="true"
+          />
           <img
             id="modal-project-img"
             src={currentImg}
             alt={`${project.title} preview`}
+            width="960"
+            height="540"
+            className="relative z-10 h-full w-full object-contain p-3"
             onError={(e) => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = '/assets/images/portfolio-1.png';
             }}
           />
-          <span id="modal-project-category" className="project-category-badge">
-            <i className="fa-solid fa-layer-group"></i> {project.category || 'Project'}
-          </span>
+
+          <Badge
+            id="modal-project-category"
+            variant="secondary"
+            className="absolute top-3 left-3 z-20 gap-1.5 border-border/80 bg-background/90 text-foreground"
+          >
+            <IconStack2 className="size-3.5" aria-hidden="true" />
+            {project.category || 'Project'}
+          </Badge>
 
           {hasGallery && (
             <>
-              <span className="project-gallery-counter-badge">
+              <span className="absolute right-12 top-3 z-20 rounded-md border border-border bg-background/90 px-2 py-0.5 font-mono text-xs font-medium text-foreground">
                 {safeActiveIndex + 1} / {allImages.length}
               </span>
-              <button
+              <Button
                 type="button"
-                className="project-gallery-nav-btn prev"
+                variant="secondary"
+                size="icon"
+                className="absolute top-1/2 left-3 z-20 size-9 -translate-y-1/2 rounded-full shadow-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   handlePrev();
                 }}
                 aria-label="Previous image"
               >
-                <i className="fa-solid fa-chevron-left"></i>
-              </button>
-              <button
+                <IconChevronLeft className="size-4" aria-hidden="true" />
+              </Button>
+              <Button
                 type="button"
-                className="project-gallery-nav-btn next"
+                variant="secondary"
+                size="icon"
+                className="absolute top-1/2 right-3 z-20 size-9 -translate-y-1/2 rounded-full shadow-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleNext();
                 }}
                 aria-label="Next image"
               >
-                <i className="fa-solid fa-chevron-right"></i>
-              </button>
+                <IconChevronRight className="size-4" aria-hidden="true" />
+              </Button>
             </>
           )}
         </div>
 
         {hasGallery && (
-          <div className="project-modal-gallery-strip" role="region" aria-label="Image Gallery Thumbnails">
+          <div
+            className="flex items-center gap-2 overflow-x-auto border-b border-border bg-muted/40 px-4 py-2.5"
+            role="region"
+            aria-label="Image Gallery Thumbnails"
+          >
             {allImages.map((img, idx) => (
               <button
                 key={idx}
                 type="button"
-                className={`gallery-thumb-btn ${idx === safeActiveIndex ? 'active' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setActiveImageIndex(idx);
                 }}
                 aria-label={`View image ${idx + 1} of ${allImages.length}`}
+                className={cn(
+                  'relative h-14 w-20 shrink-0 overflow-hidden rounded-md border bg-card transition-all',
+                  idx === safeActiveIndex
+                    ? 'border-season-accent ring-2 ring-season-accent/40'
+                    : 'border-border opacity-70 hover:opacity-100'
+                )}
               >
                 <img
                   src={img}
                   alt=""
+                  width="80"
+                  height="56"
+                  className="h-full w-full object-cover"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = '/assets/images/portfolio-1.png';
@@ -170,89 +207,104 @@ export function ProjectModal({ project, onClose }) {
           </div>
         )}
 
-        <div className="project-modal-content">
-          <div className="project-modal-header">
-            <h3 id="modal-project-title">{project.title}</h3>
-            <div id="modal-project-status">
+        <div className="flex flex-col gap-5 p-6">
+          <DialogHeader className="flex flex-row items-start justify-between gap-4 space-y-0 text-left">
+            <div className="flex flex-col gap-1">
+              <DialogTitle
+                id="modal-project-title"
+                className="font-display text-2xl font-bold tracking-tight text-foreground"
+              >
+                {project.title}
+              </DialogTitle>
+              <DialogDescription className="sr-only">
+                Detailed preview, tech stack, and links for {project.title}
+              </DialogDescription>
+            </div>
+            <div id="modal-project-status" className="shrink-0">
               {isComingSoon ? (
-                <span className="badge-coming-soon">
-                  <i className="fa-solid fa-clock"></i> Coming Soon
-                </span>
+                <Badge
+                  variant="outline"
+                  className="gap-1 border-status-warn-border bg-status-warn-bg text-status-warn-fg"
+                >
+                  <IconClock className="size-3.5" aria-hidden="true" />
+                  Coming Soon
+                </Badge>
               ) : (
-                <span className="badge-live-project">
-                  <i className="fa-solid fa-circle-check"></i> Live Project
-                </span>
+                <Badge
+                  variant="secondary"
+                  className="gap-1 border-status-success-border bg-status-success-bg text-status-success-fg"
+                >
+                  <IconCircleCheck className="size-3.5" aria-hidden="true" />
+                  Live Project
+                </Badge>
               )}
             </div>
-          </div>
+          </DialogHeader>
 
           <div
             id="modal-project-desc"
-            className="project-modal-desc"
+            className="text-sm sm:text-base leading-relaxed text-muted-foreground"
             dangerouslySetInnerHTML={{
               __html: formatRichDescription(project.description || '')
             }}
           />
 
           {techList.length > 0 && (
-            <div className="project-modal-tech">
-              <h4>
-                <i className="fa-solid fa-microchip"></i> Technologies Used
+            <div className="flex flex-col gap-2.5">
+              <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <IconCpu className="size-4 text-season-accent" aria-hidden="true" />
+                Technologies Used
               </h4>
-              <div id="modal-project-tech-list" className="tech-badge-container">
+              <div id="modal-project-tech-list" className="flex flex-wrap gap-1.5">
                 {techList.map((tech) => (
-                  <span className="tech-pill" key={tech}>
+                  <Badge key={tech} variant="secondary">
                     {tech}
-                  </span>
+                  </Badge>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="project-modal-actions" id="modal-project-actions">
+          <Separator />
+
+          <div
+            className="flex flex-wrap items-center justify-end gap-2"
+            id="modal-project-actions"
+          >
             {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-color-2 btn-sm"
-              >
-                <i className="fa-brands fa-github"></i> GitHub Repository
-              </a>
+              <Button asChild variant="outline" size="sm">
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <IconBrandGithub data-icon="inline-start" aria-hidden="true" />
+                  GitHub Repository
+                </a>
+              </Button>
             )}
             {!project.isComingSoon && project.demoUrl && (
-              <a
-                href={project.demoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-color-1 btn-sm"
-              >
-                <i
-                  className={
-                    isPlayStore
-                      ? 'fa-brands fa-google-play'
-                      : 'fa-solid fa-arrow-up-right-from-square'
-                  }
-                ></i>{' '}
-                {project.demoLabel || 'Live Demo'}
-              </a>
+              <Button asChild size="sm">
+                <a
+                  href={project.demoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {isPlayStore ? (
+                    <IconBrandGooglePlay data-icon="inline-start" aria-hidden="true" />
+                  ) : (
+                    <IconExternalLink data-icon="inline-start" aria-hidden="true" />
+                  )}
+                  {project.demoLabel || 'Live Demo'}
+                </a>
+              </Button>
             )}
-            <button
-              type="button"
-              className="btn btn-color-2 btn-sm project-modal-footer-close"
-              onClick={onClose}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={onClose}>
               Close
-            </button>
+            </Button>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
-
-  if (typeof document !== 'undefined' && document.body) {
-    return createPortal(modalNode, document.body);
-  }
-
-  return modalNode;
 }
