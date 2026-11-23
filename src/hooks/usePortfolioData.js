@@ -47,6 +47,12 @@ function setCachedData(key, data) {
 function normalizeAssetPath(path, defaultPath) {
   if (!path) return defaultPath;
   if (
+    path === '/assets/images/arko-pic.png' ||
+    path === 'assets/images/arko-pic.png'
+  ) {
+    return FALLBACK_SITE_SETTINGS.heroImage;
+  }
+  if (
     path.startsWith('http://') ||
     path.startsWith('https://') ||
     path.startsWith('data:') ||
@@ -57,6 +63,16 @@ function normalizeAssetPath(path, defaultPath) {
   return `/${path}`;
 }
 
+function normalizeSiteSettings(raw = {}) {
+  return {
+    ...FALLBACK_SITE_SETTINGS,
+    ...raw,
+    heroImage: normalizeAssetPath(raw.heroImage, FALLBACK_SITE_SETTINGS.heroImage),
+    aboutImage: normalizeAssetPath(raw.aboutImage, FALLBACK_SITE_SETTINGS.aboutImage),
+    cvUrl: normalizeAssetPath(raw.cvUrl, FALLBACK_SITE_SETTINGS.cvUrl)
+  };
+}
+
 export function usePortfolioData() {
   const [projects, setProjects] = useState(() =>
     getCachedData(CACHE_KEYS.PROJECTS, FALLBACK_PROJECTS)
@@ -65,7 +81,7 @@ export function usePortfolioData() {
     getCachedData(CACHE_KEYS.SKILLS, FALLBACK_SKILLS)
   );
   const [siteSettings, setSiteSettings] = useState(() =>
-    getCachedData(CACHE_KEYS.SITE_SETTINGS, FALLBACK_SITE_SETTINGS)
+    normalizeSiteSettings(getCachedData(CACHE_KEYS.SITE_SETTINGS, FALLBACK_SITE_SETTINGS))
   );
   const [contactSettings, setContactSettings] = useState(() =>
     getCachedData(CACHE_KEYS.CONTACT_SETTINGS, FALLBACK_CONTACT_SETTINGS)
@@ -133,17 +149,9 @@ export function usePortfolioData() {
       (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setSiteSettings((prev) => {
-            const next = {
-              ...prev,
-              ...data,
-              heroImage: normalizeAssetPath(data.heroImage, prev.heroImage),
-              aboutImage: normalizeAssetPath(data.aboutImage, prev.aboutImage),
-              cvUrl: normalizeAssetPath(data.cvUrl, prev.cvUrl)
-            };
-            setCachedData(CACHE_KEYS.SITE_SETTINGS, next);
-            return next;
-          });
+          const next = normalizeSiteSettings(data);
+          setSiteSettings(next);
+          setCachedData(CACHE_KEYS.SITE_SETTINGS, next);
         }
       },
       (err) => console.warn('Firestore site_settings listener (using fallback):', err)
@@ -153,11 +161,9 @@ export function usePortfolioData() {
       doc(db, 'settings', 'contact_settings'),
       (docSnap) => {
         if (docSnap.exists()) {
-          setContactSettings((prev) => {
-            const next = { ...prev, ...docSnap.data() };
-            setCachedData(CACHE_KEYS.CONTACT_SETTINGS, next);
-            return next;
-          });
+          const next = { ...FALLBACK_CONTACT_SETTINGS, ...docSnap.data() };
+          setContactSettings(next);
+          setCachedData(CACHE_KEYS.CONTACT_SETTINGS, next);
         }
       },
       (err) => console.warn('Firestore contact_settings listener (using fallback):', err)
