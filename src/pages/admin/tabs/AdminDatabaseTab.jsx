@@ -8,6 +8,19 @@ import {
   addDoc,
   serverTimestamp
 } from 'firebase/firestore';
+import {
+  IconBolt,
+  IconCircleCheck,
+  IconCopy,
+  IconDatabase,
+  IconDownload,
+  IconEye,
+  IconFileCode,
+  IconLoader2,
+  IconSeeding,
+  IconShieldCheck,
+  IconUpload
+} from '@tabler/icons-react';
 import { db } from '../../../services/firebase';
 import { useConfirm } from '../../../context/ConfirmContext';
 import {
@@ -17,6 +30,25 @@ import {
   FALLBACK_CONTACT_SETTINGS,
   FALLBACK_PRIVACY_POLICY
 } from '../../../data/fallbackData';
+import { Badge } from '../../../components/ui/badge';
+import { Button } from '../../../components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '../../../components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '../../../components/ui/dialog';
+import { Skeleton } from '../../../components/ui/skeleton';
+import { AdminPageHeader } from '../components/AdminPageHeader';
 
 export function AdminDatabaseTab({ reloadAll, showToast }) {
   const confirm = useConfirm();
@@ -36,7 +68,6 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
 
   const restoreInputRef = useRef(null);
 
-  // Load database live health stats
   useEffect(() => {
     async function loadStats() {
       if (!db) {
@@ -76,8 +107,7 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
         'Tindakan ini akan mengisi database Firestore dengan data bawaan: 9 proyek, 11 skills, dan pengaturan profil. Lanjutkan?',
       confirmText: 'Ya, Jalankan Seeder',
       cancelText: 'Batal',
-      variant: 'warning',
-      icon: 'fa-solid fa-database'
+      variant: 'warning'
     });
     if (!ok) return;
 
@@ -151,7 +181,7 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
       getDoc(doc(db, 'settings', 'privacy_policy'))
     ]);
 
-    const backup = {
+    return {
       version: '1.0',
       app: 'Arko Portfolio CMS',
       exportedAt: new Date().toISOString(),
@@ -168,8 +198,6 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
       contact_settings: contactSnap.exists() ? contactSnap.data() : {},
       privacy_policy: privacySnap.exists() ? privacySnap.data() : {}
     };
-
-    return backup;
   };
 
   const handleExportBackup = async () => {
@@ -239,8 +267,7 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
         message: `File backup valid ditemukan: ${projectsCount} Projects, ${skillsCount} Skills, dan Pengaturan Sistem. Yakin ingin me-restore data ini ke database Firestore?`,
         confirmText: 'Ya, Jalankan Restore',
         cancelText: 'Batal',
-        variant: 'warning',
-        icon: 'fa-solid fa-file-import'
+        variant: 'warning'
       });
       if (!ok) {
         setRestoring(false);
@@ -299,226 +326,247 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
   };
 
   return (
-    <section id="tab-database" className="tab-section">
-      <div className="card">
-        <div className="card-header">
-          <div>
-            <h2 className="card-title">
-              <i className="fa-solid fa-database"></i> Database &amp; Backup Center
-            </h2>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-              Comprehensive database management: instant full JSON backup download, schema
-              inspection, one-click restore, and starter data seeding.
-            </p>
-          </div>
-        </div>
+    <section id="tab-database" className="flex flex-col gap-6">
+      <AdminPageHeader
+        title="Database & Backup Center"
+        badge="Storage Mode: Base64 Direct"
+        description="Comprehensive Firestore management: instant full JSON backup download, schema inspection, one-click restore, and starter data seeding."
+      />
 
-        {/* DATABASE HEALTH SUMMARY STATS */}
-        <div className="db-health-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-          <div className="db-stat-card" style={{ padding: '1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+      {/* DATABASE HEALTH STATS */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <Card className="gap-2 py-5">
+          <CardContent className="flex flex-col gap-1.5 px-5">
+            <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
               Projects Collection
+            </span>
+            {dbStats.loading ? (
+              <Skeleton className="h-7 w-28" />
+            ) : (
+              <div className="font-mono text-2xl font-semibold tabular-nums text-foreground">
+                {dbStats.projectsCount} Documents
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 text-xs font-medium text-success">
+              <IconCircleCheck className="size-3.5" stroke={1.75} aria-hidden="true" />
+              Synced with Firestore
             </div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--text-main)', marginTop: '0.25rem' }}>
-              {dbStats.loading ? '...' : `${dbStats.projectsCount} Documents`}
-            </div>
-            <div style={{ fontSize: '0.78rem', color: '#10b981', marginTop: '0.2rem' }}>
-              <i className="fa-solid fa-check-circle"></i> Synced with Firestore
-            </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          <div className="db-stat-card" style={{ padding: '1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+        <Card className="gap-2 py-5">
+          <CardContent className="flex flex-col gap-1.5 px-5">
+            <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
               Skills Collection
+            </span>
+            {dbStats.loading ? (
+              <Skeleton className="h-7 w-28" />
+            ) : (
+              <div className="font-mono text-2xl font-semibold tabular-nums text-foreground">
+                {dbStats.skillsCount} Documents
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 text-xs font-medium text-success">
+              <IconCircleCheck className="size-3.5" stroke={1.75} aria-hidden="true" />
+              Active Technologies
             </div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--text-main)', marginTop: '0.25rem' }}>
-              {dbStats.loading ? '...' : `${dbStats.skillsCount} Documents`}
-            </div>
-            <div style={{ fontSize: '0.78rem', color: '#10b981', marginTop: '0.2rem' }}>
-              <i className="fa-solid fa-check-circle"></i> Active Technologies
-            </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          <div className="db-stat-card" style={{ padding: '1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-card-alt)', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+        <Card className="gap-2 py-5">
+          <CardContent className="flex flex-col gap-1.5 px-5">
+            <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
               System Settings
+            </span>
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              <Badge variant={dbStats.hasProfile ? 'secondary' : 'outline'} className="text-xs">
+                Profile
+              </Badge>
+              <Badge variant={dbStats.hasContact ? 'secondary' : 'outline'} className="text-xs">
+                Contact
+              </Badge>
+              <Badge variant={dbStats.hasPrivacy ? 'secondary' : 'outline'} className="text-xs">
+                Policy
+              </Badge>
             </div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-main)', marginTop: '0.6rem' }}>
-              Profile • Contact • Policy
+            <div className="flex items-center gap-1.5 pt-0.5 text-xs font-medium text-success">
+              <IconShieldCheck className="size-3.5" stroke={1.75} aria-hidden="true" />
+              Configured
             </div>
-            <div style={{ fontSize: '0.78rem', color: '#10b981', marginTop: '0.2rem' }}>
-              <i className="fa-solid fa-shield-halved"></i> Configured
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* OPERATIONS GRID */}
-        <div className="form-row">
-          {/* BACKUP & RESTORE CARD */}
-          <div className="card" style={{ marginBottom: 0, background: 'var(--bg-card-alt)', flex: 1.3 }}>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-              <i className="fa-solid fa-file-export"></i> Full JSON Backup &amp; Restore
-            </h3>
-            <p
-              style={{
-                fontSize: '0.86rem',
-                color: 'var(--text-muted)',
-                marginBottom: '1.25rem',
-                lineHeight: 1.5
-              }}
+      {/* OPERATIONS GRID */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <Card className="gap-4 py-5 lg:col-span-7">
+          <CardHeader className="px-5 pb-0">
+            <CardTitle className="font-display flex items-center gap-2 text-base font-semibold">
+              <IconDatabase className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+              Full JSON Backup &amp; Restore
+            </CardTitle>
+            <CardDescription className="text-sm leading-relaxed">
+              Ekspor seluruh database Cloud Firestore Anda (Projects, Skills, Pengaturan Profil, Kontak, dan Privacy Policy) ke dalam satu file <code className="font-mono">.json</code> terstruktur untuk arsip lokal atau restore instan.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-center gap-2.5 px-5">
+            <Button
+              type="button"
+              id="btn-export-json"
+              disabled={exporting}
+              onClick={handleExportBackup}
             >
-              Ekspor seluruh database Cloud Firestore Anda (Projects, Skills, Pengaturan Profil,
-              Kontak, dan Privacy Policy) ke dalam satu file <code>.json</code> terstruktur. File
-              backup dapat disimpan dengan aman di komputer Anda atau digunakan untuk restore instan.
-            </p>
+              {exporting ? (
+                <IconLoader2
+                  className="size-4 animate-spin"
+                  stroke={1.75}
+                  data-icon="inline-start"
+                  aria-hidden="true"
+                />
+              ) : (
+                <IconDownload
+                  className="size-4"
+                  stroke={1.75}
+                  data-icon="inline-start"
+                  aria-hidden="true"
+                />
+              )}
+              {exporting ? 'Generating...' : 'Download Full Backup (.json)'}
+            </Button>
 
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                id="btn-export-json"
-                className="btn btn-primary"
-                disabled={exporting}
-                onClick={handleExportBackup}
-              >
-                <i className={`fa-solid ${exporting ? 'fa-spinner fa-spin' : 'fa-download'}`}></i>{' '}
-                {exporting ? 'Generating...' : 'Download Full Backup (.json)'}
-              </button>
-
-              <button
-                type="button"
-                id="btn-preview-json"
-                className="btn btn-secondary"
-                onClick={handlePreviewBackup}
-              >
-                <i className="fa-regular fa-eye"></i> Preview Backup Data
-              </button>
-
-              <button
-                type="button"
-                id="btn-import-json"
-                className="btn btn-secondary"
-                disabled={restoring}
-                onClick={() => restoreInputRef.current?.click()}
-              >
-                <i className={`fa-solid ${restoring ? 'fa-spinner fa-spin' : 'fa-upload'}`}></i>{' '}
-                {restoring ? 'Restoring...' : 'Restore from JSON'}
-              </button>
-
-              <input
-                ref={restoreInputRef}
-                type="file"
-                id="input-import-json"
-                aria-label="Upload Backup JSON File"
-                accept="application/json"
-                style={{ display: 'none' }}
-                onChange={handleImportBackup}
-              />
-            </div>
-          </div>
-
-          {/* SEEDER CARD */}
-          <div className="card" style={{ marginBottom: 0, background: 'var(--bg-card-alt)', flex: 1 }}>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-              <i className="fa-solid fa-seedling"></i> Initial Database Seeder
-            </h3>
-            <p
-              style={{
-                fontSize: '0.86rem',
-                color: 'var(--text-muted)',
-                marginBottom: '1.25rem',
-                lineHeight: 1.5
-              }}
+            <Button
+              type="button"
+              id="btn-preview-json"
+              variant="outline"
+              onClick={handlePreviewBackup}
             >
-              Mengisi ulang database Firestore secara otomatis dengan data awal bawaan: 9 portfolio
-              projects, 11 tech skills, serta profil &amp; bio standar.
-            </p>
-            <button
+              <IconEye className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+              Preview Backup Data
+            </Button>
+
+            <Button
+              type="button"
+              id="btn-import-json"
+              variant="outline"
+              disabled={restoring}
+              onClick={() => restoreInputRef.current?.click()}
+            >
+              {restoring ? (
+                <IconLoader2
+                  className="size-4 animate-spin"
+                  stroke={1.75}
+                  data-icon="inline-start"
+                  aria-hidden="true"
+                />
+              ) : (
+                <IconUpload
+                  className="size-4"
+                  stroke={1.75}
+                  data-icon="inline-start"
+                  aria-hidden="true"
+                />
+              )}
+              {restoring ? 'Restoring...' : 'Restore from JSON'}
+            </Button>
+
+            <input
+              ref={restoreInputRef}
+              type="file"
+              id="input-import-json"
+              aria-label="Upload Backup JSON File"
+              accept="application/json"
+              className="hidden"
+              onChange={handleImportBackup}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="gap-4 border-warning/40 py-5 lg:col-span-5">
+          <CardHeader className="px-5 pb-0">
+            <CardTitle className="font-display flex items-center gap-2 text-base font-semibold">
+              <IconSeeding className="size-4 text-warning" stroke={1.75} aria-hidden="true" />
+              Initial Database Seeder
+            </CardTitle>
+            <CardDescription className="text-sm leading-relaxed">
+              Mengisi ulang database Firestore secara otomatis dengan data awal bawaan: 9 portfolio projects, 11 tech skills, serta profil &amp; bio standar.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-5">
+            <Button
               type="button"
               id="btn-seed-database"
-              className="btn btn-secondary"
+              variant="outline"
               onClick={handleSeedAll}
               disabled={seeding}
             >
               {seeding ? (
                 <>
-                  <i className="fa-solid fa-spinner fa-spin"></i> Seeding...
+                  <IconLoader2
+                    className="size-4 animate-spin"
+                    stroke={1.75}
+                    data-icon="inline-start"
+                    aria-hidden="true"
+                  />
+                  Seeding...
                 </>
               ) : (
                 <>
-                  <i className="fa-solid fa-bolt"></i> Run Initial Seeder
+                  <IconBolt
+                    className="size-4"
+                    stroke={1.75}
+                    data-icon="inline-start"
+                    aria-hidden="true"
+                  />
+                  Run Initial Seeder
                 </>
               )}
-            </button>
-          </div>
-        </div>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* JSON PREVIEW MODAL */}
-      {showPreviewModal && (
-        <div
-          id="backup-preview-modal"
-          className="modal-backdrop show"
-          onClick={(e) => {
-            if (e.target.id === 'backup-preview-modal') setShowPreviewModal(false);
-          }}
-        >
-          <div className="modal-content" style={{ maxWidth: '680px' }}>
-            <div className="modal-header">
-              <h3 style={{ fontSize: '1.2rem' }}>
-                <i className="fa-solid fa-file-code"></i> Raw JSON Backup Preview
-              </h3>
-              <button
-                type="button"
-                className="btn-icon"
-                onClick={() => setShowPreviewModal(false)}
-                aria-label="Close modal"
-              >
-                <i className="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-            <div className="modal-body">
-              <pre
-                style={{
-                  maxHeight: '380px',
-                  overflowY: 'auto',
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  background: 'var(--bg-card-alt)',
-                  color: 'var(--text-main)',
-                  fontSize: '0.78rem',
-                  fontFamily: 'monospace',
-                  lineHeight: 1.45,
-                  border: '1px solid var(--border-color)'
-                }}
-              >
-                {previewJsonText}
-              </pre>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  navigator.clipboard.writeText(previewJsonText);
-                  showToast('JSON copied to clipboard!', 'info');
-                }}
-              >
-                <i className="fa-regular fa-copy"></i> Copy JSON
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => {
-                  setShowPreviewModal(false);
-                  handleExportBackup();
-                }}
-              >
-                <i className="fa-solid fa-download"></i> Download File
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* RAW JSON BACKUP PREVIEW DIALOG */}
+      <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="font-display flex items-center gap-2 text-lg">
+              <IconFileCode className="size-5 text-muted-foreground" stroke={1.75} aria-hidden="true" />
+              Raw JSON Backup Preview
+            </DialogTitle>
+            <DialogDescription>
+              Read-only snapshot of your current Firestore collections and settings.
+            </DialogDescription>
+          </DialogHeader>
+
+          <pre className="max-h-96 overflow-auto rounded-lg border border-border bg-muted/50 p-4 font-mono text-xs leading-relaxed text-foreground">
+            {previewJsonText}
+          </pre>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                navigator.clipboard?.writeText(previewJsonText);
+                showToast('JSON copied to clipboard!', 'info');
+              }}
+            >
+              <IconCopy className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+              Copy JSON
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                setShowPreviewModal(false);
+                handleExportBackup();
+              }}
+            >
+              <IconDownload className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+              Download File
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
