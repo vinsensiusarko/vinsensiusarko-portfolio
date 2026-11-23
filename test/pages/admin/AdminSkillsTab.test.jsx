@@ -10,7 +10,10 @@ vi.mock('firebase/firestore', async (importOriginal) => {
     writeBatch: vi.fn(() => ({
       update: vi.fn(),
       commit: vi.fn().mockResolvedValue()
-    }))
+    })),
+    updateDoc: vi.fn().mockResolvedValue(),
+    deleteDoc: vi.fn().mockResolvedValue(),
+    addDoc: vi.fn().mockResolvedValue({ id: 'new-skill-id' })
   };
 });
 
@@ -176,10 +179,14 @@ describe('AdminSkillsTab Drag and Drop Reordering', () => {
     fireEvent.click(screen.getByRole('button', { name: /Pakai Asset Favicon Arko/i }));
     expect(screen.getByLabelText(/Skill Name/i)).toHaveValue('Arko CMS');
 
-    // Switch back to Font Awesome tab
+    // Switch back to Font Awesome tab -> clears uploaded iconUrl so FA renders
     const faTabBtn = screen.getByRole('button', { name: /Font Awesome \/ Auto SVG/i });
     fireEvent.click(faTabBtn);
     expect(screen.getByLabelText(/Font Awesome Class or Tech Name/i)).toBeInTheDocument();
+    expect(faTabBtn).toHaveAttribute('aria-pressed', 'true');
+    // Switching back to Upload tab should confirm iconUrl was cleared (Reset Icon absent)
+    fireEvent.click(uploadTabBtn);
+    expect(screen.queryByRole('button', { name: /Reset Icon/i })).not.toBeInTheDocument();
   });
 
   it('optimistically calls setSkills on drop and level toggle', async () => {
@@ -221,5 +228,11 @@ describe('AdminSkillsTab Drag and Drop Reordering', () => {
     const toggleBtns = screen.getAllByTitle(/Click to toggle level/i);
     fireEvent.click(toggleBtns[0]);
     expect(setSkillsMock).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(showToastMock).toHaveBeenCalledWith(
+        expect.stringMatching(/level changed to Intermediate/i),
+        'success'
+      );
+    });
   });
 });

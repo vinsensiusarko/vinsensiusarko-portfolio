@@ -98,6 +98,7 @@ function SidebarNavContent({
   collapsed,
   counts,
   userEmail,
+  idPrefix = '',
   onSelectTab,
   onLogout
 }) {
@@ -186,7 +187,7 @@ function SidebarNavContent({
             <div className="min-w-0 flex-1 px-1">
               <div className="text-[11px] text-muted-foreground">Signed in as</div>
               <div
-                id="admin-user-email"
+                id={`${idPrefix}admin-user-email`}
                 className="truncate text-xs font-semibold text-foreground"
                 title={userEmail}
               >
@@ -199,10 +200,10 @@ function SidebarNavContent({
             <TooltipTrigger asChild>
               <Button
                 type="button"
-                id="logout-btn"
+                id={`${idPrefix}logout-btn`}
                 variant="ghost"
                 size="icon"
-                className="size-9 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                className="size-9 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive-text"
                 aria-label="Sign Out"
                 onClick={onLogout}
               >
@@ -385,6 +386,7 @@ function AdminDashboardContent() {
 
   const handleLogout = async () => {
     if (!auth) return;
+    setMobileMenuOpen(false);
     const ok = await confirm({
       title: 'Sign Out?',
       message: 'Are you sure you want to sign out of Arko CMS?',
@@ -412,7 +414,7 @@ function AdminDashboardContent() {
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="min-h-dvh bg-background text-foreground">
+      <div data-admin="true" className="min-h-dvh bg-background text-foreground">
         {authStatus === 'checking' && <AdminDashboardSkeleton />}
 
         {authStatus === 'unauthenticated' && (
@@ -524,6 +526,7 @@ function AdminDashboardContent() {
                   collapsed={false}
                   counts={sidebarCounts}
                   userEmail={userEmail}
+                  idPrefix="mobile-"
                   onSelectTab={handleSelectTab}
                   onLogout={handleLogout}
                 />
@@ -566,7 +569,7 @@ function AdminDashboardContent() {
                         data-icon="inline-start"
                         aria-hidden="true"
                       />
-                      <span className="hidden sm:inline">View Live Site</span>
+                      <span className="sr-only sm:not-sr-only">View Live Site</span>
                     </a>
                   </Button>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   collection,
   doc,
@@ -54,6 +54,7 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
   const confirm = useConfirm();
   const [seeding, setSeeding] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewJsonText, setPreviewJsonText] = useState('');
@@ -68,36 +69,37 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
 
   const restoreInputRef = useRef(null);
 
-  useEffect(() => {
-    async function loadStats() {
-      if (!db) {
-        setDbStats((prev) => ({ ...prev, loading: false }));
-        return;
-      }
-      try {
-        const [projSnap, skillSnap, siteSnap, contactSnap, privacySnap] = await Promise.all([
-          getDocs(collection(db, 'projects')),
-          getDocs(collection(db, 'skills')),
-          getDoc(doc(db, 'settings', 'site_settings')),
-          getDoc(doc(db, 'settings', 'contact_settings')),
-          getDoc(doc(db, 'settings', 'privacy_policy'))
-        ]);
-
-        setDbStats({
-          projectsCount: projSnap.size,
-          skillsCount: skillSnap.size,
-          hasProfile: siteSnap.exists(),
-          hasContact: contactSnap.exists(),
-          hasPrivacy: privacySnap.exists(),
-          loading: false
-        });
-      } catch (err) {
-        console.error('Error loading DB stats:', err);
-        setDbStats((prev) => ({ ...prev, loading: false }));
-      }
+  const loadStats = useCallback(async () => {
+    if (!db) {
+      setDbStats((prev) => ({ ...prev, loading: false }));
+      return;
     }
+    try {
+      const [projSnap, skillSnap, siteSnap, contactSnap, privacySnap] = await Promise.all([
+        getDocs(collection(db, 'projects')),
+        getDocs(collection(db, 'skills')),
+        getDoc(doc(db, 'settings', 'site_settings')),
+        getDoc(doc(db, 'settings', 'contact_settings')),
+        getDoc(doc(db, 'settings', 'privacy_policy'))
+      ]);
+
+      setDbStats({
+        projectsCount: projSnap.size,
+        skillsCount: skillSnap.size,
+        hasProfile: siteSnap.exists(),
+        hasContact: contactSnap.exists(),
+        hasPrivacy: privacySnap.exists(),
+        loading: false
+      });
+    } catch (err) {
+      console.error('Error loading DB stats:', err);
+      setDbStats((prev) => ({ ...prev, loading: false }));
+    }
+  }, []);
+
+  useEffect(() => {
     loadStats();
-  }, [seeding, restoring]);
+  }, [loadStats]);
 
   const handleSeedAll = async () => {
     if (!db) return;
@@ -162,6 +164,7 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
 
       showToast('Database successfully seeded with all portfolio content!', 'success');
       await reloadAll();
+      await loadStats();
     } catch (err) {
       console.error('Seeder error:', err);
       showToast('Seeding failed: ' + err.message, 'error');
@@ -234,7 +237,8 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
   };
 
   const handlePreviewBackup = async () => {
-    if (!db) return;
+    if (!db || previewing) return;
+    setPreviewing(true);
     try {
       showToast('Generating backup preview...', 'info');
       const backup = await generateBackupData();
@@ -242,6 +246,8 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
       setShowPreviewModal(true);
     } catch (err) {
       showToast('Preview error: ' + err.message, 'error');
+    } finally {
+      setPreviewing(false);
     }
   };
 
@@ -257,6 +263,9 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
         data = JSON.parse(text);
       } catch {
         throw new Error('File bukan format JSON yang valid.');
+      }
+      if (!data || typeof data !== 'object' || Array.isArray(data)) {
+        throw new Error('Struktur JSON backup tidak valid.');
       }
 
       const projectsCount = Array.isArray(data.projects) ? data.projects.length : 0;
@@ -316,6 +325,7 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
         'success'
       );
       await reloadAll();
+      await loadStats();
     } catch (err) {
       console.error('Import error:', err);
       showToast('Gagal restore JSON: ' + err.message, 'error');
@@ -389,9 +399,20 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
                 Policy
               </Badge>
             </div>
-            <div className="flex items-center gap-1.5 pt-0.5 text-xs font-medium text-success">
-              <IconShieldCheck className="size-3.5" stroke={1.75} aria-hidden="true" />
-              Configured
+            <div className="flex items-center gap-1.5 pt-0.5 text-xs font-medium text-muted-foreground">
+              {dbStats.loading ? (
+                <span>Checking configuration...</span>
+              ) : dbStats.hasProfile && dbStats.hasContact && dbStats.hasPrivacy ? (
+                <span className="inline-flex items-center gap-1.5 text-success">
+                  <IconShieldCheck className="size-3.5" stroke={1.75} aria-hidden="true" />
+                  All Configured
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 text-warning">
+                  <IconShieldCheck className="size-3.5" stroke={1.75} aria-hidden="true" />
+                  Partial Configuration
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -438,6 +459,7 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
               type="button"
               id="btn-preview-json"
               variant="outline"
+              disabled={previewing}
               onClick={handlePreviewBackup}
             >
               <IconEye className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
@@ -546,9 +568,17 @@ export function AdminDatabaseTab({ reloadAll, showToast }) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                navigator.clipboard?.writeText(previewJsonText);
-                showToast('JSON copied to clipboard!', 'info');
+              onClick={async () => {
+                if (!navigator.clipboard?.writeText) {
+                  showToast('Clipboard API not supported in this browser.', 'warning');
+                  return;
+                }
+                try {
+                  await navigator.clipboard.writeText(previewJsonText);
+                  showToast('JSON copied to clipboard!', 'info');
+                } catch (err) {
+                  showToast('Failed to copy JSON: ' + err.message, 'error');
+                }
               }}
             >
               <IconCopy className="size-4" stroke={1.75} data-icon="inline-start" aria-hidden="true" />

@@ -115,9 +115,12 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
 
       const dailySnap = await getDocs(collection(db, 'analytics_daily'));
       if (!dailySnap.empty) {
-        const batch = writeBatch(db);
-        dailySnap.docs.forEach((d) => batch.delete(d.ref));
-        await batch.commit();
+        const docs = dailySnap.docs;
+        for (let i = 0; i < docs.length; i += 450) {
+          const batch = writeBatch(db);
+          docs.slice(i, i + 450).forEach((d) => batch.delete(d.ref));
+          await batch.commit();
+        }
       }
 
       setSummary(DEFAULT_SUMMARY);
@@ -349,7 +352,7 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
                       {count} ({pct}%)
                     </span>
                   </div>
-                  <Progress value={pct} className="h-2" />
+                  <Progress value={pct} aria-label={`${dev} traffic share ${pct}%`} className="h-2" />
                 </div>
               );
             })}
@@ -375,7 +378,7 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
                       {count} ({pct}%)
                     </span>
                   </div>
-                  <Progress value={pct} className="h-2" />
+                  <Progress value={pct} aria-label={`${brw} browser share ${pct}%`} className="h-2" />
                 </div>
               );
             })}
@@ -401,7 +404,7 @@ export function AdminAnalyticsTab({ initialSummary = null, initialDaily = null, 
                       {count} ({pct}%)
                     </span>
                   </div>
-                  <Progress value={pct} className="h-2" />
+                  <Progress value={pct} aria-label={`${osName} operating system share ${pct}%`} className="h-2" />
                 </div>
               );
             })}

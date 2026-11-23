@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import {
   IconAlertCircle,
   IconAlertTriangle,
@@ -21,7 +21,7 @@ const ConfirmContext = createContext(null);
 const VARIANT_CONFIG = {
   danger: {
     Icon: IconAlertTriangle,
-    mediaClass: 'bg-destructive/10 text-destructive',
+    mediaClass: 'bg-destructive/10 text-destructive-text',
     actionVariant: 'destructive'
   },
   warning: {
@@ -48,7 +48,22 @@ export function ConfirmProvider({ children }) {
 
   const resolverRef = useRef(null);
 
+  useEffect(() => {
+    return () => {
+      if (resolverRef.current) {
+        const resolve = resolverRef.current;
+        resolverRef.current = null;
+        resolve(false);
+      }
+    };
+  }, []);
+
   const confirm = useCallback((options = {}) => {
+    if (resolverRef.current) {
+      const previousResolve = resolverRef.current;
+      resolverRef.current = null;
+      previousResolve(false);
+    }
     return new Promise((resolve) => {
       resolverRef.current = resolve;
       setDialogState({

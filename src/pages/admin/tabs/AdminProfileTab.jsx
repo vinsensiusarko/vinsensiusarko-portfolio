@@ -133,6 +133,7 @@ export function AdminProfileTab({ showToast }) {
 
   const handleCvFileChange = (e) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
     if (file.type !== 'application/pdf') {
       showToast('Please select a PDF file.', 'error');
@@ -328,7 +329,7 @@ export function AdminProfileTab({ showToast }) {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {/* Hero Portrait */}
                   <div className="flex flex-col gap-2">
-                    <Label>Hero Section Portrait Photo</Label>
+                    <p className="text-sm leading-none font-medium">Hero Section Portrait Photo</p>
                     <div
                       role="button"
                       tabIndex={0}
@@ -357,6 +358,7 @@ export function AdminProfileTab({ showToast }) {
                           if (e.target.files?.[0]) {
                             handlePhotoSelect(e.target.files[0], 'hero');
                           }
+                          e.target.value = '';
                         }}
                       />
                       <IconUserCircle className="size-6 text-muted-foreground" stroke={1.5} aria-hidden="true" />
@@ -377,42 +379,42 @@ export function AdminProfileTab({ showToast }) {
                         alt="Hero Preview"
                         className="size-28 rounded-full border border-border object-cover"
                       />
-                      <div className="flex flex-wrap items-center justify-center gap-2">
-                        <Badge variant="secondary" className="font-mono text-[11px]">
-                          <IconBolt className="size-3" stroke={1.75} aria-hidden="true" />
-                          {heroCompressedKB
-                            ? `Compressed (${heroCompressedKB} KB)`
-                            : heroImage && !heroImageRemoved
-                              ? 'Stored in Firestore'
-                              : 'Default Static Photo'}
-                        </Badge>
-                        {heroImage && !heroImageRemoved ? (
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="h-7 px-2.5 text-xs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setHeroImage(null);
-                              setHeroImageRemoved(true);
-                              showToast(
-                                'Hero photo will revert to default after you click Save Changes.',
-                                'info'
-                              );
-                            }}
-                          >
-                            <IconRotate className="size-3" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
-                            Reset Default
-                          </Button>
-                        ) : null}
-                      </div>
+                      <Badge variant="secondary" className="font-mono text-[11px]">
+                        <IconBolt className="size-3" stroke={1.75} aria-hidden="true" />
+                        {heroCompressedKB
+                          ? `Compressed (${heroCompressedKB} KB)`
+                          : heroImage && !heroImageRemoved
+                            ? 'Stored in Firestore'
+                            : 'Default Static Photo'}
+                      </Badge>
                     </div>
+                    {heroImage && !heroImageRemoved ? (
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="h-8 px-3 text-xs"
+                          onClick={() => {
+                            setHeroImage(null);
+                            setHeroImageRemoved(true);
+                            setHeroCompressedKB(null);
+                            showToast(
+                              'Hero photo will revert to default after you click Save Changes.',
+                              'info'
+                            );
+                          }}
+                        >
+                          <IconRotate className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+                          Reset Default Hero Photo
+                        </Button>
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* About Portrait */}
                   <div className="flex flex-col gap-2">
-                    <Label>About Me Section Photo</Label>
+                    <p className="text-sm leading-none font-medium">About Me Section Photo</p>
                     <div
                       role="button"
                       tabIndex={0}
@@ -441,6 +443,7 @@ export function AdminProfileTab({ showToast }) {
                           if (e.target.files?.[0]) {
                             handlePhotoSelect(e.target.files[0], 'about');
                           }
+                          e.target.value = '';
                         }}
                       />
                       <IconIdBadge2 className="size-6 text-muted-foreground" stroke={1.5} aria-hidden="true" />
@@ -461,37 +464,37 @@ export function AdminProfileTab({ showToast }) {
                         alt="About Preview"
                         className="size-28 rounded-2xl border border-border object-cover"
                       />
-                      <div className="flex flex-wrap items-center justify-center gap-2">
-                        <Badge variant="secondary" className="font-mono text-[11px]">
-                          <IconBolt className="size-3" stroke={1.75} aria-hidden="true" />
-                          {aboutCompressedKB
-                            ? `Compressed (${aboutCompressedKB} KB)`
-                            : aboutImage && !aboutImageRemoved
-                              ? 'Stored in Firestore'
-                              : 'Default Static Photo'}
-                        </Badge>
-                        {aboutImage && !aboutImageRemoved ? (
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="h-7 px-2.5 text-xs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setAboutImage(null);
-                              setAboutImageRemoved(true);
-                              showToast(
-                                'About photo will revert to default after you click Save Changes.',
-                                'info'
-                              );
-                            }}
-                          >
-                            <IconRotate className="size-3" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
-                            Reset Default
-                          </Button>
-                        ) : null}
-                      </div>
+                      <Badge variant="secondary" className="font-mono text-[11px]">
+                        <IconBolt className="size-3" stroke={1.75} aria-hidden="true" />
+                        {aboutCompressedKB
+                          ? `Compressed (${aboutCompressedKB} KB)`
+                          : aboutImage && !aboutImageRemoved
+                            ? 'Stored in Firestore'
+                            : 'Default Static Photo'}
+                      </Badge>
                     </div>
+                    {aboutImage && !aboutImageRemoved ? (
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="h-8 px-3 text-xs"
+                          onClick={() => {
+                            setAboutImage(null);
+                            setAboutImageRemoved(true);
+                            setAboutCompressedKB(null);
+                            showToast(
+                              'About photo will revert to default after you click Save Changes.',
+                              'info'
+                            );
+                          }}
+                        >
+                          <IconRotate className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
+                          Reset Default About Photo
+                        </Button>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>

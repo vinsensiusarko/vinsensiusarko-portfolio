@@ -30,6 +30,7 @@ const PLATFORMS = [
 
 export function AdminSeoTab({ showToast }) {
   const canvasRef = useRef(null);
+  const drawSeqRef = useRef(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [previewPlatform, setPreviewPlatform] = useState('twitter');
@@ -86,6 +87,7 @@ export function AdminSeoTab({ showToast }) {
   const redrawCanvas = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const seq = ++drawSeqRef.current;
 
     await renderOgBanner(canvas, {
       theme: formData.theme,
@@ -96,6 +98,8 @@ export function AdminSeoTab({ showToast }) {
       techStack: formData.techStack,
       avatarImage: formData.includeAvatar ? avatarImage : null
     });
+
+    if (seq !== drawSeqRef.current) return;
   }, [formData, avatarImage]);
 
   useEffect(() => {
@@ -126,12 +130,12 @@ export function AdminSeoTab({ showToast }) {
     }
   };
 
-  const handleCopyClipboard = async () => {
+  const handleCopyClipboard = () => {
     const canvas = canvasRef.current;
     if (!canvas || !canvas.toBlob) return;
 
-    try {
-      canvas.toBlob(async (blob) => {
+    canvas.toBlob(async (blob) => {
+      try {
         if (!blob) {
           showToast('Could not convert canvas to image blob.', 'error');
           return;
@@ -142,11 +146,11 @@ export function AdminSeoTab({ showToast }) {
         } else {
           showToast('Clipboard API not supported in this browser.', 'warning');
         }
-      }, 'image/png');
-    } catch (err) {
-      console.error('Clipboard copy error:', err);
-      showToast('Failed to copy to clipboard: ' + err.message, 'error');
-    }
+      } catch (err) {
+        console.error('Clipboard copy error:', err);
+        showToast('Failed to copy to clipboard: ' + err.message, 'error');
+      }
+    }, 'image/png');
   };
 
   const handleSaveToFirestore = async () => {
@@ -172,9 +176,11 @@ export function AdminSeoTab({ showToast }) {
         ogTechStack: formData.techStack.trim(),
         ogTheme: formData.theme,
         ogIncludeAvatar: formData.includeAvatar,
-        ogImage: ogDataUrl,
         updatedAt: serverTimestamp()
       };
+      if (ogDataUrl) {
+        payload.ogImage = ogDataUrl;
+      }
 
       await setDoc(doc(db, 'settings', 'site_settings'), payload, { merge: true });
       showToast('OpenGraph image & SEO settings saved to website!', 'success');
@@ -210,8 +216,9 @@ export function AdminSeoTab({ showToast }) {
                       key={id}
                       type="button"
                       size="sm"
+                      aria-pressed={isActive}
                       variant={isActive ? 'default' : 'ghost'}
-                      className={`h-7 px-2.5 text-xs ${isActive ? 'active' : ''}`}
+                      className={`h-8 px-2.5 text-xs ${isActive ? 'active' : ''}`}
                       onClick={() => setPreviewPlatform(id)}
                       title={title}
                     >
@@ -324,7 +331,7 @@ export function AdminSeoTab({ showToast }) {
 
           <CardContent className="flex flex-col gap-4 px-5">
             <div className="flex flex-col gap-2">
-              <Label>Banner Color Theme</Label>
+              <p className="text-sm leading-none font-medium">Banner Color Theme</p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:grid-cols-1">
                 {Object.values(OG_THEMES).map((t) => {
                   const selected = formData.theme === t.id;
@@ -332,6 +339,7 @@ export function AdminSeoTab({ showToast }) {
                     <Button
                       key={t.id}
                       type="button"
+                      aria-pressed={selected}
                       variant={selected ? 'default' : 'outline'}
                       className={`justify-start gap-2.5 ${selected ? 'active' : ''}`}
                       onClick={() => setFormData({ ...formData, theme: t.id })}

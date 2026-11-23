@@ -157,7 +157,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       }
       setFormData((prev) => ({
         ...prev,
-        gallery: [...(prev.gallery || []), ...compressedList]
+        gallery: [...(prev.gallery || []), ...compressedList].slice(0, 6)
       }));
       showToast(`Added ${compressedList.length} image(s) to gallery!`, 'success');
     } catch (err) {
@@ -183,10 +183,11 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       if (oldCover && !newGallery.includes(oldCover)) {
         newGallery.unshift(oldCover);
       }
+      const isDataUri = String(selectedImg).startsWith('data:');
       return {
         ...prev,
-        imageBase64: selectedImg,
-        imageUrl: '',
+        imageBase64: isDataUri ? selectedImg : '',
+        imageUrl: isDataUri ? '' : selectedImg,
         gallery: newGallery.slice(0, 6)
       };
     });
@@ -288,30 +289,30 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
     if (targetIndex < 0 || targetIndex >= projects.length) return;
 
     setIsReordering(true);
-    const updated = [...projects];
-    const currentItem = { ...updated[index] };
-    const neighborItem = { ...updated[targetIndex] };
+    const updated = projects.map((p) => ({ ...p }));
+    const currentItem = updated[index];
+    const neighborItem = updated[targetIndex];
 
     updated[index] = neighborItem;
     updated[targetIndex] = currentItem;
-    updated.forEach((p, idx) => {
-      p.order = idx + 1;
-    });
+    const normalized = updated.map((p, idx) => ({ ...p, order: idx + 1 }));
 
-    setProjects(updated);
+    setProjects(normalized);
 
     try {
+      const movedCurrent = normalized[targetIndex];
+      const movedNeighbor = normalized[index];
       const batch = writeBatch(db);
-      batch.update(doc(db, 'projects', currentItem.id), {
-        order: currentItem.order,
+      batch.update(doc(db, 'projects', movedCurrent.id), {
+        order: movedCurrent.order,
         updatedAt: serverTimestamp()
       });
-      batch.update(doc(db, 'projects', neighborItem.id), {
-        order: neighborItem.order,
+      batch.update(doc(db, 'projects', movedNeighbor.id), {
+        order: movedNeighbor.order,
         updatedAt: serverTimestamp()
       });
       await batch.commit();
-      showToast(`Moved "${currentItem.title}" to #${currentItem.order}`, 'success');
+      showToast(`Moved "${movedCurrent.title}" to #${movedCurrent.order}`, 'success');
     } catch (err) {
       console.error('Error reordering project:', err);
       showToast('Failed to update order: ' + err.message, 'error');
@@ -322,6 +323,7 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
   };
 
   const handleDelete = async (project) => {
+    if (!db) return;
     const ok = await confirm({
       title: 'Hapus Proyek?',
       message: `Apakah Anda yakin ingin menghapus proyek "${project.title}"? Tindakan ini permanen dan tidak dapat dibatalkan.`,
@@ -333,24 +335,30 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
 
     try {
       await deleteDoc(doc(db, 'projects', project.id));
-      const remaining = projects.filter((p) => p.id !== project.id);
-      const batch = writeBatch(db);
-      let hasOrderChanges = false;
+      const remaining = projects
+        .filter((p) => p.id !== project.id)
+        .map((p, idx) => ({ ...p, order: idx + 1 }));
+      setProjects(remaining);
 
-      remaining.forEach((p, idx) => {
-        const expectedOrder = idx + 1;
-        if (Number(p.order) !== expectedOrder) {
-          p.order = expectedOrder;
-          batch.update(doc(db, 'projects', p.id), { order: expectedOrder });
-          hasOrderChanges = true;
+      try {
+        const batch = writeBatch(db);
+        let hasOrderChanges = false;
+        projects
+          .filter((p) => p.id !== project.id)
+          .forEach((p, idx) => {
+            const expectedOrder = idx + 1;
+            if (Number(p.order) !== expectedOrder) {
+              batch.update(doc(db, 'projects', p.id), { order: expectedOrder });
+              hasOrderChanges = true;
+            }
+          });
+        if (hasOrderChanges) {
+          await batch.commit();
         }
-      });
-
-      if (hasOrderChanges) {
-        await batch.commit();
+      } catch (orderErr) {
+        console.error('Error normalizing project order after delete:', orderErr);
       }
 
-      setProjects([...remaining]);
       showToast(`Deleted "${project.title}"`, 'info');
     } catch (err) {
       console.error('Error deleting project:', err);
@@ -660,6 +668,9 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
+                    {formData.category && !PROJECT_CATEGORIES.includes(formData.category) ? (
+                      <SelectItem value={formData.category}>{formData.category}</SelectItem>
+                    ) : null}
                     {PROJECT_CATEGORIES.map((cat) => (
                       <SelectItem key={cat} value={cat}>
                         {cat}
@@ -721,7 +732,9 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
 
             {/* COVER THUMBNAIL DROPZONE */}
             <div className="flex flex-col gap-2">
-              <Label>Project Thumbnail (Auto-Compressed to WebP/JPEG Base64)</Label>
+              <p className="text-sm leading-none font-medium">
+                Project Thumbnail (Auto-Compressed to WebP/JPEG Base64)
+              </p>
               <div
                 role="button"
                 tabIndex={0}
@@ -804,7 +817,9 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
             {/* SCREENSHOT GALLERY */}
             <div className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <Label>Project Screenshot Gallery ({formData.gallery?.length || 0}/6)</Label>
+                <p className="text-sm leading-none font-medium">
+                  Project Screenshot Gallery ({formData.gallery?.length || 0}/6)
+                </p>
                 <span className="text-xs text-muted-foreground">
                   Multiple screenshots shown in Quick View detail modal
                 </span>
@@ -872,8 +887,9 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                           type="button"
                           size="icon"
                           variant="secondary"
-                          className="size-7 bg-background/90 shadow-xs"
+                          className="size-8 bg-background/90 shadow-xs"
                           title="Set as Cover Image"
+                          aria-label={`Set screenshot ${gIdx + 1} as cover image`}
                           onClick={(e) => {
                             e.stopPropagation();
                             setGalleryImageAsCover(gIdx);
@@ -885,8 +901,9 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                           type="button"
                           size="icon"
                           variant="destructive"
-                          className="size-7 shadow-xs"
+                          className="size-8 shadow-xs"
                           title="Remove screenshot"
+                          aria-label={`Remove screenshot ${gIdx + 1}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             removeGalleryImage(gIdx);
@@ -950,6 +967,9 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                     <SelectValue placeholder="Select label" />
                   </SelectTrigger>
                   <SelectContent>
+                    {formData.demoLabel && !DEMO_LABELS.includes(formData.demoLabel) ? (
+                      <SelectItem value={formData.demoLabel}>{formData.demoLabel}</SelectItem>
+                    ) : null}
                     {DEMO_LABELS.map((lbl) => (
                       <SelectItem key={lbl} value={lbl}>
                         {lbl}

@@ -93,6 +93,7 @@ describe('AdminLogin & AdminPage Shell', () => {
     fireEvent.click(contactTabBtn);
     expect(localStorage.getItem('admin_active_tab')).toBe('contact');
     expect(screen.getByRole('heading', { name: /Contact & Social Channels/i })).toBeInTheDocument();
+    await screen.findByLabelText(/Email Address/i);
   });
 
   it('retires legacy CSS files and keeps rich description utilities in index.css', () => {

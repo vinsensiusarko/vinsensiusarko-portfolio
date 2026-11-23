@@ -1,7 +1,21 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { AdminProjectsTab } from '../../../src/pages/admin/tabs/AdminProjectsTab';
 import { ConfirmProvider } from '../../../src/context/ConfirmContext';
+
+vi.mock('firebase/firestore', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    writeBatch: vi.fn(() => ({
+      update: vi.fn(),
+      commit: vi.fn().mockResolvedValue()
+    })),
+    deleteDoc: vi.fn().mockResolvedValue(),
+    updateDoc: vi.fn().mockResolvedValue(),
+    addDoc: vi.fn().mockResolvedValue({ id: 'new-project-id' })
+  };
+});
 
 describe('AdminProjectsTab Gallery & DnD Reordering', () => {
   const mockProjects = [
@@ -60,11 +74,12 @@ describe('AdminProjectsTab Gallery & DnD Reordering', () => {
     expect(screen.getByText(/Project Screenshot Gallery/i)).toBeInTheDocument();
     expect(screen.getByText(/Multiple screenshots/i)).toBeInTheDocument();
 
-    // Verify 2 screenshots in gallery and delete one
-    const deleteGalleryButtons = screen.getAllByTitle(/Remove screenshot/i);
+    // Verify 2 screenshots in gallery have accessible labels and delete one
+    const deleteGalleryButtons = screen.getAllByRole('button', { name: /Remove screenshot/i });
     expect(deleteGalleryButtons).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: /Set screenshot .* as cover/i })).toHaveLength(2);
     fireEvent.click(deleteGalleryButtons[0]);
-    expect(screen.getAllByTitle(/Remove screenshot/i)).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: /Remove screenshot/i })).toHaveLength(1);
   });
 
   it('triggers drag and drop reordering and updates optimistic project state', async () => {
@@ -103,5 +118,11 @@ describe('AdminProjectsTab Gallery & DnD Reordering', () => {
     expect(reordered[1].id).toBe('p1');
     expect(reordered[0].order).toBe(1);
     expect(reordered[1].order).toBe(2);
+    await waitFor(() => {
+      expect(showToastMock).toHaveBeenCalledWith(
+        expect.stringMatching(/Reordered "Project One" to position #2/i),
+        'success'
+      );
+    });
   });
 });

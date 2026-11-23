@@ -94,6 +94,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(INITIAL_SKILL_FORM);
   const [saving, setSaving] = useState(false);
+  const [isReordering, setIsReordering] = useState(false);
   const [draggedSkillId, setDraggedSkillId] = useState(null);
   const [dragOverSkillId, setDragOverSkillId] = useState(null);
 
@@ -137,6 +138,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
 
   const handleSkillDrop = async (e, targetSkill) => {
     e.preventDefault();
+    if (isReordering) return;
     const sourceId = draggedSkillId || e.dataTransfer.getData('text/plain');
     setDraggedSkillId(null);
     setDragOverSkillId(null);
@@ -159,6 +161,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
     const targetIdx = categorySkills.findIndex((s) => s.id === targetSkill.id);
     if (sourceIdx === -1 || targetIdx === -1) return;
 
+    setIsReordering(true);
     const reorderedCategory = [...categorySkills];
     const [moved] = reorderedCategory.splice(sourceIdx, 1);
     reorderedCategory.splice(targetIdx, 0, moved);
@@ -200,8 +203,17 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
     } catch (err) {
       console.error('Error reordering skills via DnD:', err);
       if (setSkills) setSkills(previousSkills);
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem('portfolio_skills_cache', JSON.stringify(previousSkills));
+        }
+      } catch {
+        // ignore
+      }
       showToast('Failed to update skill order: ' + err.message, 'error');
       if (reloadSkills) await reloadSkills();
+    } finally {
+      setIsReordering(false);
     }
   };
 
@@ -230,6 +242,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
 
     if (!file.type.includes('image/') && !file.name.endsWith('.svg')) {
@@ -317,6 +330,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
   };
 
   const handleDelete = async (skill) => {
+    if (!db) return;
     const ok = await confirm({
       title: 'Hapus Keahlian?',
       message: `Apakah Anda yakin ingin menghapus "${skill.name}"?`,
@@ -610,16 +624,24 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
 
             {/* ICON SOURCE SWITCHER */}
             <div className="flex flex-col gap-2">
-              <Label className="flex items-center gap-1.5">
+              <p className="flex items-center gap-1.5 text-sm leading-none font-medium">
                 <IconPalette className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
                 Icon Source &amp; Format
-              </Label>
+              </p>
               <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-muted/40 p-1">
                 <Button
                   type="button"
                   size="sm"
+                  aria-pressed={formData.iconType !== 'upload'}
                   variant={formData.iconType !== 'upload' ? 'default' : 'ghost'}
-                  onClick={() => setFormData({ ...formData, iconType: 'fontawesome' })}
+                  onClick={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      iconType: 'fontawesome',
+                      iconUrl: '',
+                      iconClass: prev.iconClass || 'fa-solid fa-code'
+                    }))
+                  }
                 >
                   <IconIcons className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
                   Font Awesome / Auto SVG
@@ -627,8 +649,9 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
                 <Button
                   type="button"
                   size="sm"
+                  aria-pressed={formData.iconType === 'upload'}
                   variant={formData.iconType === 'upload' ? 'default' : 'ghost'}
-                  onClick={() => setFormData({ ...formData, iconType: 'upload' })}
+                  onClick={() => setFormData((prev) => ({ ...prev, iconType: 'upload' }))}
                 >
                   <IconCloudUpload className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
                   Upload PNG / SVG
@@ -639,10 +662,10 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
             {formData.iconType !== 'upload' ? (
               <>
                 <div className="flex flex-col gap-2">
-                  <Label className="flex items-center gap-1.5">
+                  <p className="flex items-center gap-1.5 text-sm leading-none font-medium">
                     <IconSparkles className="size-4 text-muted-foreground" stroke={1.75} aria-hidden="true" />
                     Preset Icons (Click to autofill)
-                  </Label>
+                  </p>
                   <div className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto rounded-lg border border-border bg-muted/20 p-2.5">
                     {PRESET_ICONS.map((preset) => (
                       <Button
@@ -677,7 +700,14 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
                       id="skill-icon-class"
                       placeholder="e.g. fa-brands fa-react, fa-brands fa-dart-lang, or fa-brands fa-flutter"
                       value={formData.iconClass}
-                      onChange={(e) => setFormData({ ...formData, iconClass: e.target.value })}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          iconType: 'fontawesome',
+                          iconUrl: '',
+                          iconClass: e.target.value
+                        }))
+                      }
                     />
                     <div
                       className="skill-icon-box flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/40 text-foreground"
@@ -756,7 +786,7 @@ export function AdminSkillsTab({ skills, setSkills, reloadSkills, showToast, loa
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        className="text-destructive-text hover:bg-destructive/10 hover:text-destructive-text"
                         onClick={handleRemoveUploadedIcon}
                       >
                         <IconTrash className="size-3.5" stroke={1.75} data-icon="inline-start" aria-hidden="true" />
