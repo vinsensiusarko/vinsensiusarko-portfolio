@@ -4,6 +4,8 @@ import { SeasonProvider } from './context/SeasonContext';
 import { ConfirmProvider } from './context/ConfirmContext';
 import { SoundProvider } from './context/SoundContext';
 import { SeasonalCanvas } from './features/season/SeasonalCanvas';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from '@/components/ui/sonner';
 import { HomePage } from './pages/HomePage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { AdminPage } from './pages/admin/AdminPage';
@@ -34,9 +36,12 @@ export default function App() {
       <SeasonProvider>
         <ConfirmProvider>
           <SoundProvider>
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
+            <TooltipProvider delayDuration={200}>
+              <BrowserRouter>
+                <AppRoutes />
+              </BrowserRouter>
+              <Toaster position="bottom-right" closeButton />
+            </TooltipProvider>
           </SoundProvider>
         </ConfirmProvider>
       </SeasonProvider>

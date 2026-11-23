@@ -37,7 +37,7 @@ describe('Layout components (Navbar, Footer, FloatingActions)', () => {
     expect(screen.getByRole('button', { name: /(Enable|Mute) Sound Effects/i })).toBeInTheDocument();
   });
 
-  it('renders Privacy Policy link in desktop and mobile navigation', () => {
+  it('renders Privacy Policy link in desktop navigation and opens mobile sheet drawer', () => {
     const { container } = render(
       <ThemeProvider>
         <SeasonProvider>
@@ -48,12 +48,14 @@ describe('Layout components (Navbar, Footer, FloatingActions)', () => {
       </ThemeProvider>
     );
 
-    // Desktop nav-links must contain Privacy Policy link
     const desktopPrivacyLink = container.querySelector('.nav-links a[href="/privacy-policy"]');
     expect(desktopPrivacyLink).toBeInTheDocument();
 
-    // Mobile menu must contain Privacy Policy link
-    const mobilePrivacyLink = container.querySelector('.menu-links a[href="/privacy-policy"]');
-    expect(mobilePrivacyLink).toBeInTheDocument();
+    const menuTrigger = screen.getByRole('button', { name: /Toggle navigation menu/i });
+    fireEvent.click(menuTrigger);
+
+    const sheetDialog = screen.getByRole('dialog');
+    expect(sheetDialog).toBeInTheDocument();
+    expect(sheetDialog.querySelector('a[href="/privacy-policy"]')).toBeInTheDocument();
   });
 });

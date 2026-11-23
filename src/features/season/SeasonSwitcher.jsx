@@ -1,5 +1,20 @@
-import { useState, useRef, useEffect } from 'react';
-import { useSeason } from '../../context/SeasonContext';
+import { useState } from 'react';
+import { cn } from 'cn';
+import {
+  IconChevronDown,
+  IconCheck,
+  IconRotateClockwise,
+  IconSparkles
+} from '@tabler/icons-react';
+import { useSeason } from '@/context/SeasonContext';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
 
 export function SeasonSwitcher() {
   const {
@@ -14,106 +29,110 @@ export function SeasonSwitcher() {
   } = useSeason();
 
   const [open, setOpen] = useState(false);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    const handleEsc = (e) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('click', handleClickOutside);
-    document.addEventListener('keydown', handleEsc);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-      document.removeEventListener('keydown', handleEsc);
-    };
-  }, []);
 
   return (
-    <div className="season-switcher" ref={containerRef}>
-      <button
-        type="button"
-        className="season-switcher-trigger"
-        onClick={() => setOpen((prev) => !prev)}
-        aria-expanded={open}
-        aria-haspopup="menu"
-        aria-label={`Select season (current: ${seasonMeta.labelEn})`}
-        title={`Season Theme: ${seasonMeta.labelEn} (${seasonMeta.description})`}
-      >
-        <span className="season-emoji" aria-hidden="true">
-          {seasonMeta.emoji}
-        </span>
-        <span className="season-label">{seasonMeta.labelEn}</span>
-        <i
-          className={`fa-solid fa-chevron-down season-chevron ${open ? 'open' : ''}`}
-          aria-hidden="true"
-        ></i>
-      </button>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          aria-expanded={open}
+          aria-haspopup="menu"
+          aria-label={`Select season (current: ${seasonMeta.labelEn})`}
+          title={`Season Theme: ${seasonMeta.labelEn} (${seasonMeta.description})`}
+          className="h-9 gap-1.5 border-season-border bg-season-surface text-season-foreground hover:bg-season-surface/80"
+        >
+          <span aria-hidden="true">{seasonMeta.emoji}</span>
+          <span className="hidden sm:inline text-xs font-medium">{seasonMeta.labelEn}</span>
+          <IconChevronDown
+            data-icon="inline-end"
+            className={cn('transition-transform duration-200', open && 'rotate-180')}
+            aria-hidden="true"
+          />
+        </Button>
+      </PopoverTrigger>
 
-      {open && (
-        <div className="season-dropdown-menu" role="menu" aria-label="Season Selector">
-          <div className="season-dropdown-header">
-            <span>Season Theme</span>
-            {isAutoSeason && <span className="season-auto-tag">Auto</span>}
-          </div>
+      <PopoverContent align="end" className="w-72 p-3" role="menu" aria-label="Season Selector">
+        <div className="flex items-center justify-between px-1 pb-2">
+          <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            Season Theme
+          </span>
+          {isAutoSeason && (
+            <Badge variant="secondary" className="text-[11px]">
+              Auto
+            </Badge>
+          )}
+        </div>
 
-          <div className="season-options-grid">
-            {Object.values(seasons).map((item) => {
-              const isActive = item.id === season;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  role="menuitem"
-                  className={`season-option-btn ${isActive ? 'active' : ''}`}
-                  onClick={() => {
-                    setSeason(item.id);
-                    setOpen(false);
-                  }}
-                >
-                  <span className="season-option-emoji">{item.emoji}</span>
-                  <div className="season-option-text">
-                    <strong>{item.labelEn}</strong>
-                    <small>{item.description}</small>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="season-dropdown-footer">
-            <button
-              type="button"
-              className="season-toggle-particles-btn"
-              onClick={toggleParticles}
-            >
-              <span>
-                <i className="fa-solid fa-wand-magic-sparkles"></i> Particle Effects
-              </span>
-              <span className={`season-status-pill ${particlesEnabled ? 'on' : 'off'}`}>
-                {particlesEnabled ? 'ON' : 'OFF'}
-              </span>
-            </button>
-
-            {!isAutoSeason && (
+        <div className="grid grid-cols-2 gap-1.5">
+          {Object.values(seasons).map((item) => {
+            const isActive = item.id === season;
+            return (
               <button
+                key={item.id}
                 type="button"
-                className="season-reset-auto-btn"
+                role="menuitem"
                 onClick={() => {
-                  resetToAutoSeason();
+                  setSeason(item.id);
                   setOpen(false);
                 }}
+                className={cn(
+                  'flex items-start gap-2 rounded-lg border p-2.5 text-left transition-colors min-h-11',
+                  isActive
+                    ? 'border-season-border bg-season-surface text-season-foreground'
+                    : 'border-border bg-card hover:bg-muted/60 text-foreground'
+                )}
               >
-                <i className="fa-solid fa-rotate-left"></i> Auto by Calendar
+                <span className="text-base leading-none mt-0.5" aria-hidden="true">
+                  {item.emoji}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-xs font-semibold truncate">{item.labelEn}</span>
+                    {isActive && <IconCheck className="size-3.5 shrink-0" aria-hidden="true" />}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground truncate">{item.description}</p>
+                </div>
               </button>
-            )}
-          </div>
+            );
+          })}
         </div>
-      )}
-    </div>
+
+        <Separator className="my-2.5" />
+
+        <div className="flex flex-col gap-1.5">
+          <button
+            type="button"
+            onClick={toggleParticles}
+            className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted min-h-10"
+          >
+            <span className="flex items-center gap-2">
+              <IconSparkles className="size-4 text-season-accent" aria-hidden="true" />
+              Particle Effects
+            </span>
+            <Badge variant={particlesEnabled ? 'default' : 'secondary'} className="font-mono text-[10px]">
+              {particlesEnabled ? 'ON' : 'OFF'}
+            </Badge>
+          </button>
+
+          {!isAutoSeason && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-xs text-muted-foreground"
+              onClick={() => {
+                resetToAutoSeason();
+                setOpen(false);
+              }}
+            >
+              <IconRotateClockwise data-icon="inline-start" aria-hidden="true" />
+              Auto by Calendar
+            </Button>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

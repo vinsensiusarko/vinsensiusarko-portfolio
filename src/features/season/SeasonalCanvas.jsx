@@ -155,6 +155,12 @@ export function SeasonalCanvas() {
     const canvas = canvasRef.current;
     if (!canvas || !particlesEnabled) return;
 
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -274,6 +280,7 @@ export function SeasonalCanvas() {
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
+        opacity: 0.55,
         zIndex: 1
       }}
     />
