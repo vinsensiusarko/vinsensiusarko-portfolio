@@ -41,7 +41,7 @@ export function SeasonSwitcher() {
           aria-haspopup="menu"
           aria-label={`Select season (current: ${seasonMeta.labelEn})`}
           title={`Season Theme: ${seasonMeta.labelEn} (${seasonMeta.description})`}
-          className="h-9 gap-1.5 border-season-border bg-season-surface text-season-foreground hover:bg-season-surface/80"
+          className="h-11 sm:h-9 min-w-11 sm:min-w-0 gap-1.5 border-season-border bg-season-surface text-season-foreground hover:bg-season-surface/80"
         >
           <span aria-hidden="true">{seasonMeta.emoji}</span>
           <span className="hidden sm:inline text-xs font-medium">{seasonMeta.labelEn}</span>

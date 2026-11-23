@@ -267,7 +267,9 @@ export function ProjectsSection({ projects }) {
               return (
                 <article
                   key={proj.id || proj.title}
-                  className="project-card reveal-on-scroll group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-200 hover:border-foreground/25 hover:shadow-md cursor-pointer"
+                  tabIndex={0}
+                  aria-label={`View details for ${proj.title}`}
+                  className="project-card reveal-on-scroll group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-200 hover:border-foreground/25 hover:shadow-md cursor-pointer focus-visible:ring-2 focus-visible:ring-season-accent"
                   style={{ '--stagger-idx': index % 6 }}
                   data-category={proj.category || 'Web Application'}
                   data-tech={techStack.join(', ')}
@@ -278,6 +280,17 @@ export function ProjectsSection({ projects }) {
                       return;
                     }
                     handleOpenProject(proj);
+                  }}
+                  onKeyDown={(e) => {
+                    if (
+                      e.target.closest('.project-btn-container a, .project-btn-container button')
+                    ) {
+                      return;
+                    }
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleOpenProject(proj);
+                    }
                   }}
                 >
                   <div

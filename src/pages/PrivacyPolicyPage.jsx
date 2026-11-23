@@ -239,7 +239,7 @@ export function PrivacyPolicyPage() {
                     <a
                       key={item.href}
                       href={item.href}
-                      className="rounded-md border border-border bg-muted/50 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-season-border hover:bg-season-surface hover:text-season-foreground"
+                      className="inline-flex min-h-11 sm:min-h-9 items-center rounded-md border border-border bg-muted/50 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-season-border hover:bg-season-surface hover:text-season-foreground"
                     >
                       {item.label}
                     </a>

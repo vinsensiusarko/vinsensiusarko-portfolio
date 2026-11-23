@@ -69,6 +69,8 @@ export function FloatingActions({ whatsapp = '6285179793167' }) {
               id="back-to-top-btn"
               variant="outline"
               size="icon"
+              tabIndex={showBackToTop ? 0 : -1}
+              aria-hidden={!showBackToTop}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               aria-label="Back to top"
               className={cn(

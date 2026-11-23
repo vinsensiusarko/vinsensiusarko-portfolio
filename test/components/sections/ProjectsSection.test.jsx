@@ -84,4 +84,21 @@ describe('ProjectsSection & ProjectModal', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('opens Quick View modal via keyboard Enter and Space on a focused project card', () => {
+    render(<ProjectsSection projects={FALLBACK_PROJECTS} />);
+
+    const cards = screen.getAllByRole('article');
+    expect(cards[0]).toHaveAttribute('tabindex', '0');
+
+    cards[0].focus();
+    fireEvent.keyDown(cards[0], { key: 'Enter' });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    fireEvent.keyDown(cards[1], { key: ' ' });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
 });

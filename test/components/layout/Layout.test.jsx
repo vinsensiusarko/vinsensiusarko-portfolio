@@ -58,4 +58,21 @@ describe('Layout components (Navbar, Footer, FloatingActions)', () => {
     expect(sheetDialog).toBeInTheDocument();
     expect(sheetDialog.querySelector('a[href="/privacy-policy"]')).toBeInTheDocument();
   });
+
+  it('keeps hidden Back to Top button out of keyboard tab order at top of page', () => {
+    window.scrollY = 0;
+    render(
+      <ThemeProvider>
+        <SeasonProvider>
+          <MemoryRouter>
+            <FloatingActions whatsapp="6285179793167" />
+          </MemoryRouter>
+        </SeasonProvider>
+      </ThemeProvider>
+    );
+
+    const backToTop = document.getElementById('back-to-top-btn');
+    expect(backToTop).toHaveAttribute('tabindex', '-1');
+    expect(backToTop).toHaveAttribute('aria-hidden', 'true');
+  });
 });

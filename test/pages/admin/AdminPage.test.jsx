@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
@@ -42,5 +44,17 @@ describe('AdminLogin', () => {
     localStorage.setItem('admin_sidebar_collapsed', 'true');
     expect(localStorage.getItem('admin_sidebar_collapsed')).toBe('true');
     localStorage.removeItem('admin_sidebar_collapsed');
+  });
+
+  it('scopes self-contained CSS tokens for confirm modals, admin shell, and rich descriptions', () => {
+    const confirmCss = fs.readFileSync(path.resolve('src/styles/confirm.css'), 'utf8');
+    const adminCss = fs.readFileSync(path.resolve('src/styles/admin.css'), 'utf8');
+    const indexCss = fs.readFileSync(path.resolve('src/styles/index.css'), 'utf8');
+
+    expect(confirmCss).toMatch(/\.confirm-modal-overlay[\s\S]*--bg-card:/);
+    expect(adminCss).toMatch(/\.admin-shell[\s\S]*--primary:/);
+    expect(adminCss).toMatch(/\.admin-shell[\s\S]*--text-primary:/);
+    expect(indexCss).toMatch(/\.rich-list-group/);
+    expect(indexCss).toMatch(/\.rich-number-badge/);
   });
 });

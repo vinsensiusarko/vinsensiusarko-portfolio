@@ -164,7 +164,7 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
               onClick={() => setPaletteOpen(true)}
               title="Search / Command Palette (Ctrl + K)"
               aria-label="Open Command Palette"
-              className="h-9 gap-2 text-muted-foreground hover:text-foreground"
+              className="h-11 sm:h-9 min-w-11 sm:min-w-0 gap-2 text-muted-foreground hover:text-foreground"
             >
               <IconSearch data-icon="inline-start" aria-hidden="true" />
               <kbd className="hidden sm:inline font-mono text-[11px] text-muted-foreground">
@@ -180,7 +180,7 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
               size="icon"
               onClick={toggleTheme}
               aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-              className="size-9"
+              className="size-11 sm:size-9"
             >
               {isDark ? (
                 <IconSun className="size-4" aria-hidden="true" />
@@ -254,7 +254,7 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
                         </Link>
                       </li>
                       <li className="pt-3">
-                        <Button asChild className="w-full" onClick={closeMenu}>
+                        <Button asChild size="lg" className="w-full min-h-11" onClick={closeMenu}>
                           <Link to="/">
                             <IconArrowLeft data-icon="inline-start" aria-hidden="true" />
                             Back to Portfolio

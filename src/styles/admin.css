@@ -13,9 +13,12 @@
   --border-focus: #111827;
 
   --text-main: #111827;
+  --text-primary: #111827;
   --text-muted: #6b7280;
   --text-inverse: #ffffff;
 
+  --primary: #111827;
+  --danger: #ef4444;
   --accent-primary: #111827;
   --accent-primary-hover: #000000;
   --accent-danger: #ef4444;
@@ -29,6 +32,7 @@
   --radius-sm: 0.5rem;
   --radius-md: 0.85rem;
   --radius-lg: 1.25rem;
+  --radius-card: 1.25rem;
   --radius-pill: 2rem;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -41,7 +45,7 @@
 
   --transition: all 0.25s ease;
 
-  font-family: "Poppins", sans-serif;
+  font-family: "Plus Jakarta Sans", "Poppins", sans-serif;
   background-color: var(--bg-body);
   color: var(--text-main);
   line-height: 1.6;
@@ -64,9 +68,12 @@
   --border-focus: #f9fafb;
 
   --text-main: #f9fafb;
+  --text-primary: #f9fafb;
   --text-muted: #94a3b8;
   --text-inverse: #0f172a;
 
+  --primary: #2563eb;
+  --danger: #f87171;
   --accent-primary: #f9fafb;
   --accent-primary-hover: #ffffff;
   --accent-danger: #f87171;
@@ -92,6 +99,13 @@
 .admin-shell h3,
 .admin-shell h4 {
   color: inherit;
+}
+
+.admin-shell h1,
+.admin-shell h2,
+.admin-shell h3,
+.admin-shell h4 {
+  font-weight: 600;
 }
 
 /* ==========================================================================

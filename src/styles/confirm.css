@@ -3,6 +3,13 @@
    =================================================== */
 
 .confirm-modal-overlay {
+  --bg-card: #ffffff;
+  --bg-elevated: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --border-color: #e5e7eb;
+  --radius-lg: 1.25rem;
+  --radius-pill: 9999px;
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.65);
@@ -14,6 +21,14 @@
   justify-content: center;
   padding: 1.25rem;
   animation: confirmFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+[data-theme="dark"] .confirm-modal-overlay {
+  --bg-card: #161f30;
+  --bg-elevated: #1e293b;
+  --text-primary: #f9fafb;
+  --text-secondary: #94a3b8;
+  --border-color: #2e3a52;
 }
 
 @keyframes confirmFadeIn {
