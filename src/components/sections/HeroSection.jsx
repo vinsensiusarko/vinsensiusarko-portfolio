@@ -194,7 +194,7 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
           </div>
 
           <div className="lg:col-span-5 flex justify-center lg:justify-end order-1 lg:order-2">
-            <div className="relative w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[380px] rounded-2xl border border-border bg-card p-2.5 shadow-sm">
+            <div className="relative w-full max-w-70 sm:max-w-85 lg:max-w-95 rounded-2xl border border-border bg-card p-2.5 shadow-sm">
               <div
                 className="pointer-events-none absolute -right-2 -bottom-2 h-16 w-16 rounded-br-2xl border-r-2 border-b-2 border-season-accent"
                 aria-hidden="true"
