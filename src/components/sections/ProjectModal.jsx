@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { cn } from 'cn';
+import { AnimatePresence, m } from 'motion/react';
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -13,6 +14,8 @@ import {
 } from '@tabler/icons-react';
 import { formatRichDescription } from '@/utils/formatDescription';
 import { resolveProjectImage } from '@/utils/resolveProjectImage';
+import { getWebpSource } from '@/utils/getWebpSource';
+import { EDITORIAL_SPRING, GALLERY_SLIDE_VARIANTS } from '@/lib/motion';
 import {
   Dialog,
   DialogContent,
@@ -26,9 +29,11 @@ import { Separator } from '@/components/ui/separator';
 
 export function ProjectModal({ project, onClose }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
 
   useEffect(() => {
     setActiveImageIndex(0);
+    setDirection(0);
   }, [project?.id]);
 
   const primaryImg = project ? resolveProjectImage(project) : '';
@@ -48,12 +53,15 @@ export function ProjectModal({ project, onClose }) {
   const hasGallery = allImages.length > 1;
   const safeActiveIndex = activeImageIndex < allImages.length ? activeImageIndex : 0;
   const currentImg = allImages[safeActiveIndex] || primaryImg;
+  const currentWebp = getWebpSource(currentImg);
 
   const handlePrev = () => {
+    setDirection(-1);
     setActiveImageIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1));
   };
 
   const handleNext = () => {
+    setDirection(1);
     setActiveImageIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0));
   };
 
@@ -109,21 +117,34 @@ export function ProjectModal({ project, onClose }) {
           <div
             id="modal-project-backdrop"
             className="absolute inset-0 scale-110 bg-cover bg-center opacity-25 blur-lg"
-            style={{ backgroundImage: `url('${currentImg}')` }}
+            style={{ backgroundImage: `url('${currentWebp || currentImg}')` }}
             aria-hidden="true"
           />
-          <img
-            id="modal-project-img"
-            src={currentImg}
-            alt={`${project.title} preview`}
-            width="960"
-            height="540"
-            className="relative z-10 h-full w-full object-contain p-3"
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = '/assets/images/portfolio-1.png';
-            }}
-          />
+          <AnimatePresence mode="wait" custom={direction} initial={false}>
+            <m.picture
+              key={currentImg}
+              custom={direction}
+              variants={GALLERY_SLIDE_VARIANTS}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="relative z-10 block h-full w-full"
+            >
+              {currentWebp ? <source srcSet={currentWebp} type="image/webp" /> : null}
+              <img
+                id="modal-project-img"
+                src={currentImg}
+                alt={`${project.title} preview`}
+                width="960"
+                height="540"
+                className="h-full w-full object-contain p-3"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = '/assets/images/portfolio-1.png';
+                }}
+              />
+            </m.picture>
+          </AnimatePresence>
 
           <Badge
             id="modal-project-category"
@@ -175,35 +196,51 @@ export function ProjectModal({ project, onClose }) {
             role="region"
             aria-label="Image Gallery Thumbnails"
           >
-            {allImages.map((img, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveImageIndex(idx);
-                }}
-                aria-label={`View image ${idx + 1} of ${allImages.length}`}
-                className={cn(
-                  'relative h-14 w-20 shrink-0 overflow-hidden rounded-md border bg-card transition-all',
-                  idx === safeActiveIndex
-                    ? 'border-season-accent ring-2 ring-season-accent/40'
-                    : 'border-border opacity-70 hover:opacity-100'
-                )}
-              >
-                <img
-                  src={img}
-                  alt=""
-                  width="80"
-                  height="56"
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = '/assets/images/portfolio-1.png';
+            {allImages.map((img, idx) => {
+              const thumbWebp = getWebpSource(img);
+              const isSelected = idx === safeActiveIndex;
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDirection(idx >= safeActiveIndex ? 1 : -1);
+                    setActiveImageIndex(idx);
                   }}
-                />
-              </button>
-            ))}
+                  aria-label={`View image ${idx + 1} of ${allImages.length}`}
+                  className={cn(
+                    'relative h-14 w-20 shrink-0 overflow-hidden rounded-md border bg-card transition-opacity',
+                    isSelected
+                      ? 'border-season-accent opacity-100'
+                      : 'border-border opacity-70 hover:opacity-100'
+                  )}
+                >
+                  <picture className="block h-full w-full">
+                    {thumbWebp ? <source srcSet={thumbWebp} type="image/webp" /> : null}
+                    <img
+                      src={img}
+                      alt=""
+                      width="80"
+                      height="56"
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = '/assets/images/portfolio-1.png';
+                      }}
+                    />
+                  </picture>
+                  {isSelected && (
+                    <m.span
+                      layoutId="modal-thumb-ring"
+                      transition={EDITORIAL_SPRING}
+                      className="pointer-events-none absolute inset-0 rounded-md ring-2 ring-inset ring-season-accent"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         )}
 

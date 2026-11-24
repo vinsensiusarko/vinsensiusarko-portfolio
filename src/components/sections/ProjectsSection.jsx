@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { cn } from 'cn';
+import { AnimatePresence, m } from 'motion/react';
 import {
   IconLayoutGrid,
   IconDeviceMobile,
@@ -19,6 +20,8 @@ import {
 } from '@tabler/icons-react';
 import { formatRichDescription } from '@/utils/formatDescription';
 import { resolveProjectImage } from '@/utils/resolveProjectImage';
+import { getWebpSource } from '@/utils/getWebpSource';
+import { EDITORIAL_SPRING, TACTILE_SPRING } from '@/lib/motion';
 import { ProjectModal } from './ProjectModal';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { trackProjectView } from '@/services/visitorTracker';
@@ -212,9 +215,9 @@ export function ProjectsSection({ projects }) {
               key={value}
               type="button"
               className={cn(
-                'filter-chip inline-flex min-h-11 sm:min-h-10 items-center gap-2 rounded-lg border px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors',
+                'filter-chip relative inline-flex min-h-11 sm:min-h-10 items-center gap-2 rounded-lg border px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors',
                 isActive
-                  ? 'active border-primary bg-primary text-primary-foreground'
+                  ? 'active border-primary text-primary-foreground'
                   : 'border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground'
               )}
               data-filter={value}
@@ -225,8 +228,18 @@ export function ProjectsSection({ projects }) {
                 setIsExpanded(false);
               }}
             >
-              <Icon className="size-4" aria-hidden="true" />
-              <span>{label}</span>
+              {isActive && (
+                <m.span
+                  layoutId="projects-filter-pill"
+                  transition={EDITORIAL_SPRING}
+                  className="absolute inset-0 rounded-[7px] bg-primary"
+                  aria-hidden="true"
+                />
+              )}
+              <span className="relative z-10 inline-flex items-center gap-2">
+                <Icon className="size-4" aria-hidden="true" />
+                <span>{label}</span>
+              </span>
             </button>
           );
         })}
@@ -261,10 +274,12 @@ export function ProjectsSection({ projects }) {
         <>
           <div
             id="projects-grid"
-            className="projects-grid reveal-stagger mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="projects-grid reveal-stagger relative mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
+            <AnimatePresence mode="popLayout">
             {visibleProjects.map((proj, index) => {
               const imgSrc = resolveProjectImage(proj);
+              const webpSrc = getWebpSource(imgSrc);
               const isComingSoon = Boolean(proj.isComingSoon);
               const isPlayStore =
                 proj.demoLabel === 'Play Store' ||
@@ -272,11 +287,17 @@ export function ProjectsSection({ projects }) {
               const techStack = Array.isArray(proj.techStack) ? proj.techStack : [];
 
               return (
-                <article
+                <m.article
                   key={proj.id || proj.title}
+                  layout="position"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  whileHover={{ y: -4 }}
+                  transition={TACTILE_SPRING}
                   tabIndex={0}
                   aria-label={`View details for ${proj.title}`}
-                  className="project-card reveal-on-scroll group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-200 hover:border-foreground/25 hover:shadow-md cursor-pointer focus-visible:ring-2 focus-visible:ring-season-accent"
+                  className="project-card reveal-on-scroll group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors duration-200 hover:border-foreground/25 hover:shadow-md cursor-pointer focus-visible:ring-2 focus-visible:ring-season-accent"
                   style={{ '--stagger-idx': index % 6 }}
                   data-category={proj.category || 'Web Application'}
                   data-tech={techStack.join(', ')}
@@ -306,22 +327,25 @@ export function ProjectsSection({ projects }) {
                   >
                     <div
                       className="absolute inset-0 scale-110 bg-cover bg-center opacity-25 blur-md"
-                      style={{ backgroundImage: `url('${imgSrc}')` }}
+                      style={{ backgroundImage: `url('${webpSrc || imgSrc}')` }}
                       aria-hidden="true"
                     />
-                    <img
-                      src={imgSrc}
-                      alt={`${proj.title} preview`}
-                      width="480"
-                      height="300"
-                      loading="lazy"
-                      decoding="async"
-                      className="relative z-10 h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-[1.03]"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = '/assets/images/portfolio-1.png';
-                      }}
-                    />
+                    <picture className="relative z-10 block h-full w-full">
+                      {webpSrc ? <source srcSet={webpSrc} type="image/webp" /> : null}
+                      <img
+                        src={imgSrc}
+                        alt={`${proj.title} preview`}
+                        width="480"
+                        height="300"
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-[1.03]"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/assets/images/portfolio-1.png';
+                        }}
+                      />
+                    </picture>
                     <Badge
                       variant="secondary"
                       className="absolute top-3 left-3 z-20 border-border/80 bg-background/90 text-foreground"
@@ -413,9 +437,10 @@ export function ProjectsSection({ projects }) {
                       )}
                     </div>
                   </div>
-                </article>
+                </m.article>
               );
             })}
+            </AnimatePresence>
           </div>
 
           {filteredProjects.length > INITIAL_LIMIT && (
