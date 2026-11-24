@@ -21,7 +21,9 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router'],
-          firebase: ['firebase/app', 'firebase/firestore', 'firebase/auth']
+          firebase: ['firebase/app', 'firebase/firestore', 'firebase/auth'],
+          motion: ['motion'],
+          ui: ['radix-ui', '@tabler/icons-react', 'sonner']
         }
       }
     }
