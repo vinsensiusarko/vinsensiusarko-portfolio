@@ -22,6 +22,7 @@ describe('Layout components (Navbar, Footer, FloatingActions)', () => {
     );
 
     expect(screen.getAllByText('Vinsensius Arka').length).toBeGreaterThan(0);
+    expect(screen.getByTestId('scroll-progress-bar')).toBeInTheDocument();
     const themeBtns = screen.getAllByRole('button', { name: /Switch to (dark|light) theme/i });
     fireEvent.click(themeBtns[0]);
     expect(document.documentElement.getAttribute('data-theme')).toBeTruthy();

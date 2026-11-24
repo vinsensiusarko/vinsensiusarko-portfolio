@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { cn } from 'cn';
+import { m, useScroll, useSpring } from 'motion/react';
 import {
   IconSearch,
   IconSun,
@@ -8,6 +9,7 @@ import {
   IconMenu2,
   IconArrowLeft
 } from '@tabler/icons-react';
+import { EDITORIAL_SPRING, SCROLL_PROGRESS_SPRING } from '@/lib/motion';
 import { useTheme } from '@/context/ThemeContext';
 import { SeasonSwitcher } from '@/features/season/SeasonSwitcher';
 import { CommandPalette } from '@/components/common/CommandPalette';
@@ -36,6 +38,8 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('profile');
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const progressScaleX = useSpring(scrollYProgress, SCROLL_PROGRESS_SPRING);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -126,7 +130,9 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
                       >
                         {item.label}
                         {isActive && (
-                          <span
+                          <m.span
+                            layoutId="navbar-active-indicator"
+                            transition={EDITORIAL_SPRING}
                             className="absolute right-0 -bottom-0.5 left-0 h-0.5 rounded-full bg-season-accent"
                             aria-hidden="true"
                           />
@@ -292,6 +298,12 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
             </Sheet>
           </div>
         </div>
+        <m.div
+          data-testid="scroll-progress-bar"
+          aria-hidden="true"
+          style={{ scaleX: progressScaleX }}
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left bg-season-accent"
+        />
       </header>
 
       <CommandPalette
