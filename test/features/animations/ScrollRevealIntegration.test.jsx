@@ -1,15 +1,30 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { LazyMotion, MotionConfig, domMax } from 'motion/react';
 import { HeroSection } from '../../../src/components/sections/HeroSection';
 import { ProjectsSection } from '../../../src/components/sections/ProjectsSection';
 import { SeasonProvider } from '../../../src/context/SeasonContext';
+import { TooltipProvider } from '../../../src/components/ui/tooltip';
+
+function renderWithMotion(ui) {
+  return render(
+    <MotionConfig reducedMotion="always">
+      <LazyMotion features={domMax} strict>
+        <TooltipProvider>{ui}</TooltipProvider>
+      </LazyMotion>
+    </MotionConfig>
+  );
+}
 
 describe('Scroll Reveal & Micro-Interactions Integration', () => {
   it('does not render availability status badge and initializes typewriter cleanly', () => {
-    render(
+    renderWithMotion(
       <SeasonProvider>
         <HeroSection
-          siteSettings={{ name: 'Vinsensius Arka', typewriterRoles: ['Web Developer', 'Mobile Developer'] }}
+          siteSettings={{
+            name: 'Vinsensius Arka',
+            typewriterRoles: ['Web Developer', 'Mobile Developer']
+          }}
           contactSettings={{}}
         />
       </SeasonProvider>
@@ -26,9 +41,7 @@ describe('Scroll Reveal & Micro-Interactions Integration', () => {
       { id: '2', title: 'App 2', category: 'Web Application' }
     ];
 
-    const { container } = render(
-      <ProjectsSection projects={mockProjects} />
-    );
+    const { container } = renderWithMotion(<ProjectsSection projects={mockProjects} />);
 
     const grid = container.querySelector('#projects-grid');
     expect(grid).toHaveClass('reveal-stagger');
@@ -39,23 +52,22 @@ describe('Scroll Reveal & Micro-Interactions Integration', () => {
     expect(cards[1].style.getPropertyValue('--stagger-idx')).toBe('1');
   });
 
-  it('re-observes newly rendered cards when search filter or category changes', () => {
+  it('re-observes newly rendered cards when search filter or category changes', async () => {
     const mockProjects = [
       { id: '1', title: 'Flutter App', category: 'Mobile Application' },
       { id: '2', title: 'React Web', category: 'Web Application' },
       { id: '3', title: 'Vue Portal', category: 'Web Portal' }
     ];
 
-    const { container } = render(
-      <ProjectsSection projects={mockProjects} />
-    );
+    const { container } = renderWithMotion(<ProjectsSection projects={mockProjects} />);
 
-    // Filter to Mobile App only
     const mobileChip = screen.getByRole('tab', { name: /Mobile App/i });
     fireEvent.click(mobileChip);
 
-    const visibleCards = container.querySelectorAll('.project-card.reveal-on-scroll');
-    expect(visibleCards).toHaveLength(1);
-    expect(visibleCards[0].textContent).toContain('Flutter App');
+    await waitFor(() => {
+      const visibleCards = container.querySelectorAll('.project-card.reveal-on-scroll');
+      expect(visibleCards).toHaveLength(1);
+      expect(visibleCards[0].textContent).toContain('Flutter App');
+    });
   });
 });

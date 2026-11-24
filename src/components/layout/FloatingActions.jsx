@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
 
@@ -22,11 +21,10 @@ export function FloatingActions({ whatsapp = '6285179793167' }) {
   const cleanWa = String(whatsapp || '6285179793167').replace(/\D/g, '');
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <div
-        className="fixed right-4 bottom-5 z-30 flex flex-col items-center gap-2.5 pointer-events-auto sm:right-6 sm:bottom-6"
-        aria-label="Quick action buttons"
-      >
+    <div
+      className="fixed right-4 bottom-5 z-30 flex flex-col items-center gap-2.5 pointer-events-auto sm:right-6 sm:bottom-6"
+      aria-label="Quick action buttons"
+    >
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -71,6 +69,5 @@ export function FloatingActions({ whatsapp = '6285179793167' }) {
           <TooltipContent side="left">Chat on WhatsApp</TooltipContent>
         </Tooltip>
       </div>
-    </TooltipProvider>
   );
 }

@@ -1,6 +1,17 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { LazyMotion, MotionConfig, domMax } from 'motion/react';
 import { ProjectModal } from '../../../src/components/sections/ProjectModal';
+
+function renderModal(project, onClose = vi.fn()) {
+  return render(
+    <MotionConfig reducedMotion="always">
+      <LazyMotion features={domMax} strict>
+        <ProjectModal project={project} onClose={onClose} />
+      </LazyMotion>
+    </MotionConfig>
+  );
+}
 
 describe('ProjectModal Gallery', () => {
   const singleImageProject = {
@@ -21,14 +32,14 @@ describe('ProjectModal Gallery', () => {
   };
 
   it('renders single image without gallery strip when gallery is absent (Review Focus #1)', () => {
-    render(<ProjectModal project={singleImageProject} onClose={vi.fn()} />);
+    renderModal(singleImageProject);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: /Image Gallery Thumbnails/i })).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Previous image/i)).not.toBeInTheDocument();
   });
 
   it('renders gallery with counter, prev/next arrows, and thumbnail strip (Review Focus #2)', () => {
-    render(<ProjectModal project={galleryProject} onClose={vi.fn()} />);
+    renderModal(galleryProject);
     
     // Counter badge
     expect(screen.getByText('1 / 3')).toBeInTheDocument();
@@ -54,7 +65,7 @@ describe('ProjectModal Gallery', () => {
 
   it('supports keyboard ArrowLeft and ArrowRight navigation and Escape dismissal', () => {
     const onCloseMock = vi.fn();
-    render(<ProjectModal project={galleryProject} onClose={onCloseMock} />);
+    renderModal(galleryProject, onCloseMock);
 
     // ArrowRight -> 2 / 3
     fireEvent.keyDown(document, { key: 'ArrowRight' });
@@ -70,7 +81,7 @@ describe('ProjectModal Gallery', () => {
   });
 
   it('ignores arrow keys when focused inside an input or textarea element (Review Focus #3)', () => {
-    render(<ProjectModal project={galleryProject} onClose={vi.fn()} />);
+    renderModal(galleryProject);
 
     // Create an input in the document and focus it
     const testInput = document.createElement('input');

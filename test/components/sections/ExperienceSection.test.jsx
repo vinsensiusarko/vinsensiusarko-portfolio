@@ -1,6 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { LazyMotion, MotionConfig, domMax } from 'motion/react';
 import { ExperienceSection } from '../../../src/components/sections/ExperienceSection';
+
+function wrapMotion(ui) {
+  return (
+    <MotionConfig reducedMotion="always">
+      <LazyMotion features={domMax} strict>
+        {ui}
+      </LazyMotion>
+    </MotionConfig>
+  );
+}
 
 describe('ExperienceSection Component', () => {
   const fallbackSkills = [
@@ -16,7 +27,7 @@ describe('ExperienceSection Component', () => {
   ];
 
   it('renders programming languages and frameworks & tools categories', () => {
-    render(<ExperienceSection skills={fallbackSkills} />);
+    render(wrapMotion(<ExperienceSection skills={fallbackSkills} />));
 
     expect(screen.getByText(/Programming Languages/i)).toBeInTheDocument();
     expect(screen.getByText(/Frameworks & Tools/i)).toBeInTheDocument();
@@ -26,13 +37,13 @@ describe('ExperienceSection Component', () => {
   });
 
   it('preserves DOM nodes across fallback and firestore updates without state flicker', () => {
-    const { rerender } = render(<ExperienceSection skills={fallbackSkills} />);
+    const { rerender } = render(wrapMotion(<ExperienceSection skills={fallbackSkills} />));
 
     const html5ElementBefore = screen.getByText('HTML5').closest('.skill-item');
     const flutterElementBefore = screen.getByText('Flutter').closest('.skill-item');
 
     // Rerender with Firestore skills (different document IDs, same skill names)
-    rerender(<ExperienceSection skills={firestoreSkills} />);
+    rerender(wrapMotion(<ExperienceSection skills={firestoreSkills} />));
 
     const html5ElementAfter = screen.getByText('HTML5').closest('.skill-item');
     const flutterElementAfter = screen.getByText('Flutter').closest('.skill-item');
@@ -50,12 +61,12 @@ describe('ExperienceSection Component', () => {
       { id: 'nodejs', name: 'Node JS', category: 'framework_tool', level: 'Experienced', iconClass: 'fa-brands fa-node-js' }
     ];
 
-    const { rerender } = render(<ExperienceSection skills={initialSkills} />);
+    const { rerender } = render(wrapMotion(<ExperienceSection skills={initialSkills} />));
     const cardBefore = screen.getByText('Node JS').closest('.skill-item');
     const badgeBefore = screen.getByText('Intermediate');
     expect(badgeBefore).toHaveClass('intermediate');
 
-    rerender(<ExperienceSection skills={updatedSkills} />);
+    rerender(wrapMotion(<ExperienceSection skills={updatedSkills} />));
     const cardAfter = screen.getByText('Node JS').closest('.skill-item');
     const badgeAfter = screen.getByText('Experienced');
     expect(badgeAfter).toHaveClass('experienced');
@@ -64,11 +75,13 @@ describe('ExperienceSection Component', () => {
 
   it('displays honest empty states when a skill category has no items', () => {
     render(
-      <ExperienceSection
-        skills={[
-          { id: 'html5', name: 'HTML5', category: 'language', level: 'Experienced', iconClass: 'fa-brands fa-html5' }
-        ]}
-      />
+      wrapMotion(
+        <ExperienceSection
+          skills={[
+            { id: 'html5', name: 'HTML5', category: 'language', level: 'Experienced', iconClass: 'fa-brands fa-html5' }
+          ]}
+        />
+      )
     );
     expect(screen.getByText('HTML5')).toBeInTheDocument();
     expect(screen.getByText(/No frameworks or tools listed yet/i)).toBeInTheDocument();

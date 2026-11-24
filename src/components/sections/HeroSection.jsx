@@ -20,7 +20,6 @@ import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
 
@@ -100,7 +99,6 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
   const heroImgSrc = siteSettings.heroImage || '/assets/images/arko-pic.jpg';
 
   return (
-    <TooltipProvider delayDuration={200}>
       <section
         id="profile"
         className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-10 pb-20 lg:pt-20 lg:pb-28"
@@ -246,6 +244,5 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
           </m.div>
         </div>
       </section>
-    </TooltipProvider>
   );
 }

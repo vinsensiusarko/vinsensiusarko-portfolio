@@ -247,8 +247,12 @@ export function ProjectsSection({ projects }) {
       </div>
 
       {filteredProjects.length === 0 ? (
-        <div
+        <m.div
+          key="projects-empty-state"
           id="projects-empty-state"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: EDITORIAL_EASE }}
           className="mt-8 flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card px-6 py-14 text-center"
         >
           <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
@@ -270,7 +274,7 @@ export function ProjectsSection({ projects }) {
           >
             Reset Filters
           </Button>
-        </div>
+        </m.div>
       ) : (
         <>
           <div
