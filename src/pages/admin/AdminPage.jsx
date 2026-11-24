@@ -26,7 +26,8 @@ import {
   IconShieldCheck,
   IconSun
 } from '@tabler/icons-react';
-import { auth, db } from '../../services/firebase';
+import { db } from '../../services/firebase';
+import { auth } from '../../services/firebaseAuth';
 import { useTheme } from '../../context/ThemeContext';
 import { useConfirm } from '../../context/ConfirmContext';
 import { BrandLogo } from '../../components/common/BrandLogo';

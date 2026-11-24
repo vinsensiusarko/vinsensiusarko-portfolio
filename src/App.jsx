@@ -58,7 +58,7 @@ export function AppRoutes() {
 export default function App() {
   return (
     <MotionConfig reducedMotion="user">
-      <LazyMotion features={domMax}>
+      <LazyMotion features={domMax} strict>
         <ThemeProvider>
           <SeasonProvider>
             <ConfirmProvider>

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useId } from 'react';
 import { cn } from 'cn';
 import { AnimatePresence, m } from 'motion/react';
 import {
@@ -20,8 +20,8 @@ import {
 } from '@tabler/icons-react';
 import { formatRichDescription } from '@/utils/formatDescription';
 import { resolveProjectImage } from '@/utils/resolveProjectImage';
-import { getWebpSource } from '@/utils/getWebpSource';
-import { EDITORIAL_SPRING, TACTILE_SPRING } from '@/lib/motion';
+import { ResponsivePicture } from '@/components/common/ResponsivePicture';
+import { EDITORIAL_EASE, EDITORIAL_SPRING, TACTILE_SPRING } from '@/lib/motion';
 import { ProjectModal } from './ProjectModal';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { trackProjectView } from '@/services/visitorTracker';
@@ -99,6 +99,7 @@ export function ProjectsSection({ projects }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const isFirstMountRef = useRef(true);
+  const sectionId = useId();
 
   useEffect(() => {
     if (isFirstMountRef.current) {
@@ -230,7 +231,7 @@ export function ProjectsSection({ projects }) {
             >
               {isActive && (
                 <m.span
-                  layoutId="projects-filter-pill"
+                  layoutId={`${sectionId}-filter-pill`}
                   transition={EDITORIAL_SPRING}
                   className="absolute inset-0 rounded-[7px] bg-primary"
                   aria-hidden="true"
@@ -276,10 +277,9 @@ export function ProjectsSection({ projects }) {
             id="projects-grid"
             className="projects-grid reveal-stagger relative mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="popLayout" initial={false}>
             {visibleProjects.map((proj, index) => {
               const imgSrc = resolveProjectImage(proj);
-              const webpSrc = getWebpSource(imgSrc);
               const isComingSoon = Boolean(proj.isComingSoon);
               const isPlayStore =
                 proj.demoLabel === 'Play Store' ||
@@ -294,7 +294,12 @@ export function ProjectsSection({ projects }) {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.96 }}
                   whileHover={{ y: -4 }}
-                  transition={TACTILE_SPRING}
+                  transition={{
+                    layout: EDITORIAL_SPRING,
+                    y: TACTILE_SPRING,
+                    scale: TACTILE_SPRING,
+                    opacity: { duration: 0.16, ease: EDITORIAL_EASE }
+                  }}
                   tabIndex={0}
                   aria-label={`View details for ${proj.title}`}
                   className="project-card reveal-on-scroll group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors duration-200 hover:border-foreground/25 hover:shadow-md cursor-pointer focus-visible:ring-2 focus-visible:ring-season-accent"
@@ -325,27 +330,27 @@ export function ProjectsSection({ projects }) {
                     className="relative aspect-[16/10] w-full overflow-hidden border-b border-border bg-muted"
                     title="Click to view details"
                   >
-                    <div
-                      className="absolute inset-0 scale-110 bg-cover bg-center opacity-25 blur-md"
-                      style={{ backgroundImage: `url('${webpSrc || imgSrc}')` }}
-                      aria-hidden="true"
+                    <ResponsivePicture
+                      src={imgSrc}
+                      fallbackSrc="/assets/images/portfolio-1.png"
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      pictureAriaHidden="true"
+                      pictureClassName="pointer-events-none absolute inset-0 block scale-110 opacity-25 blur-md"
+                      className="h-full w-full object-cover"
                     />
-                    <picture className="relative z-10 block h-full w-full">
-                      {webpSrc ? <source srcSet={webpSrc} type="image/webp" /> : null}
-                      <img
-                        src={imgSrc}
-                        alt={`${proj.title} preview`}
-                        width="480"
-                        height="300"
-                        loading="lazy"
-                        decoding="async"
-                        className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-[1.03]"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = '/assets/images/portfolio-1.png';
-                        }}
-                      />
-                    </picture>
+                    <ResponsivePicture
+                      src={imgSrc}
+                      fallbackSrc="/assets/images/portfolio-1.png"
+                      alt={`${proj.title} preview`}
+                      width="480"
+                      height="300"
+                      loading="lazy"
+                      decoding="async"
+                      pictureClassName="relative z-10 block h-full w-full"
+                      className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-[1.03]"
+                    />
                     <Badge
                       variant="secondary"
                       className="absolute top-3 left-3 z-20 border-border/80 bg-background/90 text-foreground"

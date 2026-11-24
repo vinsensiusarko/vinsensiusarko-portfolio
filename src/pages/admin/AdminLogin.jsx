@@ -9,7 +9,7 @@ import {
   IconMoon,
   IconSun
 } from '@tabler/icons-react';
-import { auth } from '../../services/firebase';
+import { auth } from '../../services/firebaseAuth';
 import { BrandLogo } from '../../components/common/BrandLogo';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { Button } from '../../components/ui/button';

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { cn } from 'cn';
 import { AnimatePresence, m } from 'motion/react';
 import {
@@ -14,7 +14,7 @@ import {
 } from '@tabler/icons-react';
 import { formatRichDescription } from '@/utils/formatDescription';
 import { resolveProjectImage } from '@/utils/resolveProjectImage';
-import { getWebpSource } from '@/utils/getWebpSource';
+import { ResponsivePicture } from '@/components/common/ResponsivePicture';
 import { EDITORIAL_SPRING, GALLERY_SLIDE_VARIANTS } from '@/lib/motion';
 import {
   Dialog,
@@ -30,6 +30,7 @@ import { Separator } from '@/components/ui/separator';
 export function ProjectModal({ project, onClose }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const modalId = useId();
 
   useEffect(() => {
     setActiveImageIndex(0);
@@ -53,7 +54,6 @@ export function ProjectModal({ project, onClose }) {
   const hasGallery = allImages.length > 1;
   const safeActiveIndex = activeImageIndex < allImages.length ? activeImageIndex : 0;
   const currentImg = allImages[safeActiveIndex] || primaryImg;
-  const currentWebp = getWebpSource(currentImg);
 
   const handlePrev = () => {
     setDirection(-1);
@@ -116,34 +116,38 @@ export function ProjectModal({ project, onClose }) {
         <div className="relative aspect-video w-full overflow-hidden border-b border-border bg-muted">
           <div
             id="modal-project-backdrop"
-            className="absolute inset-0 scale-110 bg-cover bg-center opacity-25 blur-lg"
-            style={{ backgroundImage: `url('${currentWebp || currentImg}')` }}
+            className="pointer-events-none absolute inset-0 scale-110 overflow-hidden opacity-25 blur-lg"
             aria-hidden="true"
-          />
+          >
+            <ResponsivePicture
+              src={currentImg}
+              fallbackSrc="/assets/images/portfolio-1.png"
+              alt=""
+              pictureClassName="block h-full w-full"
+              className="h-full w-full object-cover"
+            />
+          </div>
           <AnimatePresence mode="wait" custom={direction} initial={false}>
-            <m.picture
+            <m.div
               key={currentImg}
               custom={direction}
               variants={GALLERY_SLIDE_VARIANTS}
               initial="enter"
               animate="center"
               exit="exit"
-              className="relative z-10 block h-full w-full"
+              className="relative z-10 h-full w-full"
             >
-              {currentWebp ? <source srcSet={currentWebp} type="image/webp" /> : null}
-              <img
+              <ResponsivePicture
                 id="modal-project-img"
                 src={currentImg}
+                fallbackSrc="/assets/images/portfolio-1.png"
                 alt={`${project.title} preview`}
                 width="960"
                 height="540"
+                pictureClassName="block h-full w-full"
                 className="h-full w-full object-contain p-3"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = '/assets/images/portfolio-1.png';
-                }}
               />
-            </m.picture>
+            </m.div>
           </AnimatePresence>
 
           <Badge
@@ -197,12 +201,12 @@ export function ProjectModal({ project, onClose }) {
             aria-label="Image Gallery Thumbnails"
           >
             {allImages.map((img, idx) => {
-              const thumbWebp = getWebpSource(img);
               const isSelected = idx === safeActiveIndex;
               return (
                 <button
                   key={idx}
                   type="button"
+                  aria-current={isSelected ? 'true' : undefined}
                   onClick={(e) => {
                     e.stopPropagation();
                     setDirection(idx >= safeActiveIndex ? 1 : -1);
@@ -216,23 +220,18 @@ export function ProjectModal({ project, onClose }) {
                       : 'border-border opacity-70 hover:opacity-100'
                   )}
                 >
-                  <picture className="block h-full w-full">
-                    {thumbWebp ? <source srcSet={thumbWebp} type="image/webp" /> : null}
-                    <img
-                      src={img}
-                      alt=""
-                      width="80"
-                      height="56"
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = '/assets/images/portfolio-1.png';
-                      }}
-                    />
-                  </picture>
+                  <ResponsivePicture
+                    src={img}
+                    fallbackSrc="/assets/images/portfolio-1.png"
+                    alt=""
+                    width="80"
+                    height="56"
+                    pictureClassName="block h-full w-full"
+                    className="h-full w-full object-cover"
+                  />
                   {isSelected && (
                     <m.span
-                      layoutId="modal-thumb-ring"
+                      layoutId={`${modalId}-thumb-ring`}
                       transition={EDITORIAL_SPRING}
                       className="pointer-events-none absolute inset-0 rounded-md ring-2 ring-inset ring-season-accent"
                       aria-hidden="true"

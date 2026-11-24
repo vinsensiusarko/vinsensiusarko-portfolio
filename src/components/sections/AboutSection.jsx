@@ -1,10 +1,9 @@
 import { IconBriefcase, IconSchool } from '@tabler/icons-react';
 import { Separator } from '@/components/ui/separator';
-import { getWebpSource } from '@/utils/getWebpSource';
+import { ResponsivePicture } from '@/components/common/ResponsivePicture';
 
 export function AboutSection({ siteSettings }) {
   const aboutImgSrc = siteSettings.aboutImage || '/assets/images/arko-about.jpg';
-  const aboutWebpSrc = getWebpSource(aboutImgSrc);
 
   return (
     <section
@@ -23,23 +22,17 @@ export function AboutSection({ siteSettings }) {
       <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
         <div className="lg:col-span-5 flex justify-center lg:justify-start">
           <div className="w-full max-w-sm overflow-hidden rounded-xl border border-border bg-card p-2">
-            <picture>
-              {aboutWebpSrc ? <source srcSet={aboutWebpSrc} type="image/webp" /> : null}
-              <img
-                id="about-img"
-                src={aboutImgSrc}
-                alt={`${siteSettings.name || 'Vinsensius Arka'} personal photo`}
-                width="380"
-                height="475"
-                loading="lazy"
-                decoding="async"
-                className="aspect-[4/5] w-full rounded-lg object-cover bg-muted"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = '/assets/images/arko-about.jpg';
-                }}
-              />
-            </picture>
+            <ResponsivePicture
+              id="about-img"
+              src={aboutImgSrc}
+              fallbackSrc="/assets/images/arko-about.jpg"
+              alt={`${siteSettings.name || 'Vinsensius Arka'} personal photo`}
+              width="380"
+              height="475"
+              loading="lazy"
+              decoding="async"
+              className="aspect-[4/5] w-full rounded-lg object-cover bg-muted"
+            />
           </div>
         </div>
 

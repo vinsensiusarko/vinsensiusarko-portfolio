@@ -15,7 +15,7 @@ import {
   HERO_CONTAINER_VARIANTS,
   HERO_ITEM_VARIANTS
 } from '@/lib/motion';
-import { getWebpSource } from '@/utils/getWebpSource';
+import { ResponsivePicture } from '@/components/common/ResponsivePicture';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -98,7 +98,6 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
   ];
 
   const heroImgSrc = siteSettings.heroImage || '/assets/images/arko-pic.jpg';
-  const heroWebpSrc = getWebpSource(heroImgSrc);
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -133,12 +132,9 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
               </span>
             </m.div>
 
-            <m.h1
-              variants={HERO_ITEM_VARIANTS}
-              className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.08]"
-            >
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.08]">
               {siteSettings.name || 'Vinsensius Arka'}
-            </m.h1>
+            </h1>
 
             <m.p
               variants={HERO_ITEM_VARIANTS}
@@ -225,9 +221,9 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
           </m.div>
 
           <m.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, ease: EDITORIAL_EASE }}
+            initial={{ scale: 0.985 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.35, ease: EDITORIAL_EASE }}
             className="lg:col-span-5 flex justify-center lg:justify-end order-1 lg:order-2"
           >
             <div className="relative w-full max-w-70 sm:max-w-85 lg:max-w-95 rounded-2xl border border-border bg-card p-2.5 shadow-sm">
@@ -235,23 +231,17 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
                 className="pointer-events-none absolute -right-2 -bottom-2 h-16 w-16 rounded-br-2xl border-r-2 border-b-2 border-season-accent"
                 aria-hidden="true"
               />
-              <picture>
-                {heroWebpSrc ? <source srcSet={heroWebpSrc} type="image/webp" /> : null}
-                <img
-                  id="hero-img"
-                  src={heroImgSrc}
-                  alt={`Portrait of ${siteSettings.name || 'Vinsensius Arka'}`}
-                  width="380"
-                  height="380"
-                  fetchPriority="high"
-                  decoding="async"
-                  className="aspect-square w-full rounded-xl object-cover bg-muted"
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = '/assets/images/arko-pic.jpg';
-                  }}
-                />
-              </picture>
+              <ResponsivePicture
+                id="hero-img"
+                src={heroImgSrc}
+                fallbackSrc="/assets/images/arko-pic.jpg"
+                alt={`Portrait of ${siteSettings.name || 'Vinsensius Arka'}`}
+                width="380"
+                height="380"
+                fetchPriority="high"
+                decoding="async"
+                className="aspect-square w-full rounded-xl object-cover bg-muted"
+              />
             </div>
           </m.div>
         </div>

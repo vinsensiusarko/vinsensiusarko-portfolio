@@ -1,6 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyBXMcjGa-20keXC67MIwiaG3seex-_DDNw',
@@ -14,14 +13,12 @@ const firebaseConfig = {
 
 let app = null;
 let db = null;
-let auth = null;
 
 try {
   app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   db = getFirestore(app);
-  auth = getAuth(app);
 } catch (err) {
   console.warn('Firebase initialization warning (using static fallback data):', err);
 }
 
-export { app, db, auth };
+export { app, db };

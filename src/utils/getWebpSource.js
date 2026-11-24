@@ -12,7 +12,7 @@ const WEBP_ALLOWLIST = new Set([
   'portfolio-9'
 ]);
 
-const LOCAL_IMAGE_PATTERN = /^\/?assets\/images\/([a-z0-9-]+)\.(?:png|jpe?g)$/i;
+const LOCAL_IMAGE_PATTERN = /^(?:\.?\/)?assets\/images\/([a-z0-9-]+)\.(?:png|jpe?g)$/i;
 
 export function getWebpSource(src) {
   if (!src || typeof src !== 'string') return null;
