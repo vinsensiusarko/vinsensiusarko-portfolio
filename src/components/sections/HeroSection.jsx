@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { m } from 'motion/react';
 import {
   IconDownload,
   IconSend,
@@ -9,6 +10,12 @@ import {
 } from '@tabler/icons-react';
 import { useSeason } from '@/context/SeasonContext';
 import { trackCvDownload } from '@/services/visitorTracker';
+import {
+  EDITORIAL_EASE,
+  HERO_CONTAINER_VARIANTS,
+  HERO_ITEM_VARIANTS
+} from '@/lib/motion';
+import { getWebpSource } from '@/utils/getWebpSource';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -90,6 +97,9 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
     }
   ];
 
+  const heroImgSrc = siteSettings.heroImage || '/assets/images/arko-pic.jpg';
+  const heroWebpSrc = getWebpSource(heroImgSrc);
+
   return (
     <TooltipProvider delayDuration={200}>
       <section
@@ -97,8 +107,16 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
         className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-10 pb-20 lg:pt-20 lg:pb-28"
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-          <div className="lg:col-span-7 flex flex-col gap-5 order-2 lg:order-1">
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          <m.div
+            variants={HERO_CONTAINER_VARIANTS}
+            initial="hidden"
+            animate="visible"
+            className="lg:col-span-7 flex flex-col gap-5 order-2 lg:order-1"
+          >
+            <m.div
+              variants={HERO_ITEM_VARIANTS}
+              className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground"
+            >
               <span className="font-medium text-foreground">
                 {siteSettings.heroGreeting || "Hello, I'm"}
               </span>
@@ -113,25 +131,37 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
                 />
                 {seasonMeta.labelEn} Edition
               </span>
-            </div>
+            </m.div>
 
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.08]">
+            <m.h1
+              variants={HERO_ITEM_VARIANTS}
+              className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.08]"
+            >
               {siteSettings.name || 'Vinsensius Arka'}
-            </h1>
+            </m.h1>
 
-            <p className="text-xl sm:text-2xl font-medium text-muted-foreground min-h-8">
+            <m.p
+              variants={HERO_ITEM_VARIANTS}
+              className="text-xl sm:text-2xl font-medium text-muted-foreground min-h-8"
+            >
               <span className="typeWriter">{displayText || '\u00A0'}</span>
               <span className="typewriter-cursor" aria-hidden="true">
                 |
               </span>
-            </p>
+            </m.p>
 
-            <p className="max-w-xl text-sm sm:text-base leading-relaxed text-muted-foreground">
+            <m.p
+              variants={HERO_ITEM_VARIANTS}
+              className="max-w-xl text-sm sm:text-base leading-relaxed text-muted-foreground"
+            >
               Building reliable cross-platform mobile apps with Flutter and full-stack web
               applications with Laravel, Java, and modern React.
-            </p>
+            </m.p>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <m.div
+              variants={HERO_ITEM_VARIANTS}
+              className="flex flex-wrap items-center gap-3 pt-2"
+            >
               <Button asChild size="lg" className="min-h-11">
                 <a
                   href={cvHref}
@@ -161,9 +191,10 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
                   Contact Info
                 </a>
               </Button>
-            </div>
+            </m.div>
 
-            <div
+            <m.div
+              variants={HERO_ITEM_VARIANTS}
               id="socials-container"
               className="flex items-center gap-1.5 pt-2"
               aria-label="Social links"
@@ -190,31 +221,39 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
                   <TooltipContent>{tooltip}</TooltipContent>
                 </Tooltip>
               ))}
-            </div>
-          </div>
+            </m.div>
+          </m.div>
 
-          <div className="lg:col-span-5 flex justify-center lg:justify-end order-1 lg:order-2">
+          <m.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, ease: EDITORIAL_EASE }}
+            className="lg:col-span-5 flex justify-center lg:justify-end order-1 lg:order-2"
+          >
             <div className="relative w-full max-w-70 sm:max-w-85 lg:max-w-95 rounded-2xl border border-border bg-card p-2.5 shadow-sm">
               <div
                 className="pointer-events-none absolute -right-2 -bottom-2 h-16 w-16 rounded-br-2xl border-r-2 border-b-2 border-season-accent"
                 aria-hidden="true"
               />
-              <img
-                id="hero-img"
-                src={siteSettings.heroImage || '/assets/images/arko-pic.jpg'}
-                alt={`Portrait of ${siteSettings.name || 'Vinsensius Arka'}`}
-                width="380"
-                height="380"
-                fetchPriority="high"
-                decoding="async"
-                className="aspect-square w-full rounded-xl object-cover bg-muted"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = '/assets/images/arko-pic.jpg';
-                }}
-              />
+              <picture>
+                {heroWebpSrc ? <source srcSet={heroWebpSrc} type="image/webp" /> : null}
+                <img
+                  id="hero-img"
+                  src={heroImgSrc}
+                  alt={`Portrait of ${siteSettings.name || 'Vinsensius Arka'}`}
+                  width="380"
+                  height="380"
+                  fetchPriority="high"
+                  decoding="async"
+                  className="aspect-square w-full rounded-xl object-cover bg-muted"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = '/assets/images/arko-pic.jpg';
+                  }}
+                />
+              </picture>
             </div>
-          </div>
+          </m.div>
         </div>
       </section>
     </TooltipProvider>

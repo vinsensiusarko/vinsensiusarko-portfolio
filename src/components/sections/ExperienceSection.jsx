@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 import { cn } from 'cn';
+import { m } from 'motion/react';
 import { IconCode, IconStack2 } from '@tabler/icons-react';
 import { SkillIcon } from '@/components/common/SkillIcon';
+import { TACTILE_SPRING } from '@/lib/motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -21,7 +23,9 @@ export function ExperienceSection({ skills }) {
     const itemKey = (skill.name || skill.id || '').toLowerCase().trim();
 
     return (
-      <div
+      <m.div
+        whileHover={{ y: -2 }}
+        transition={TACTILE_SPRING}
         className="skill-item flex items-center gap-3 rounded-lg border border-border bg-background/70 px-3.5 py-3 transition-colors hover:border-season-border"
         key={itemKey}
       >
@@ -44,7 +48,7 @@ export function ExperienceSection({ skills }) {
             {level}
           </Badge>
         </div>
-      </div>
+      </m.div>
     );
   };
 
