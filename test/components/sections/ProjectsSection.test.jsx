@@ -160,4 +160,21 @@ describe('ProjectsSection & ProjectModal', () => {
     });
     expect(window.history.state).toEqual(routerState);
   });
+
+  it('supports ArrowRight/Home keyboard navigation on category filter tabs', async () => {
+    renderProjects();
+
+    const allTab = screen.getByRole('tab', { name: /All Projects/i });
+    allTab.focus();
+    fireEvent.keyDown(allTab, { key: 'ArrowRight' });
+
+    const mobileTab = screen.getByRole('tab', { name: /Mobile App/i });
+    expect(mobileTab).toHaveAttribute('aria-selected', 'true');
+    await waitFor(() => {
+      expect(screen.getAllByRole('article')).toHaveLength(1);
+    });
+
+    fireEvent.keyDown(mobileTab, { key: 'Home' });
+    expect(allTab).toHaveAttribute('aria-selected', 'true');
+  });
 });

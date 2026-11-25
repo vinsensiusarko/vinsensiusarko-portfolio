@@ -33,7 +33,7 @@ describe('Admin Settings Tabs (Profile, Contact, Privacy)', () => {
     expect(screen.getByText(/Click or Drop Hero Photo Here/i)).toBeInTheDocument();
     expect(screen.getByText(/Click or Drop About Photo Here/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/CV File Path or Google Drive Link/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Save Profile & Bio Changes/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Save Profile & Timeline/i })).toBeInTheDocument();
   });
 
   it('supports Availability Status controls and Timeline add, reorder, delete, and save in AdminProfileTab', async () => {

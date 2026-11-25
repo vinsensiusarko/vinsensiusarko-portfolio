@@ -316,7 +316,7 @@ export function AdminProfileTab({ showToast }) {
     try {
       await setDoc(doc(db, 'settings', 'site_settings'), payload, { merge: true });
       setTimeline(normalizedTimeline.map(toEditableTimelineEntry));
-      showToast('Profile & Bio settings saved!', 'success');
+      showToast('Profile, availability & timeline saved!', 'success');
     } catch (err) {
       console.error('Error saving profile:', err);
       showToast('Failed to save profile: ' + err.message, 'error');
@@ -952,7 +952,7 @@ export function AdminProfileTab({ showToast }) {
                         data-icon="inline-start"
                         aria-hidden="true"
                       />
-                      Save Profile &amp; Bio Changes
+                      Save Profile &amp; Timeline
                     </>
                   )}
                 </Button>

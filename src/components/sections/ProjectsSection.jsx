@@ -116,7 +116,29 @@ export function ProjectsSection({ projects }) {
   const [selectedProject, setSelectedProject] = useState(null);
   const isFirstMountRef = useRef(true);
   const handledDeepLinkRef = useRef(null);
+  const tabRefs = useRef([]);
   const sectionId = useId();
+  const panelId = `${sectionId}-panel`;
+
+  const handleFilterTabKeyDown = (e, currentIndex) => {
+    let nextIndex = null;
+    if (e.key === 'ArrowRight') {
+      nextIndex = (currentIndex + 1) % FILTER_CHIPS.length;
+    } else if (e.key === 'ArrowLeft') {
+      nextIndex = (currentIndex - 1 + FILTER_CHIPS.length) % FILTER_CHIPS.length;
+    } else if (e.key === 'Home') {
+      nextIndex = 0;
+    } else if (e.key === 'End') {
+      nextIndex = FILTER_CHIPS.length - 1;
+    }
+
+    if (nextIndex !== null) {
+      e.preventDefault();
+      setCategoryFilter(FILTER_CHIPS[nextIndex].value);
+      setIsExpanded(false);
+      tabRefs.current[nextIndex]?.focus();
+    }
+  };
 
   useEffect(() => {
     if (typeof window === 'undefined' || !Array.isArray(projects) || projects.length === 0) {
@@ -254,25 +276,32 @@ export function ProjectsSection({ projects }) {
         role="tablist"
         aria-label="Filter projects by category"
       >
-        {FILTER_CHIPS.map(({ label, value, Icon }) => {
+        {FILTER_CHIPS.map(({ label, value, Icon }, idx) => {
           const isActive = categoryFilter === value;
           return (
             <button
               key={value}
+              ref={(el) => {
+                tabRefs.current[idx] = el;
+              }}
+              id={`${sectionId}-tab-${value}`}
               type="button"
               className={cn(
-                'filter-chip relative inline-flex min-h-11 sm:min-h-10 items-center gap-2 rounded-lg border px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors',
+                'filter-chip relative inline-flex min-h-11 sm:min-h-10 items-center gap-2 rounded-lg border px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-season-accent',
                 isActive
                   ? 'active border-primary text-primary-foreground'
                   : 'border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground'
               )}
               data-filter={value}
               role="tab"
+              tabIndex={isActive ? 0 : -1}
               aria-selected={isActive}
+              aria-controls={panelId}
               onClick={() => {
                 setCategoryFilter(value);
                 setIsExpanded(false);
               }}
+              onKeyDown={(e) => handleFilterTabKeyDown(e, idx)}
             >
               {isActive && (
                 <m.span
@@ -291,6 +320,11 @@ export function ProjectsSection({ projects }) {
         })}
       </div>
 
+      <div
+        id={panelId}
+        role="tabpanel"
+        aria-labelledby={`${sectionId}-tab-${categoryFilter}`}
+      >
       {filteredProjects.length === 0 ? (
         <m.div
           key="projects-empty-state"
@@ -523,6 +557,7 @@ export function ProjectsSection({ projects }) {
           )}
         </>
       )}
+      </div>
 
       <ProjectModal
         project={activeProject}

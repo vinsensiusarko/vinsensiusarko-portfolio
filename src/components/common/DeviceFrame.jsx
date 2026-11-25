@@ -63,7 +63,7 @@ export function DeviceFrame({ variant = 'web', title = '', url = '', className, 
             <span className="size-2 rounded-full bg-border" />
             <span className="size-2 rounded-full bg-border" />
           </div>
-          <span className="truncate font-mono text-[10px] text-muted-foreground">
+          <span className="truncate font-mono text-[11px] text-muted-foreground">
             {title || 'Desktop Window'}
           </span>
           <span aria-hidden="true" className="w-8" />
@@ -89,7 +89,7 @@ export function DeviceFrame({ variant = 'web', title = '', url = '', className, 
           <span className="size-2 rounded-full bg-border" />
           <span className="size-2 rounded-full bg-border" />
         </div>
-        <div className="mx-auto max-w-[75%] truncate rounded bg-background/80 px-2.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+        <div className="mx-auto max-w-[75%] truncate rounded bg-background/80 px-2.5 py-0.5 font-mono text-[11px] text-muted-foreground">
           {addressLabel}
         </div>
       </div>

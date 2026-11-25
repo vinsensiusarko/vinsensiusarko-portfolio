@@ -219,7 +219,10 @@ export function ProjectModal({ project, onClose }) {
               className={cn(
                 'relative z-10 w-full',
                 showFrame
-                  ? 'flex min-h-[260px] sm:min-h-[340px] items-center justify-center px-4 pt-16 pb-5 sm:px-8 sm:pt-14'
+                  ? cn(
+                      'flex min-h-[260px] sm:min-h-[340px] items-center justify-center pt-16 pb-5 sm:pt-14',
+                      hasGallery ? 'px-14 sm:px-16' : 'px-4 sm:px-8'
+                    )
                   : 'h-full'
               )}
             >
