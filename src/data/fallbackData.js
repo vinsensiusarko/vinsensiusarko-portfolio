@@ -67,7 +67,13 @@ export const FALLBACK_PROJECTS = [
     githubUrl: 'https://github.com/vinsensiusarko/admin-ecommerce-shoes-fe',
     demoUrl: 'https://arkommerce-admin.web.app',
     demoLabel: 'Live Demo',
-    isComingSoon: false
+    isComingSoon: false,
+    role: 'Frontend Developer',
+    period: '',
+    highlights: [
+      'Built responsive admin workflows for catalog, order tracking, and inventory updates.',
+      'Integrated Firebase hosting and real-time REST API consumption with React.'
+    ]
   },
   {
     id: 'arkommerce-admin-be',
@@ -81,7 +87,13 @@ export const FALLBACK_PROJECTS = [
     githubUrl: 'https://github.com/vinsensiusarko/admin-ecommerce-shoes-be',
     demoUrl: 'https://arkommerce-be-production.up.railway.app',
     demoLabel: 'Live Demo',
-    isComingSoon: false
+    isComingSoon: false,
+    role: 'Backend Developer',
+    period: '',
+    highlights: [
+      'Designed RESTful endpoints for product management, authentication, and order transactions.',
+      'Structured relational MySQL persistence and production API deployment.'
+    ]
   },
   {
     id: 'pmi-malang',
@@ -110,7 +122,13 @@ export const FALLBACK_PROJECTS = [
     demoUrl:
       'https://play.google.com/store/apps/details?id=com.ciptasolutindo.mozaic_app_new',
     demoLabel: 'Play Store',
-    isComingSoon: false
+    isComingSoon: false,
+    role: 'Mobile Developer',
+    period: '',
+    highlights: [
+      'Shipped commercial Point of Sale experience to Google Play Store using Flutter & Dart.',
+      'Combined local SQLite transaction storage with Firebase cloud services.'
+    ]
   },
   {
     id: 'smart-system',
@@ -156,7 +174,33 @@ export const FALLBACK_SITE_SETTINGS = {
   cvBase64: '',
   cvFileName: 'CV-VinsensiusArka.pdf',
   heroImage: '/assets/images/arko-pic.jpg',
-  aboutImage: '/assets/images/arko-about.jpg'
+  aboutImage: '/assets/images/arko-about.jpg',
+  availabilityStatus: 'hidden',
+  availabilityText: '',
+  timeline: [
+    {
+      id: 'work-web-mobile',
+      type: 'work',
+      title: 'Web & Mobile Developer',
+      organization: 'Independent & Client Projects',
+      period: 'Present',
+      summary:
+        'Building responsive web applications, institutional portals, REST APIs, and cross-platform Flutter mobile apps.',
+      tags: ['Flutter', 'React', 'Laravel', 'Node.js'],
+      current: true
+    },
+    {
+      id: 'edu-cs',
+      type: 'education',
+      title: 'Bachelors Degree in Computer Science',
+      organization: 'Computer Science',
+      period: 'Completed',
+      summary:
+        'Focused on software engineering, database systems, networking, and web & mobile application development.',
+      tags: ['Software Engineering', 'Databases', 'Networking'],
+      current: false
+    }
+  ]
 };
 
 export const FALLBACK_CONTACT_SETTINGS = {

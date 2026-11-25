@@ -73,4 +73,23 @@ describe('usePortfolioData siteSettings cache & heroImage fallback', () => {
       expect(result.current.siteSettings.heroImage).toBe(customHero);
     });
   });
+
+  it('preserves explicit empty timeline from Firestore and defaults availabilityStatus to hidden', async () => {
+    onSnapshot.mockImplementation((target, onNext) => {
+      if (target?.path === 'settings/site_settings') {
+        onNext({
+          exists: () => true,
+          data: () => ({ name: 'Vinsensius Arka', timeline: [], availabilityStatus: 'invalid_val' })
+        });
+      }
+      return vi.fn();
+    });
+
+    const { result } = renderHook(() => usePortfolioData());
+
+    await waitFor(() => {
+      expect(result.current.siteSettings.timeline).toEqual([]);
+      expect(result.current.siteSettings.availabilityStatus).toBe('hidden');
+    });
+  });
 });

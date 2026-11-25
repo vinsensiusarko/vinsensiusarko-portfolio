@@ -63,13 +63,25 @@ function normalizeAssetPath(path, defaultPath) {
   return `/${path}`;
 }
 
+const VALID_AVAILABILITY_STATUSES = new Set(['hidden', 'available', 'freelance', 'busy']);
+
 function normalizeSiteSettings(raw = {}) {
+  const availabilityStatus = VALID_AVAILABILITY_STATUSES.has(raw.availabilityStatus)
+    ? raw.availabilityStatus
+    : FALLBACK_SITE_SETTINGS.availabilityStatus;
+
   return {
     ...FALLBACK_SITE_SETTINGS,
     ...raw,
     heroImage: normalizeAssetPath(raw.heroImage, FALLBACK_SITE_SETTINGS.heroImage),
     aboutImage: normalizeAssetPath(raw.aboutImage, FALLBACK_SITE_SETTINGS.aboutImage),
-    cvUrl: normalizeAssetPath(raw.cvUrl, FALLBACK_SITE_SETTINGS.cvUrl)
+    cvUrl: normalizeAssetPath(raw.cvUrl, FALLBACK_SITE_SETTINGS.cvUrl),
+    availabilityStatus,
+    availabilityText:
+      typeof raw.availabilityText === 'string'
+        ? raw.availabilityText
+        : FALLBACK_SITE_SETTINGS.availabilityText,
+    timeline: Array.isArray(raw.timeline) ? raw.timeline : FALLBACK_SITE_SETTINGS.timeline
   };
 }
 
