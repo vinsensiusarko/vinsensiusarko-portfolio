@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
+import { setDoc } from 'firebase/firestore';
 import { ConfirmProvider } from '../../../src/context/ConfirmContext';
 import { AdminProfileTab } from '../../../src/pages/admin/tabs/AdminProfileTab';
 import { AdminContactTab } from '../../../src/pages/admin/tabs/AdminContactTab';
@@ -33,6 +34,49 @@ describe('Admin Settings Tabs (Profile, Contact, Privacy)', () => {
     expect(screen.getByText(/Click or Drop About Photo Here/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/CV File Path or Google Drive Link/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Save Profile & Bio Changes/i })).toBeInTheDocument();
+  });
+
+  it('supports Availability Status controls and Timeline add, reorder, delete, and save in AdminProfileTab', async () => {
+    const showToastMock = vi.fn();
+    render(<AdminProfileTab showToast={showToastMock} />);
+
+    const customStatusInput = await screen.findByLabelText(/Custom Status Label/i);
+    fireEvent.change(customStatusInput, { target: { value: 'Open for Flutter builds' } });
+
+    // Starts with 2 fallback timeline entries
+    expect(screen.getAllByLabelText(/Role \/ Degree Title/i)).toHaveLength(2);
+
+    // Add a 3rd entry
+    fireEvent.click(screen.getByRole('button', { name: /Add Entry/i }));
+    const titleInputsAfterAdd = screen.getAllByLabelText(/Role \/ Degree Title/i);
+    expect(titleInputsAfterAdd).toHaveLength(3);
+    fireEvent.change(titleInputsAfterAdd[2], { target: { value: 'Software Engineer Intern' } });
+
+    // Reorder entry 3 up to position 2
+    fireEvent.click(screen.getByRole('button', { name: /Move timeline entry 3 up/i }));
+    expect(screen.getAllByLabelText(/Role \/ Degree Title/i)[1]).toHaveValue(
+      'Software Engineer Intern'
+    );
+
+    // Delete the last entry (index 3)
+    fireEvent.click(screen.getByRole('button', { name: /Delete timeline entry 3/i }));
+    expect(screen.getAllByLabelText(/Role \/ Degree Title/i)).toHaveLength(2);
+
+    // Save form and verify setDoc receives availability & timeline payload
+    fireEvent.submit(customStatusInput.closest('form'));
+    await waitFor(() => {
+      expect(setDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          availabilityStatus: 'hidden',
+          availabilityText: 'Open for Flutter builds',
+          timeline: expect.arrayContaining([
+            expect.objectContaining({ title: 'Software Engineer Intern' })
+          ])
+        }),
+        { merge: true }
+      );
+    });
   });
 
   it('renders AdminContactTab channels and saves updates', async () => {

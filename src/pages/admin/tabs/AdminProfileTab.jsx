@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { doc, getDoc, setDoc, deleteField, serverTimestamp } from 'firebase/firestore';
 import {
+  IconArrowDown,
+  IconArrowUp,
   IconBolt,
   IconCamera,
   IconCircleCheck,
@@ -8,21 +10,55 @@ import {
   IconFileTypePdf,
   IconIdBadge2,
   IconLoader2,
+  IconPlus,
   IconRotate,
+  IconTimeline,
+  IconTrash,
   IconUserCircle
 } from '@tabler/icons-react';
 import { db } from '../../../services/firebase';
 import { FALLBACK_SITE_SETTINGS } from '../../../data/fallbackData';
 import { compressImageToBase64 } from '../../../utils/imageCompressor';
+import { AvailabilityBadge } from '../../../components/common/AvailabilityBadge';
 import { Badge } from '../../../components/ui/badge';
 import { Button } from '../../../components/ui/button';
 import { Card, CardContent } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../../../components/ui/select';
 import { Separator } from '../../../components/ui/separator';
+import { Switch } from '../../../components/ui/switch';
 import { Textarea } from '../../../components/ui/textarea';
 import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminFormShimmer } from '../AdminShimmer';
+
+const AVAILABILITY_OPTIONS = [
+  { value: 'hidden', label: 'Hidden (Do not show badge)' },
+  { value: 'available', label: 'Available for Work & Freelance' },
+  { value: 'freelance', label: 'Open to Select Projects' },
+  { value: 'busy', label: 'Currently Booked' }
+];
+
+const VALID_AVAILABILITY_VALUES = new Set(AVAILABILITY_OPTIONS.map((opt) => opt.value));
+
+function toEditableTimelineEntry(entry = {}, idx = 0) {
+  return {
+    id: entry.id || `timeline-${idx + 1}`,
+    type: entry.type === 'education' ? 'education' : 'work',
+    title: entry.title || '',
+    organization: entry.organization || '',
+    period: entry.period || '',
+    summary: entry.summary || '',
+    tagsInput: Array.isArray(entry.tags) ? entry.tags.join(', ') : '',
+    current: Boolean(entry.current)
+  };
+}
 
 export function AdminProfileTab({ showToast }) {
   const [formData, setFormData] = useState({
@@ -34,8 +70,14 @@ export function AdminProfileTab({ showToast }) {
     expSub: FALLBACK_SITE_SETTINGS.expSub,
     eduDegree: FALLBACK_SITE_SETTINGS.eduDegree,
     eduMajor: FALLBACK_SITE_SETTINGS.eduMajor,
-    cvUrl: FALLBACK_SITE_SETTINGS.cvUrl
+    cvUrl: FALLBACK_SITE_SETTINGS.cvUrl,
+    availabilityStatus: FALLBACK_SITE_SETTINGS.availabilityStatus,
+    availabilityText: FALLBACK_SITE_SETTINGS.availabilityText
   });
+
+  const [timeline, setTimeline] = useState(() =>
+    (FALLBACK_SITE_SETTINGS.timeline || []).map(toEditableTimelineEntry)
+  );
 
   const [heroImage, setHeroImage] = useState(null);
   const [heroImageRemoved, setHeroImageRemoved] = useState(false);
@@ -76,8 +118,21 @@ export function AdminProfileTab({ showToast }) {
             expSub: data.expSub || FALLBACK_SITE_SETTINGS.expSub,
             eduDegree: data.eduDegree || FALLBACK_SITE_SETTINGS.eduDegree,
             eduMajor: data.eduMajor || FALLBACK_SITE_SETTINGS.eduMajor,
-            cvUrl: data.cvUrl || FALLBACK_SITE_SETTINGS.cvUrl
+            cvUrl: data.cvUrl || FALLBACK_SITE_SETTINGS.cvUrl,
+            availabilityStatus: VALID_AVAILABILITY_VALUES.has(data.availabilityStatus)
+              ? data.availabilityStatus
+              : FALLBACK_SITE_SETTINGS.availabilityStatus,
+            availabilityText:
+              typeof data.availabilityText === 'string'
+                ? data.availabilityText
+                : FALLBACK_SITE_SETTINGS.availabilityText
           });
+
+          if (Array.isArray(data.timeline)) {
+            setTimeline(data.timeline.map(toEditableTimelineEntry));
+          } else {
+            setTimeline((FALLBACK_SITE_SETTINGS.timeline || []).map(toEditableTimelineEntry));
+          }
 
           if (data.heroImage) {
             setHeroImage(data.heroImage);
@@ -102,6 +157,44 @@ export function AdminProfileTab({ showToast }) {
     }
     loadProfile();
   }, []);
+
+  const handleAddTimelineEntry = () => {
+    setTimeline((prev) => [
+      ...prev,
+      {
+        id: `entry-${Date.now()}-${prev.length + 1}`,
+        type: 'work',
+        title: '',
+        organization: '',
+        period: '',
+        summary: '',
+        tagsInput: '',
+        current: false
+      }
+    ]);
+  };
+
+  const handleUpdateTimelineEntry = (index, field, value) => {
+    setTimeline((prev) =>
+      prev.map((item, idx) => (idx === index ? { ...item, [field]: value } : item))
+    );
+  };
+
+  const handleMoveTimelineEntry = (index, direction) => {
+    setTimeline((prev) => {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const next = [...prev];
+      const temp = next[index];
+      next[index] = next[targetIndex];
+      next[targetIndex] = temp;
+      return next;
+    });
+  };
+
+  const handleRemoveTimelineEntry = (index) => {
+    setTimeline((prev) => prev.filter((_, idx) => idx !== index));
+  };
 
   const handlePhotoSelect = async (file, targetType) => {
     if (!file || !file.type.startsWith('image/')) {
@@ -160,6 +253,22 @@ export function AdminProfileTab({ showToast }) {
     if (!db) return;
     setSaving(true);
 
+    const normalizedTimeline = timeline
+      .map((entry, idx) => ({
+        id: entry.id || `timeline-${idx + 1}`,
+        type: entry.type === 'education' ? 'education' : 'work',
+        title: String(entry.title || '').trim(),
+        organization: String(entry.organization || '').trim(),
+        period: String(entry.period || '').trim(),
+        summary: String(entry.summary || '').trim(),
+        tags: String(entry.tagsInput || '')
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean),
+        current: Boolean(entry.current)
+      }))
+      .filter((entry) => entry.title || entry.organization);
+
     const payload = {
       name: formData.name.trim(),
       heroGreeting: formData.heroGreeting.trim(),
@@ -173,6 +282,9 @@ export function AdminProfileTab({ showToast }) {
       eduDegree: formData.eduDegree.trim(),
       eduMajor: formData.eduMajor.trim(),
       cvUrl: formData.cvUrl.trim(),
+      availabilityStatus: formData.availabilityStatus,
+      availabilityText: formData.availabilityText.trim(),
+      timeline: normalizedTimeline,
       updatedAt: serverTimestamp()
     };
 
@@ -208,7 +320,7 @@ export function AdminProfileTab({ showToast }) {
     <section id="tab-profile" className="flex flex-col gap-6">
       <AdminPageHeader
         title="Profile, Bio & Resume Settings"
-        description="Update hero headline, typewriter roles, about biography, portraits, and CV file."
+        description="Update hero headline, availability status, career timeline, biography, portraits, and CV file."
       />
 
       <Card className="py-6">
@@ -310,6 +422,273 @@ export function AdminProfileTab({ showToast }) {
                     />
                   </div>
                 </div>
+              </div>
+
+              <Separator />
+
+              {/* AVAILABILITY STATUS */}
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-display flex items-center gap-2 text-base font-semibold text-foreground">
+                      <IconCircleCheck
+                        className="size-4 text-muted-foreground"
+                        stroke={1.75}
+                        aria-hidden="true"
+                      />
+                      Availability Status (Opt-In Public Badge)
+                    </h3>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      Control whether a live hiring or freelance availability pill appears in the Hero and Contact sections.
+                    </p>
+                  </div>
+                  {formData.availabilityStatus !== 'hidden' ? (
+                    <AvailabilityBadge
+                      status={formData.availabilityStatus}
+                      text={formData.availabilityText}
+                    />
+                  ) : null}
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="profile-availability-status">Availability Status</Label>
+                    <Select
+                      value={formData.availabilityStatus}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, availabilityStatus: value })
+                      }
+                    >
+                      <SelectTrigger id="profile-availability-status" className="w-full">
+                        <SelectValue placeholder="Select availability status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {AVAILABILITY_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="profile-availability-text">
+                      Custom Status Label (Optional)
+                    </Label>
+                    <Input
+                      type="text"
+                      id="profile-availability-text"
+                      placeholder="e.g. Open for Flutter & Full-Stack roles"
+                      value={formData.availabilityText}
+                      onChange={(e) =>
+                        setFormData({ ...formData, availabilityText: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* CAREER & EDUCATION TIMELINE */}
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-display flex items-center gap-2 text-base font-semibold text-foreground">
+                      <IconTimeline
+                        className="size-4 text-muted-foreground"
+                        stroke={1.75}
+                        aria-hidden="true"
+                      />
+                      Career &amp; Education Timeline
+                      <Badge variant="secondary" className="font-mono text-xs tabular-nums">
+                        {timeline.length}
+                      </Badge>
+                    </h3>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      Displayed in the public Journey section. Order from newest to oldest, or leave empty to hide the section.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddTimelineEntry}
+                  >
+                    <IconPlus
+                      className="size-4"
+                      stroke={1.75}
+                      data-icon="inline-start"
+                      aria-hidden="true"
+                    />
+                    Add Entry
+                  </Button>
+                </div>
+
+                {timeline.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-border bg-muted/20 p-5 text-center text-xs text-muted-foreground">
+                    No timeline entries configured. The public Journey section will remain hidden until you add an entry and save.
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {timeline.map((entry, idx) => (
+                      <div
+                        key={entry.id}
+                        className="flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-4"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="font-mono text-xs tabular-nums">
+                              #{idx + 1}
+                            </Badge>
+                            <span className="text-xs font-medium text-foreground">
+                              {entry.title.trim() || 'Untitled Milestone'}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex items-center gap-2 pr-1">
+                              <Label
+                                htmlFor={`timeline-current-${idx}`}
+                                className="cursor-pointer text-xs text-muted-foreground"
+                              >
+                                Current
+                              </Label>
+                              <Switch
+                                id={`timeline-current-${idx}`}
+                                checked={entry.current}
+                                onCheckedChange={(checked) =>
+                                  handleUpdateTimelineEntry(idx, 'current', checked)
+                                }
+                              />
+                            </div>
+
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="size-11 sm:size-8"
+                              disabled={idx === 0}
+                              aria-label={`Move timeline entry ${idx + 1} up`}
+                              onClick={() => handleMoveTimelineEntry(idx, -1)}
+                            >
+                              <IconArrowUp className="size-3.5" stroke={1.75} aria-hidden="true" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="size-11 sm:size-8"
+                              disabled={idx === timeline.length - 1}
+                              aria-label={`Move timeline entry ${idx + 1} down`}
+                              onClick={() => handleMoveTimelineEntry(idx, 1)}
+                            >
+                              <IconArrowDown className="size-3.5" stroke={1.75} aria-hidden="true" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-11 text-muted-foreground hover:bg-destructive/10 hover:text-destructive-text sm:size-8"
+                              aria-label={`Delete timeline entry ${idx + 1}`}
+                              onClick={() => handleRemoveTimelineEntry(idx)}
+                            >
+                              <IconTrash className="size-4" stroke={1.75} aria-hidden="true" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <div className="flex flex-col gap-1.5">
+                            <Label htmlFor={`timeline-type-${idx}`}>Type</Label>
+                            <Select
+                              value={entry.type}
+                              onValueChange={(value) =>
+                                handleUpdateTimelineEntry(idx, 'type', value)
+                              }
+                            >
+                              <SelectTrigger id={`timeline-type-${idx}`} className="w-full">
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="work">Work</SelectItem>
+                                <SelectItem value="education">Education</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="flex flex-col gap-1.5">
+                            <Label htmlFor={`timeline-period-${idx}`}>Period</Label>
+                            <Input
+                              type="text"
+                              id={`timeline-period-${idx}`}
+                              placeholder="e.g. 2024 - Present"
+                              value={entry.period}
+                              onChange={(e) =>
+                                handleUpdateTimelineEntry(idx, 'period', e.target.value)
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <div className="flex flex-col gap-1.5">
+                            <Label htmlFor={`timeline-title-${idx}`}>Role / Degree Title</Label>
+                            <Input
+                              type="text"
+                              id={`timeline-title-${idx}`}
+                              placeholder="e.g. Full-Stack & Mobile Developer"
+                              value={entry.title}
+                              onChange={(e) =>
+                                handleUpdateTimelineEntry(idx, 'title', e.target.value)
+                              }
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1.5">
+                            <Label htmlFor={`timeline-org-${idx}`}>Organization / School</Label>
+                            <Input
+                              type="text"
+                              id={`timeline-org-${idx}`}
+                              placeholder="e.g. Studio or University"
+                              value={entry.organization}
+                              onChange={(e) =>
+                                handleUpdateTimelineEntry(idx, 'organization', e.target.value)
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <Label htmlFor={`timeline-summary-${idx}`}>Summary</Label>
+                          <Textarea
+                            id={`timeline-summary-${idx}`}
+                            rows={2}
+                            placeholder="Key responsibilities, achievements, or focus areas..."
+                            value={entry.summary}
+                            onChange={(e) =>
+                              handleUpdateTimelineEntry(idx, 'summary', e.target.value)
+                            }
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          <Label htmlFor={`timeline-tags-${idx}`}>Tags (Comma-separated)</Label>
+                          <Input
+                            type="text"
+                            id={`timeline-tags-${idx}`}
+                            placeholder="Flutter, React, Laravel"
+                            value={entry.tagsInput}
+                            onChange={(e) =>
+                              handleUpdateTimelineEntry(idx, 'tagsInput', e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <Separator />
