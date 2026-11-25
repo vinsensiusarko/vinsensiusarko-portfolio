@@ -1,9 +1,18 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Portfolio content collections (projects, skills, site_settings, contacts, privacy_policy)
-    // Anyone can read, but only authenticated admin can create, update, or delete
-    match /{document=**} {
+    // Public portfolio content collections: readable by everyone, writable only by authenticated admin
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /skills/{skillId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /settings/{docId} {
       allow read: if true;
       allow write: if request.auth != null;
     }
@@ -15,10 +24,41 @@ service cloud.firestore {
       allow create, update: if true;
       allow delete: if request.auth != null;
     }
+
     match /analytics_daily/{date} {
       allow read: if true;
       allow create, update: if true;
       allow delete: if request.auth != null;
+    }
+
+    // Direct contact form inquiries: write-only for public visitors with strict schema validation
+    // Private to authenticated admin for reading, status updates, and deletion
+    match /messages/{messageId} {
+      allow read, update, delete: if request.auth != null;
+      allow create: if request.resource.data.keys().hasOnly([
+          'name',
+          'email',
+          'topic',
+          'message',
+          'status',
+          'source',
+          'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string
+        && request.resource.data.email.size() >= 5
+        && request.resource.data.email.size() <= 160
+        && request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$')
+        && request.resource.data.topic in ['freelance', 'hiring', 'collaboration', 'general']
+        && request.resource.data.message is string
+        && request.resource.data.message.size() >= 10
+        && request.resource.data.message.size() <= 2000
+        && request.resource.data.status == 'unread'
+        && request.resource.data.source is string
+        && request.resource.data.source.size() <= 60
+        && request.resource.data.createdAt == request.time;
     }
   }
 }
