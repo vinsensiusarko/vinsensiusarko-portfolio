@@ -80,8 +80,14 @@ describe('AvailabilityBadge', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Currently Booked');
   });
 
-  it('renders custom text override when provided', () => {
-    render(<AvailabilityBadge status="available" text="Open for Q4 Flutter contracts" />);
+  it('renders custom text override when provided and omits role="status" in non-live preview mode', () => {
+    const { rerender } = render(
+      <AvailabilityBadge status="available" text="Open for Q4 Flutter contracts" />
+    );
     expect(screen.getByRole('status', { name: 'Open for Q4 Flutter contracts' })).toBeInTheDocument();
+
+    rerender(<AvailabilityBadge status="available" text="Preview text" live={false} />);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByText('Preview text')).toBeInTheDocument();
   });
 });

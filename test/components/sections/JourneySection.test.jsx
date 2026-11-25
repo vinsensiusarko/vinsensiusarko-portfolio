@@ -68,4 +68,21 @@ describe('JourneySection', () => {
       expect(screen.getByText('Bachelors Degree in Computer Science')).toBeInTheDocument();
     });
   });
+
+  it('supports keyboard ArrowRight/ArrowLeft tab switching and empty category reset', async () => {
+    renderJourney([SAMPLE_TIMELINE[0]]);
+
+    const allTab = screen.getByRole('tab', { name: /All/i });
+    allTab.focus();
+    fireEvent.keyDown(allTab, { key: 'End' });
+
+    const eduTab = screen.getByRole('tab', { name: /Education/i });
+    expect(eduTab).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText(/No education milestones listed yet/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Show All Milestones/i }));
+    await waitFor(() => {
+      expect(screen.getByText('Web & Mobile Developer')).toBeInTheDocument();
+    });
+  });
 });

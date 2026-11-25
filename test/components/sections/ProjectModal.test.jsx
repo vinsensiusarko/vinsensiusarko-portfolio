@@ -1,7 +1,15 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LazyMotion, MotionConfig, domMax } from 'motion/react';
+import { toast } from 'sonner';
 import { ProjectModal } from '../../../src/components/sections/ProjectModal';
+
+vi.mock('sonner', () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn()
+  }
+}));
 
 function renderModal(project, onClose = vi.fn()) {
   return render(
@@ -14,6 +22,17 @@ function renderModal(project, onClose = vi.fn()) {
 }
 
 describe('ProjectModal Gallery', () => {
+  const originalClipboard = navigator.clipboard;
+  const originalExecCommand = document.execCommand;
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    Object.defineProperty(navigator, 'clipboard', {
+      value: originalClipboard,
+      configurable: true
+    });
+    document.execCommand = originalExecCommand;
+  });
   const singleImageProject = {
     id: 'proj-1',
     title: 'Single Image App',
@@ -143,5 +162,22 @@ describe('ProjectModal Gallery', () => {
       );
     });
     expect(screen.getByRole('button', { name: /Copied/i })).toBeInTheDocument();
+  });
+
+  it('falls back to execCommand inside dialog when clipboard rejects, and reports error when copy fails', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: vi.fn().mockRejectedValue(new Error('Denied')) },
+      configurable: true
+    });
+    document.execCommand = vi.fn().mockReturnValue(false);
+
+    renderModal(singleImageProject);
+    fireEvent.click(screen.getByRole('button', { name: /Copy Link/i }));
+
+    await waitFor(() => {
+      expect(document.execCommand).toHaveBeenCalledWith('copy');
+      expect(toast.error).toHaveBeenCalledWith('Could not copy project link.');
+    });
+    expect(screen.queryByRole('button', { name: /Copied/i })).not.toBeInTheDocument();
   });
 });

@@ -47,16 +47,20 @@ const AVAILABILITY_OPTIONS = [
 
 const VALID_AVAILABILITY_VALUES = new Set(AVAILABILITY_OPTIONS.map((opt) => opt.value));
 
-function toEditableTimelineEntry(entry = {}, idx = 0) {
+function toEditableTimelineEntry(entry, idx = 0) {
+  const safe = entry && typeof entry === 'object' ? entry : {};
+  const rawId = String(safe.id ?? '').trim();
   return {
-    id: entry.id || `timeline-${idx + 1}`,
-    type: entry.type === 'education' ? 'education' : 'work',
-    title: entry.title || '',
-    organization: entry.organization || '',
-    period: entry.period || '',
-    summary: entry.summary || '',
-    tagsInput: Array.isArray(entry.tags) ? entry.tags.join(', ') : '',
-    current: Boolean(entry.current)
+    id: rawId || `timeline-${idx + 1}-${Math.random().toString(36).slice(2, 7)}`,
+    type: safe.type === 'education' ? 'education' : 'work',
+    title: String(safe.title ?? ''),
+    organization: String(safe.organization ?? ''),
+    period: String(safe.period ?? ''),
+    summary: String(safe.summary ?? ''),
+    tagsInput: Array.isArray(safe.tags)
+      ? safe.tags.map((t) => String(t ?? '').trim()).filter(Boolean).join(', ')
+      : '',
+    current: Boolean(safe.current)
   };
 }
 
@@ -129,7 +133,11 @@ export function AdminProfileTab({ showToast }) {
           });
 
           if (Array.isArray(data.timeline)) {
-            setTimeline(data.timeline.map(toEditableTimelineEntry));
+            setTimeline(
+              data.timeline
+                .filter((entry) => entry && typeof entry === 'object')
+                .map(toEditableTimelineEntry)
+            );
           } else {
             setTimeline((FALLBACK_SITE_SETTINGS.timeline || []).map(toEditableTimelineEntry));
           }
@@ -307,6 +315,7 @@ export function AdminProfileTab({ showToast }) {
 
     try {
       await setDoc(doc(db, 'settings', 'site_settings'), payload, { merge: true });
+      setTimeline(normalizedTimeline.map(toEditableTimelineEntry));
       showToast('Profile & Bio settings saved!', 'success');
     } catch (err) {
       console.error('Error saving profile:', err);
@@ -446,6 +455,7 @@ export function AdminProfileTab({ showToast }) {
                     <AvailabilityBadge
                       status={formData.availabilityStatus}
                       text={formData.availabilityText}
+                      live={false}
                     />
                   ) : null}
                 </div>
@@ -514,6 +524,7 @@ export function AdminProfileTab({ showToast }) {
                     type="button"
                     variant="outline"
                     size="sm"
+                    className="min-h-11 sm:min-h-8"
                     onClick={handleAddTimelineEntry}
                   >
                     <IconPlus
@@ -543,20 +554,20 @@ export function AdminProfileTab({ showToast }) {
                               #{idx + 1}
                             </Badge>
                             <span className="text-xs font-medium text-foreground">
-                              {entry.title.trim() || 'Untitled Milestone'}
+                              {String(entry.title ?? '').trim() || 'Untitled Milestone'}
                             </span>
                           </div>
 
                           <div className="flex flex-wrap items-center gap-2">
                             <div className="flex items-center gap-2 pr-1">
                               <Label
-                                htmlFor={`timeline-current-${idx}`}
+                                htmlFor={`timeline-current-${entry.id}`}
                                 className="cursor-pointer text-xs text-muted-foreground"
                               >
                                 Current
                               </Label>
                               <Switch
-                                id={`timeline-current-${idx}`}
+                                id={`timeline-current-${entry.id}`}
                                 checked={entry.current}
                                 onCheckedChange={(checked) =>
                                   handleUpdateTimelineEntry(idx, 'current', checked)
@@ -601,14 +612,14 @@ export function AdminProfileTab({ showToast }) {
 
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                           <div className="flex flex-col gap-1.5">
-                            <Label htmlFor={`timeline-type-${idx}`}>Type</Label>
+                            <Label htmlFor={`timeline-type-${entry.id}`}>Type</Label>
                             <Select
                               value={entry.type}
                               onValueChange={(value) =>
                                 handleUpdateTimelineEntry(idx, 'type', value)
                               }
                             >
-                              <SelectTrigger id={`timeline-type-${idx}`} className="w-full">
+                              <SelectTrigger id={`timeline-type-${entry.id}`} className="w-full">
                                 <SelectValue placeholder="Select type" />
                               </SelectTrigger>
                               <SelectContent>
@@ -619,10 +630,10 @@ export function AdminProfileTab({ showToast }) {
                           </div>
 
                           <div className="flex flex-col gap-1.5">
-                            <Label htmlFor={`timeline-period-${idx}`}>Period</Label>
+                            <Label htmlFor={`timeline-period-${entry.id}`}>Period</Label>
                             <Input
                               type="text"
-                              id={`timeline-period-${idx}`}
+                              id={`timeline-period-${entry.id}`}
                               placeholder="e.g. 2024 - Present"
                               value={entry.period}
                               onChange={(e) =>
@@ -634,10 +645,10 @@ export function AdminProfileTab({ showToast }) {
 
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                           <div className="flex flex-col gap-1.5">
-                            <Label htmlFor={`timeline-title-${idx}`}>Role / Degree Title</Label>
+                            <Label htmlFor={`timeline-title-${entry.id}`}>Role / Degree Title</Label>
                             <Input
                               type="text"
-                              id={`timeline-title-${idx}`}
+                              id={`timeline-title-${entry.id}`}
                               placeholder="e.g. Full-Stack & Mobile Developer"
                               value={entry.title}
                               onChange={(e) =>
@@ -647,10 +658,10 @@ export function AdminProfileTab({ showToast }) {
                           </div>
 
                           <div className="flex flex-col gap-1.5">
-                            <Label htmlFor={`timeline-org-${idx}`}>Organization / School</Label>
+                            <Label htmlFor={`timeline-org-${entry.id}`}>Organization / School</Label>
                             <Input
                               type="text"
-                              id={`timeline-org-${idx}`}
+                              id={`timeline-org-${entry.id}`}
                               placeholder="e.g. Studio or University"
                               value={entry.organization}
                               onChange={(e) =>
@@ -661,9 +672,9 @@ export function AdminProfileTab({ showToast }) {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                          <Label htmlFor={`timeline-summary-${idx}`}>Summary</Label>
+                          <Label htmlFor={`timeline-summary-${entry.id}`}>Summary</Label>
                           <Textarea
-                            id={`timeline-summary-${idx}`}
+                            id={`timeline-summary-${entry.id}`}
                             rows={2}
                             placeholder="Key responsibilities, achievements, or focus areas..."
                             value={entry.summary}
@@ -674,10 +685,10 @@ export function AdminProfileTab({ showToast }) {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                          <Label htmlFor={`timeline-tags-${idx}`}>Tags (Comma-separated)</Label>
+                          <Label htmlFor={`timeline-tags-${entry.id}`}>Tags (Comma-separated)</Label>
                           <Input
                             type="text"
-                            id={`timeline-tags-${idx}`}
+                            id={`timeline-tags-${entry.id}`}
                             placeholder="Flutter, React, Laravel"
                             value={entry.tagsInput}
                             onChange={(e) =>

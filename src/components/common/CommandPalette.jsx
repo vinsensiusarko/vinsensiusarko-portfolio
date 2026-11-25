@@ -35,7 +35,8 @@ export function CommandPalette({
   isOpen: controlledIsOpen,
   onOpen,
   onClose,
-  customActions = []
+  customActions = [],
+  showJourney = true
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -127,13 +128,17 @@ export function CommandPalette({
         Icon: IconUser,
         onSelect: () => scrollToSection('about')
       },
-      {
-        id: 'nav-journey',
-        label: 'Go to Career & Education Timeline',
-        category: 'Navigation',
-        Icon: IconBriefcase,
-        onSelect: () => scrollToSection('journey')
-      },
+      ...(showJourney
+        ? [
+            {
+              id: 'nav-journey',
+              label: 'Go to Career & Education Timeline',
+              category: 'Navigation',
+              Icon: IconBriefcase,
+              onSelect: () => scrollToSection('journey')
+            }
+          ]
+        : []),
       {
         id: 'nav-experience',
         label: 'Go to Experience & Skills',
@@ -260,7 +265,7 @@ export function CommandPalette({
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [theme, season]
+    [theme, season, showJourney]
   );
 
   const allActions = useMemo(

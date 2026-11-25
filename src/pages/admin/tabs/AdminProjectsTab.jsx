@@ -121,9 +121,11 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       category: project.category || 'Mobile Application',
       order: project.order || 1,
       description: project.description || '',
-      role: project.role || '',
-      period: project.period || '',
-      highlights: Array.isArray(project.highlights) ? project.highlights.join('\n') : '',
+      role: String(project.role ?? ''),
+      period: String(project.period ?? ''),
+      highlights: Array.isArray(project.highlights)
+        ? project.highlights.map((h) => String(h ?? '')).join('\n')
+        : '',
       techStack: Array.isArray(project.techStack) ? project.techStack.join(', ') : '',
       imageUrl: isDataUri ? '' : rawImg,
       imageBase64: isDataUri ? rawImg : '',
@@ -387,9 +389,9 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       category: formData.category.trim(),
       order: parseInt(formData.order, 10) || 1,
       description: formData.description.trim(),
-      role: formData.role.trim(),
-      period: formData.period.trim(),
-      highlights: formData.highlights
+      role: String(formData.role ?? '').trim(),
+      period: String(formData.period ?? '').trim(),
+      highlights: String(formData.highlights ?? '')
         .split('\n')
         .map((line) => line.trim())
         .filter(Boolean),

@@ -1,18 +1,15 @@
-import React from 'react';
 import { cn } from '../../lib/utils';
 
 export const AVAILABILITY_PRESETS = {
   available: {
     label: 'Available for Work & Freelance',
-    pillClass:
-      'border-[var(--status-success-border)] bg-[var(--status-success-bg)] text-[var(--status-success-fg)]',
-    dotClass: 'bg-[var(--status-success-fg)]'
+    pillClass: 'border-status-success-border bg-status-success-bg text-status-success-fg',
+    dotClass: 'bg-status-success-fg'
   },
   freelance: {
     label: 'Open to Select Projects',
-    pillClass:
-      'border-[var(--status-warn-border)] bg-[var(--status-warn-bg)] text-[var(--status-warn-fg)]',
-    dotClass: 'bg-[var(--status-warn-fg)]'
+    pillClass: 'border-status-warn-border bg-status-warn-bg text-status-warn-fg',
+    dotClass: 'bg-status-warn-fg'
   },
   busy: {
     label: 'Currently Booked',
@@ -21,18 +18,18 @@ export const AVAILABILITY_PRESETS = {
   }
 };
 
-export function AvailabilityBadge({ status = 'hidden', text = '', className }) {
+export function AvailabilityBadge({ status = 'hidden', text = '', live = true, className }) {
   if (!status || status === 'hidden') return null;
 
   const preset = AVAILABILITY_PRESETS[status];
   if (!preset) return null;
 
-  const displayLabel = text?.trim() || preset.label;
+  const displayLabel = String(text ?? '').trim() || preset.label;
 
   return (
     <span
-      role="status"
-      aria-label={displayLabel}
+      role={live ? 'status' : undefined}
+      aria-label={live ? displayLabel : undefined}
       className={cn(
         'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium',
         preset.pillClass,

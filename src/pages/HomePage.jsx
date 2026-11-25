@@ -56,6 +56,15 @@ export function HomePage() {
     }
   }, [hash]);
 
+  const hasJourney =
+    Array.isArray(siteSettings.timeline) &&
+    siteSettings.timeline.some(
+      (entry) =>
+        entry &&
+        typeof entry === 'object' &&
+        (String(entry.title ?? '').trim() || String(entry.organization ?? '').trim())
+    );
+
   return (
     <>
       <a
@@ -64,7 +73,7 @@ export function HomePage() {
       >
         Skip to main content
       </a>
-      <Navbar variant="home" siteName={siteSettings.name} />
+      <Navbar variant="home" siteName={siteSettings.name} showJourney={hasJourney} />
       <main id="main-content">
         <HeroSection siteSettings={siteSettings} contactSettings={contactSettings} />
         <AboutSection siteSettings={siteSettings} />

@@ -103,7 +103,7 @@ function syncProjectUrlParam(projectId) {
       url.searchParams.delete('project');
     }
     const nextUrl = `${url.pathname}${url.search}${url.hash}`;
-    window.history.replaceState(null, '', nextUrl);
+    window.history.replaceState(window.history.state, '', nextUrl);
   } catch {
     // ignore invalid url contexts in tests
   }
@@ -170,6 +170,12 @@ export function ProjectsSection({ projects }) {
     setSelectedProject(null);
     syncProjectUrlParam(null);
   };
+
+  const activeProject = useMemo(() => {
+    if (!selectedProject) return null;
+    if (!selectedProject.id || !Array.isArray(projects)) return selectedProject;
+    return projects.find((p) => p.id === selectedProject.id) || selectedProject;
+  }, [selectedProject, projects]);
 
   const filteredProjects = useMemo(() => {
     const trimmed = searchQuery.trim();
@@ -519,7 +525,7 @@ export function ProjectsSection({ projects }) {
       )}
 
       <ProjectModal
-        project={selectedProject}
+        project={activeProject}
         onClose={handleCloseProject}
       />
     </section>

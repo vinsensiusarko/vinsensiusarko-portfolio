@@ -93,25 +93,44 @@ export function ProjectModal({ project, onClose }) {
   const handleCopyLink = async () => {
     if (!project?.id || typeof window === 'undefined') return;
     const shareUrl = `${window.location.origin}/?project=${encodeURIComponent(project.id)}`;
+    let copied = false;
+
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(shareUrl);
-      } else {
-        const ta = document.createElement('textarea');
-        ta.value = shareUrl;
-        ta.setAttribute('readonly', '');
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
+        copied = true;
       }
+    } catch {
+      copied = false;
+    }
+
+    if (!copied) {
+      const container = document.getElementById('project-detail-modal') || document.body;
+      const ta = document.createElement('textarea');
+      ta.value = shareUrl;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      container.appendChild(ta);
+      try {
+        ta.focus();
+        ta.select();
+        copied = typeof document.execCommand === 'function' && Boolean(document.execCommand('copy'));
+      } catch {
+        copied = false;
+      } finally {
+        if (ta.parentNode) {
+          ta.parentNode.removeChild(ta);
+        }
+      }
+    }
+
+    if (copied) {
       setCopiedLink(true);
       toast.success('Project link copied!');
       if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
       copiedTimerRef.current = setTimeout(() => setCopiedLink(false), 2000);
-    } catch {
+    } else {
       toast.error('Could not copy project link.');
     }
   };
@@ -153,10 +172,10 @@ export function ProjectModal({ project, onClose }) {
     project.demoLabel === 'Play Store' ||
     String(project.demoUrl || '').includes('play.google.com');
   const deviceVariant = getDeviceVariant(project.category);
-  const roleText = typeof project.role === 'string' ? project.role.trim() : '';
-  const periodText = typeof project.period === 'string' ? project.period.trim() : '';
+  const roleText = String(project.role ?? '').trim();
+  const periodText = String(project.period ?? '').trim();
   const highlights = Array.isArray(project.highlights)
-    ? project.highlights.map((item) => String(item || '').trim()).filter(Boolean)
+    ? project.highlights.map((item) => String(item ?? '').trim()).filter(Boolean)
     : [];
 
   return (
@@ -200,7 +219,7 @@ export function ProjectModal({ project, onClose }) {
               className={cn(
                 'relative z-10 w-full',
                 showFrame
-                  ? 'flex min-h-[260px] sm:min-h-[340px] items-center justify-center px-4 pt-12 pb-5 sm:px-8'
+                  ? 'flex min-h-[260px] sm:min-h-[340px] items-center justify-center px-4 pt-16 pb-5 sm:px-8 sm:pt-14'
                   : 'h-full'
               )}
             >
@@ -242,43 +261,45 @@ export function ProjectModal({ project, onClose }) {
             </m.div>
           </AnimatePresence>
 
-          <Badge
-            id="modal-project-category"
-            variant="secondary"
-            className="absolute top-3 left-3 z-20 gap-1.5 border-border/80 bg-background/90 text-foreground"
-          >
-            <IconStack2 className="size-3.5" aria-hidden="true" />
-            {project.category || 'Project'}
-          </Badge>
-
-          <div className="absolute top-3 right-12 z-20 flex items-center gap-1.5">
-            {hasGallery && (
-              <span className="rounded-md border border-border bg-background/90 px-2 py-1 font-mono text-xs font-medium text-foreground">
-                {safeActiveIndex + 1} / {allImages.length}
-              </span>
-            )}
-            <button
-              type="button"
-              aria-pressed={showFrame}
-              aria-label={showFrame ? 'Switch to full preview' : 'Switch to device frame preview'}
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowFrame((prev) => !prev);
-              }}
-              className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background/90 px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-season-accent"
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2 px-3 pt-3 pr-15">
+            <Badge
+              id="modal-project-category"
+              variant="secondary"
+              className="pointer-events-auto max-w-[52%] truncate gap-1.5 border-border/80 bg-background/90 text-foreground"
             >
-              {showFrame ? (
-                <>
-                  <IconMaximize className="size-3.5" aria-hidden="true" />
-                  <span>Full</span>
-                </>
-              ) : (
-                <>
-                  <IconDeviceDesktop className="size-3.5" aria-hidden="true" />
-                  <span>Frame</span>
-                </>
+              <IconStack2 className="size-3.5 shrink-0" aria-hidden="true" />
+              <span className="truncate">{project.category || 'Project'}</span>
+            </Badge>
+
+            <div className="pointer-events-auto flex shrink-0 items-center gap-1.5">
+              {hasGallery && (
+                <span className="rounded-md border border-border bg-background/90 px-2 py-1 font-mono text-xs font-medium text-foreground">
+                  {safeActiveIndex + 1} / {allImages.length}
+                </span>
               )}
-            </button>
+              <button
+                type="button"
+                aria-pressed={showFrame}
+                aria-label={showFrame ? 'Switch to full preview' : 'Switch to device frame preview'}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowFrame((prev) => !prev);
+                }}
+                className="inline-flex min-h-11 sm:min-h-8 items-center gap-1.5 rounded-md border border-border bg-background/90 px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-season-accent"
+              >
+                {showFrame ? (
+                  <>
+                    <IconMaximize className="size-3.5" aria-hidden="true" />
+                    <span>Full</span>
+                  </>
+                ) : (
+                  <>
+                    <IconDeviceDesktop className="size-3.5" aria-hidden="true" />
+                    <span>Frame</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {hasGallery && (
@@ -428,10 +449,10 @@ export function ProjectModal({ project, onClose }) {
 
           {highlights.length > 0 && (
             <div className="flex flex-col gap-2.5" id="modal-project-highlights">
-              <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <IconCircleCheck className="size-4 text-season-accent" aria-hidden="true" />
                 Key Highlights
-              </h4>
+              </h3>
               <ul className="flex flex-col gap-2">
                 {highlights.map((item, idx) => (
                   <li
@@ -451,10 +472,10 @@ export function ProjectModal({ project, onClose }) {
 
           {techList.length > 0 && (
             <div className="flex flex-col gap-2.5">
-              <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <IconCpu className="size-4 text-season-accent" aria-hidden="true" />
                 Technologies Used
-              </h4>
+              </h3>
               <div id="modal-project-tech-list" className="flex flex-wrap gap-1.5">
                 {techList.map((tech) => (
                   <Badge key={tech} variant="secondary">
@@ -477,7 +498,7 @@ export function ProjectModal({ project, onClose }) {
                 variant="outline"
                 size="sm"
                 onClick={handleCopyLink}
-                className="mr-auto"
+                className="mr-auto min-h-11 sm:min-h-9"
               >
                 {copiedLink ? (
                   <IconCheck data-icon="inline-start" aria-hidden="true" />
@@ -488,7 +509,7 @@ export function ProjectModal({ project, onClose }) {
               </Button>
             )}
             {project.githubUrl && (
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="outline" size="sm" className="min-h-11 sm:min-h-9">
                 <a
                   href={project.githubUrl}
                   target="_blank"
@@ -500,7 +521,7 @@ export function ProjectModal({ project, onClose }) {
               </Button>
             )}
             {!project.isComingSoon && project.demoUrl && (
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="min-h-11 sm:min-h-9">
                 <a
                   href={project.demoUrl}
                   target="_blank"
@@ -515,7 +536,13 @@ export function ProjectModal({ project, onClose }) {
                 </a>
               </Button>
             )}
-            <Button type="button" variant="outline" size="sm" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="min-h-11 sm:min-h-9"
+              onClick={onClose}
+            >
               Close
             </Button>
           </div>

@@ -193,7 +193,7 @@ export const FALLBACK_SITE_SETTINGS = {
       id: 'edu-cs',
       type: 'education',
       title: 'Bachelors Degree in Computer Science',
-      organization: 'Computer Science',
+      organization: 'Undergraduate Studies',
       period: 'Completed',
       summary:
         'Focused on software engineering, database systems, networking, and web & mobile application development.',

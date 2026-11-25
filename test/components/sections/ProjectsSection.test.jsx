@@ -130,4 +130,34 @@ describe('ProjectsSection & ProjectModal', () => {
     });
     expect(window.location.search).toBe('?ref=linkedin');
   });
+
+  it('preserves window.history.state during URL sync and hydrates open modal when projects update', async () => {
+    const routerState = { idx: 2, key: 'abc123', usr: null };
+    window.history.replaceState(routerState, '', '/?project=mozaic-pos-app');
+    const { rerender } = renderProjects();
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    const updatedProjects = FALLBACK_PROJECTS.map((p) =>
+      p.id === 'mozaic-pos-app' ? { ...p, role: 'Lead Mobile Engineer', period: '2026' } : p
+    );
+    rerender(
+      <MotionConfig reducedMotion="always">
+        <LazyMotion features={domMax} strict>
+          <ProjectsSection projects={updatedProjects} />
+        </LazyMotion>
+      </MotionConfig>
+    );
+
+    expect(screen.getByText('Lead Mobile Engineer')).toBeInTheDocument();
+    expect(screen.getByText('2026')).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+    expect(window.history.state).toEqual(routerState);
+  });
 });

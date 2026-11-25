@@ -33,7 +33,7 @@ const HOME_NAV_ITEMS = [
   { id: 'contact', label: 'Contact', href: '#contact' }
 ];
 
-export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
+export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka', showJourney = true }) {
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -44,13 +44,18 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, SCROLL_PROGRESS_SPRING);
   const progressScaleX = prefersReducedMotion ? scrollYProgress : smoothProgress;
+  const navItems = showJourney
+    ? HOME_NAV_ITEMS
+    : HOME_NAV_ITEMS.filter((item) => item.id !== 'journey');
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
 
       if (variant !== 'home') return;
-      const sections = ['profile', 'about', 'journey', 'experience', 'projects', 'contact'];
+      const sections = showJourney
+        ? ['profile', 'about', 'journey', 'experience', 'projects', 'contact']
+        : ['profile', 'about', 'experience', 'projects', 'contact'];
       const scrollPos = window.scrollY + 180;
 
       for (let i = sections.length - 1; i >= 0; i--) {
@@ -64,7 +69,7 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [variant]);
+  }, [variant, showJourney]);
 
   const closeMenu = () => setMenuOpen(false);
   const isDark = theme === 'dark';
@@ -121,7 +126,7 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
               </ul>
             ) : (
               <ul className="nav-links flex items-center gap-6 text-sm font-medium text-muted-foreground">
-                {HOME_NAV_ITEMS.map((item) => {
+                {navItems.map((item) => {
                   const isActive = activeSection === item.id;
                   return (
                     <li key={item.id}>
@@ -275,7 +280,7 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
                     </>
                   ) : (
                     <>
-                      {HOME_NAV_ITEMS.map((item) => (
+                      {navItems.map((item) => (
                         <li key={item.id}>
                           <a
                             href={item.href}
@@ -314,6 +319,7 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
         isOpen={paletteOpen}
         onOpen={() => setPaletteOpen(true)}
         onClose={() => setPaletteOpen(false)}
+        showJourney={showJourney}
       />
     </>
   );

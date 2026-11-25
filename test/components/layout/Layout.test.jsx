@@ -71,4 +71,13 @@ describe('Layout components (Navbar, Footer, FloatingActions)', () => {
     expect(backToTop).toHaveAttribute('tabindex', '-1');
     expect(backToTop).toHaveAttribute('aria-hidden', 'true');
   });
+
+  it('omits Journey link from desktop navigation when showJourney is false', () => {
+    const { container } = renderLayout(
+      <Navbar variant="home" siteName="Vinsensius Arka" showJourney={false} />
+    );
+
+    expect(container.querySelector('.nav-links a[href="#journey"]')).not.toBeInTheDocument();
+    expect(container.querySelector('.nav-links a[href="#about"]')).toBeInTheDocument();
+  });
 });
