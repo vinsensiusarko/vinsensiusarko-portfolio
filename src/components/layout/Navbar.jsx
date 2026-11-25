@@ -27,6 +27,7 @@ import {
 
 const HOME_NAV_ITEMS = [
   { id: 'about', label: 'About', href: '#about' },
+  { id: 'journey', label: 'Journey', href: '#journey' },
   { id: 'experience', label: 'Experience', href: '#experience' },
   { id: 'projects', label: 'Projects', href: '#projects' },
   { id: 'contact', label: 'Contact', href: '#contact' }
@@ -49,7 +50,7 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka' }) {
       setScrolled(window.scrollY > 20);
 
       if (variant !== 'home') return;
-      const sections = ['profile', 'about', 'experience', 'projects', 'contact'];
+      const sections = ['profile', 'about', 'journey', 'experience', 'projects', 'contact'];
       const scrollPos = window.scrollY + 180;
 
       for (let i = sections.length - 1; i >= 0; i--) {

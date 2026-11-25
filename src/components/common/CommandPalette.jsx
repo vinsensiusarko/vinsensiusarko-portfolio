@@ -6,6 +6,7 @@ import {
   IconCompass,
   IconHome,
   IconUser,
+  IconBriefcase,
   IconCode,
   IconDeviceLaptop,
   IconMail,
@@ -125,6 +126,13 @@ export function CommandPalette({
         category: 'Navigation',
         Icon: IconUser,
         onSelect: () => scrollToSection('about')
+      },
+      {
+        id: 'nav-journey',
+        label: 'Go to Career & Education Timeline',
+        category: 'Navigation',
+        Icon: IconBriefcase,
+        onSelect: () => scrollToSection('journey')
       },
       {
         id: 'nav-experience',

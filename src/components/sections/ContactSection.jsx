@@ -9,10 +9,11 @@ import {
   IconBrandX,
   IconArrowUpRight
 } from '@tabler/icons-react';
+import { AvailabilityBadge } from '@/components/common/AvailabilityBadge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-export function ContactSection({ contactSettings }) {
+export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
   const email = contactSettings.email || 'me@vinsensiusarka.id';
 
   const handleCopyEmail = async (e) => {
@@ -82,6 +83,12 @@ export function ContactSection({ contactSettings }) {
               Contact Me
             </h2>
           </div>
+
+          <AvailabilityBadge
+            status={siteSettings.availabilityStatus}
+            text={siteSettings.availabilityText}
+            className="self-start"
+          />
 
           <p className="max-w-md text-sm sm:text-base leading-relaxed text-muted-foreground">
             Open to web and mobile engineering roles, freelance product builds, and technical

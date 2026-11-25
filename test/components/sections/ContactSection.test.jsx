@@ -49,4 +49,22 @@ describe('ContactSection Component', () => {
       expect(toast.success).toHaveBeenCalledWith('Copied me@vinsensiusarka.id to clipboard');
     });
   });
+
+  it('keeps AvailabilityBadge hidden by default and displays it when enabled via siteSettings', () => {
+    const { rerender } = render(
+      <ContactSection
+        contactSettings={{ email: 'me@vinsensiusarka.id' }}
+        siteSettings={{ availabilityStatus: 'hidden' }}
+      />
+    );
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+    rerender(
+      <ContactSection
+        contactSettings={{ email: 'me@vinsensiusarka.id' }}
+        siteSettings={{ availabilityStatus: 'available', availabilityText: 'Open for freelance builds' }}
+      />
+    );
+    expect(screen.getByRole('status', { name: 'Open for freelance builds' })).toBeInTheDocument();
+  });
 });

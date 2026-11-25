@@ -8,6 +8,7 @@ import { Footer } from '../components/layout/Footer';
 import { FloatingActions } from '../components/layout/FloatingActions';
 import { HeroSection } from '../components/sections/HeroSection';
 import { AboutSection } from '../components/sections/AboutSection';
+import { JourneySection } from '../components/sections/JourneySection';
 import { ExperienceSection } from '../components/sections/ExperienceSection';
 import { ProjectsSection } from '../components/sections/ProjectsSection';
 import { ContactSection } from '../components/sections/ContactSection';
@@ -15,7 +16,11 @@ import { ContactSection } from '../components/sections/ContactSection';
 export function HomePage() {
   const { projects, skills, siteSettings, contactSettings } = usePortfolioData();
   const { hash } = useLocation();
-  useScrollReveal('.reveal-on-scroll', [projects.length, skills.length]);
+  useScrollReveal('.reveal-on-scroll', [
+    projects.length,
+    skills.length,
+    siteSettings.timeline?.length || 0
+  ]);
 
   useEffect(() => {
     recordPageView();
@@ -63,9 +68,10 @@ export function HomePage() {
       <main id="main-content">
         <HeroSection siteSettings={siteSettings} contactSettings={contactSettings} />
         <AboutSection siteSettings={siteSettings} />
+        <JourneySection timeline={siteSettings.timeline} />
         <ExperienceSection skills={skills} />
         <ProjectsSection projects={projects} />
-        <ContactSection contactSettings={contactSettings} />
+        <ContactSection contactSettings={contactSettings} siteSettings={siteSettings} />
       </main>
       <Footer variant="home" siteName={siteSettings.name} />
       <FloatingActions whatsapp={contactSettings.whatsapp} />

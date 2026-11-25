@@ -16,6 +16,7 @@ import {
   HERO_ITEM_VARIANTS
 } from '@/lib/motion';
 import { ResponsivePicture } from '@/components/common/ResponsivePicture';
+import { AvailabilityBadge } from '@/components/common/AvailabilityBadge';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -128,6 +129,10 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
                 />
                 {seasonMeta.labelEn} Edition
               </span>
+              <AvailabilityBadge
+                status={siteSettings.availabilityStatus}
+                text={siteSettings.availabilityText}
+              />
             </m.div>
 
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.08]">
