@@ -6,14 +6,14 @@ import {
   IconSearch,
   IconSun,
   IconMoon,
-  IconMenu2,
-  IconArrowLeft
+  IconMenu2
 } from '@tabler/icons-react';
 import { EDITORIAL_SPRING, SCROLL_PROGRESS_SPRING } from '@/lib/motion';
 import { useTheme } from '@/context/ThemeContext';
 import { SeasonSwitcher } from '@/features/season/SeasonSwitcher';
 import { CommandPalette } from '@/components/common/CommandPalette';
 import { BrandLogo } from '@/components/common/BrandLogo';
+import { BackToPortfolioButton } from '@/components/common/BackToPortfolioButton';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -164,12 +164,7 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka', showJou
 
           <div className="flex items-center gap-2">
             {variant === 'policy' && (
-              <Button asChild size="sm" className="hidden lg:inline-flex">
-                <Link to="/">
-                  <IconArrowLeft data-icon="inline-start" aria-hidden="true" />
-                  Back to Portfolio
-                </Link>
-              </Button>
+              <BackToPortfolioButton size="navbar" className="hidden lg:inline-flex" />
             )}
 
             <Button
@@ -270,12 +265,10 @@ export function Navbar({ variant = 'home', siteName = 'Vinsensius Arka', showJou
                         </Link>
                       </li>
                       <li className="pt-3">
-                        <Button asChild size="lg" className="w-full min-h-11" onClick={closeMenu}>
-                          <Link to="/">
-                            <IconArrowLeft data-icon="inline-start" aria-hidden="true" />
-                            Back to Portfolio
-                          </Link>
-                        </Button>
+                        <BackToPortfolioButton
+                          onClick={closeMenu}
+                          className="w-full"
+                        />
                       </li>
                     </>
                   ) : (

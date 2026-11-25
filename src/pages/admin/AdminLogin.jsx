@@ -166,10 +166,18 @@ export function AdminLogin({ showToast, theme, toggleTheme }) {
         <CardFooter className="justify-center border-t border-border pt-4">
           <Link
             to="/"
-            className="inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="group inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-background pl-2.5 pr-3.5 text-sm font-medium text-muted-foreground shadow-xs transition-colors hover:border-foreground/25 hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <IconArrowLeft className="size-4" stroke={1.75} aria-hidden="true" />
-            Back to Public Portfolio
+            <span
+              aria-hidden="true"
+              className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground transition-colors group-hover:bg-background group-hover:text-foreground"
+            >
+              <IconArrowLeft
+                className="size-3.5 transition-transform duration-200 group-hover:-translate-x-0.5"
+                stroke={2}
+              />
+            </span>
+            <span>Back to Public Portfolio</span>
           </Link>
         </CardFooter>
       </Card>

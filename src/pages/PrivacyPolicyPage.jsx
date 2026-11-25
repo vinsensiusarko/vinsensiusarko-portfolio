@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router';
 import {
   IconShieldCheck,
   IconCalendarCheck,
@@ -24,13 +23,13 @@ import {
   IconUser,
   IconMail,
   IconWorld,
-  IconBrandGithub,
-  IconArrowLeft
+  IconBrandGithub
 } from '@tabler/icons-react';
 import { usePrivacyPolicy } from '@/hooks/usePrivacyPolicy';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { FloatingActions } from '@/components/layout/FloatingActions';
+import { BackToPortfolioButton } from '@/components/common/BackToPortfolioButton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -580,13 +579,8 @@ export function PrivacyPolicyPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3 pt-4">
-              <Button asChild size="lg">
-                <Link to="/">
-                  <IconArrowLeft data-icon="inline-start" aria-hidden="true" />
-                  Back to Portfolio
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
+              <BackToPortfolioButton />
+              <Button asChild size="lg" className="min-h-11">
                 <a id="bottom-contact-btn" href={`mailto:${policy.contactEmail}`}>
                   <IconMail data-icon="inline-start" aria-hidden="true" />
                   Contact Developer

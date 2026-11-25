@@ -1,6 +1,4 @@
-import { Link } from 'react-router';
-import { IconArrowLeft } from '@tabler/icons-react';
-import { Button } from '@/components/ui/button';
+import { BackToPortfolioButton } from '@/components/common/BackToPortfolioButton';
 
 export function NotFoundPage() {
   return (
@@ -14,12 +12,7 @@ export function NotFoundPage() {
       <p className="mt-3 max-w-md text-sm sm:text-base text-muted-foreground">
         Halaman yang Anda cari tidak ditemukan.
       </p>
-      <Button asChild size="lg" className="mt-7 min-h-11">
-        <Link to="/">
-          <IconArrowLeft data-icon="inline-start" aria-hidden="true" />
-          Back to Portfolio
-        </Link>
-      </Button>
+      <BackToPortfolioButton emphasis="featured" className="mt-7" />
     </main>
   );
 }
