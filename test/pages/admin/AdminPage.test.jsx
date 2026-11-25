@@ -100,6 +100,11 @@ describe('AdminLogin & AdminPage Shell', () => {
     expect(localStorage.getItem('admin_active_tab')).toBe('contact');
     expect(screen.getByRole('heading', { name: /Contact & Social Channels/i })).toBeInTheDocument();
     await screen.findByLabelText(/Email Address/i);
+
+    const messagesTabBtn = screen.getByRole('button', { name: /Messages Inbox/i });
+    fireEvent.click(messagesTabBtn);
+    expect(localStorage.getItem('admin_active_tab')).toBe('messages');
+    expect(screen.getByRole('heading', { name: /Visitor Messages & Inquiries/i })).toBeInTheDocument();
   });
 
   it('retires legacy CSS files and keeps rich description utilities in index.css', () => {

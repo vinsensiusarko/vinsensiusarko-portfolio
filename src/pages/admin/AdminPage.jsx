@@ -17,6 +17,7 @@ import {
   IconExternalLink,
   IconFolders,
   IconId,
+  IconInbox,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
   IconLogout,
@@ -50,6 +51,7 @@ import { AdminLogin } from './AdminLogin';
 import { AdminDashboardSkeleton } from './AdminShimmer';
 import { AdminProjectsTab } from './tabs/AdminProjectsTab';
 import { AdminSkillsTab } from './tabs/AdminSkillsTab';
+import { AdminMessagesTab } from './tabs/AdminMessagesTab';
 import { AdminAnalyticsTab } from './tabs/AdminAnalyticsTab';
 import { AdminProfileTab } from './tabs/AdminProfileTab';
 import { AdminContactTab } from './tabs/AdminContactTab';
@@ -69,6 +71,7 @@ const TAB_GROUPS = [
   {
     label: 'Insights',
     items: [
+      { id: 'messages', label: 'Messages Inbox', title: 'Visitor Messages & Inquiries', Icon: IconInbox },
       { id: 'analytics', label: 'Visitor Analytics', title: 'Visitor Analytics & Traffic Insights', Icon: IconChartLine }
     ]
   },
@@ -253,6 +256,7 @@ function AdminDashboardContent() {
   };
 
   const [projects, setProjects] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [skills, setSkills] = useState(() => {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
@@ -336,14 +340,32 @@ function AdminDashboardContent() {
     }
   }, [showToast]);
 
+  const loadMessages = useCallback(
+    async ({ notifyOnError = false } = {}) => {
+      if (!db) return;
+      try {
+        const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'));
+        const snap = await getDocs(q);
+        const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setMessages(items);
+      } catch (err) {
+        console.error('Error loading messages in Admin:', err);
+        if (notifyOnError) {
+          showToast('Error loading messages: ' + err.message, 'error');
+        }
+      }
+    },
+    [showToast]
+  );
+
   const reloadAll = useCallback(async () => {
     setLoadingData(true);
     try {
-      await Promise.all([loadProjects(), loadSkills()]);
+      await Promise.all([loadProjects(), loadSkills(), loadMessages()]);
     } finally {
       setLoadingData(false);
     }
-  }, [loadProjects, loadSkills]);
+  }, [loadProjects, loadSkills, loadMessages]);
 
   useEffect(() => {
     document.title = 'Admin Dashboard | Vinsensius Arka Portfolio';
@@ -406,9 +428,11 @@ function AdminDashboardContent() {
   };
 
   const activeTabMeta = ALL_TABS.find((t) => t.id === activeTab) || ALL_TABS[0];
+  const unreadMessagesCount = messages.filter((m) => (m.status || 'unread') === 'unread').length;
   const sidebarCounts = {
     projects: projects.length,
-    skills: skills.length
+    skills: skills.length,
+    messages: unreadMessagesCount > 0 ? unreadMessagesCount : undefined
   };
   const userEmail = user?.email || 'Admin';
 
@@ -605,6 +629,15 @@ function AdminDashboardContent() {
                     skills={skills}
                     setSkills={setSkills}
                     reloadSkills={loadSkills}
+                    showToast={showToast}
+                    loading={loadingData}
+                  />
+                )}
+                {activeTab === 'messages' && (
+                  <AdminMessagesTab
+                    messages={messages}
+                    setMessages={setMessages}
+                    reloadMessages={() => loadMessages({ notifyOnError: true })}
                     showToast={showToast}
                     loading={loadingData}
                   />
