@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LazyMotion, MotionConfig, domMax } from 'motion/react';
 import { ProjectModal } from '../../../src/components/sections/ProjectModal';
 
@@ -93,5 +93,55 @@ describe('ProjectModal Gallery', () => {
     expect(screen.getByText('1 / 3')).toBeInTheDocument();
 
     document.body.removeChild(testInput);
+  });
+
+  it('toggles between DeviceFrame and Full preview modes with aria-pressed', () => {
+    renderModal({
+      ...singleImageProject,
+      category: 'Mobile Application'
+    });
+
+    const toggleBtn = screen.getByRole('button', { name: /Switch to full preview/i });
+    expect(toggleBtn).toHaveAttribute('aria-pressed', 'true');
+    expect(document.querySelector('[data-device-frame="mobile"]')).toBeInTheDocument();
+
+    fireEvent.click(toggleBtn);
+    expect(screen.getByRole('button', { name: /Switch to device frame preview/i })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+    expect(document.querySelector('[data-device-frame="mobile"]')).not.toBeInTheDocument();
+  });
+
+  it('renders optional Case Study role, period, and highlights only when present', () => {
+    renderModal({
+      ...singleImageProject,
+      role: 'Full-Stack Developer',
+      period: '2025',
+      highlights: ['Shipped real-time inventory sync', 'Reduced query latency']
+    });
+
+    expect(screen.getByText('Full-Stack Developer')).toBeInTheDocument();
+    expect(screen.getByText('2025')).toBeInTheDocument();
+    expect(screen.getByText('Key Highlights')).toBeInTheDocument();
+    expect(screen.getByText('Shipped real-time inventory sync')).toBeInTheDocument();
+  });
+
+  it('copies shareable project deep-link to clipboard', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true
+    });
+
+    renderModal(singleImageProject);
+    fireEvent.click(screen.getByRole('button', { name: /Copy Link/i }));
+
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith(
+        expect.stringContaining('/?project=proj-1')
+      );
+    });
+    expect(screen.getByRole('button', { name: /Copied/i })).toBeInTheDocument();
   });
 });

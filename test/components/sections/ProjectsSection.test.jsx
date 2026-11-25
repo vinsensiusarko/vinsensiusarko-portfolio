@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LazyMotion, MotionConfig, domMax } from 'motion/react';
 import { ProjectsSection } from '../../../src/components/sections/ProjectsSection';
@@ -15,6 +15,9 @@ function renderProjects(projects = FALLBACK_PROJECTS) {
 }
 
 describe('ProjectsSection & ProjectModal', () => {
+  afterEach(() => {
+    window.history.replaceState(null, '', '/');
+  });
   it('filters projects by category (including technology-inferred matches) and resets empty search results', async () => {
     renderProjects();
 
@@ -110,5 +113,21 @@ describe('ProjectsSection & ProjectModal', () => {
 
     fireEvent.keyDown(cards[1], { key: ' ' });
     expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('auto-opens matching project modal from ?project=<id> deep-link and clears param on close', async () => {
+    window.history.replaceState(null, '', '/?project=mozaic-pos-app&ref=linkedin');
+    renderProjects();
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+    expect(screen.getByRole('heading', { name: 'Mozaic POS App' })).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+    expect(window.location.search).toBe('?ref=linkedin');
   });
 });

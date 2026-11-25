@@ -1,6 +1,7 @@
-import { useState, useEffect, useId } from 'react';
+import { useState, useEffect, useId, useRef } from 'react';
 import { cn } from 'cn';
 import { AnimatePresence, m } from 'motion/react';
+import { toast } from 'sonner';
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -10,11 +11,18 @@ import {
   IconBrandGithub,
   IconBrandGooglePlay,
   IconExternalLink,
-  IconStack2
+  IconStack2,
+  IconDeviceDesktop,
+  IconMaximize,
+  IconLink,
+  IconCheck,
+  IconUser,
+  IconCalendar
 } from '@tabler/icons-react';
 import { formatRichDescription } from '@/utils/formatDescription';
 import { resolveProjectImage } from '@/utils/resolveProjectImage';
 import { ResponsivePicture } from '@/components/common/ResponsivePicture';
+import { DeviceFrame, getDeviceVariant } from '@/components/common/DeviceFrame';
 import { EDITORIAL_SPRING, GALLERY_SLIDE_VARIANTS } from '@/lib/motion';
 import {
   Dialog,
@@ -30,12 +38,29 @@ import { Separator } from '@/components/ui/separator';
 export function ProjectModal({ project, onClose }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [showFrame, setShowFrame] = useState(true);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const copiedTimerRef = useRef(null);
   const modalId = useId();
 
   useEffect(() => {
     setActiveImageIndex(0);
     setDirection(0);
+    setShowFrame(true);
+    setCopiedLink(false);
+    if (copiedTimerRef.current) {
+      clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = null;
+    }
   }, [project?.id]);
+
+  useEffect(() => {
+    return () => {
+      if (copiedTimerRef.current) {
+        clearTimeout(copiedTimerRef.current);
+      }
+    };
+  }, []);
 
   const primaryImg = project ? resolveProjectImage(project) : '';
   const rawGallery = Array.isArray(project?.gallery) ? project.gallery : [];
@@ -63,6 +88,32 @@ export function ProjectModal({ project, onClose }) {
   const handleNext = () => {
     setDirection(1);
     setActiveImageIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0));
+  };
+
+  const handleCopyLink = async () => {
+    if (!project?.id || typeof window === 'undefined') return;
+    const shareUrl = `${window.location.origin}/?project=${encodeURIComponent(project.id)}`;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = shareUrl;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      setCopiedLink(true);
+      toast.success('Project link copied!');
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = setTimeout(() => setCopiedLink(false), 2000);
+    } catch {
+      toast.error('Could not copy project link.');
+    }
   };
 
   useEffect(() => {
@@ -101,6 +152,12 @@ export function ProjectModal({ project, onClose }) {
   const isPlayStore =
     project.demoLabel === 'Play Store' ||
     String(project.demoUrl || '').includes('play.google.com');
+  const deviceVariant = getDeviceVariant(project.category);
+  const roleText = typeof project.role === 'string' ? project.role.trim() : '';
+  const periodText = typeof project.period === 'string' ? project.period.trim() : '';
+  const highlights = Array.isArray(project.highlights)
+    ? project.highlights.map((item) => String(item || '').trim()).filter(Boolean)
+    : [];
 
   return (
     <Dialog
@@ -113,7 +170,12 @@ export function ProjectModal({ project, onClose }) {
         id="project-detail-modal"
         className="max-h-[90vh] overflow-y-auto p-0 gap-0 sm:max-w-3xl rounded-xl border-border bg-card"
       >
-        <div className="relative aspect-video w-full overflow-hidden border-b border-border bg-muted">
+        <div
+          className={cn(
+            'relative w-full overflow-hidden border-b border-border bg-muted',
+            showFrame ? 'min-h-[260px] sm:min-h-[340px]' : 'aspect-video'
+          )}
+        >
           <div
             id="modal-project-backdrop"
             className="pointer-events-none absolute inset-0 scale-110 overflow-hidden opacity-25 blur-lg"
@@ -135,18 +197,48 @@ export function ProjectModal({ project, onClose }) {
               initial="enter"
               animate="center"
               exit="exit"
-              className="relative z-10 h-full w-full"
+              className={cn(
+                'relative z-10 w-full',
+                showFrame
+                  ? 'flex min-h-[260px] sm:min-h-[340px] items-center justify-center px-4 pt-12 pb-5 sm:px-8'
+                  : 'h-full'
+              )}
             >
-              <ResponsivePicture
-                id="modal-project-img"
-                src={currentImg}
-                fallbackSrc="/assets/images/portfolio-1.png"
-                alt={`${project.title} preview`}
-                width="960"
-                height="540"
-                pictureClassName="block h-full w-full"
-                className="h-full w-full object-contain p-3"
-              />
+              {showFrame ? (
+                <DeviceFrame
+                  variant={deviceVariant}
+                  title={project.title}
+                  url={project.demoUrl}
+                  className={deviceVariant === 'mobile' ? '' : 'max-w-2xl'}
+                >
+                  <ResponsivePicture
+                    id="modal-project-img"
+                    src={currentImg}
+                    fallbackSrc="/assets/images/portfolio-1.png"
+                    alt={`${project.title} preview`}
+                    width="960"
+                    height="540"
+                    pictureClassName="block w-full"
+                    className={cn(
+                      'w-full object-contain bg-background',
+                      deviceVariant === 'mobile'
+                        ? 'max-h-[240px] sm:max-h-[280px] p-1'
+                        : 'max-h-[230px] sm:max-h-[290px]'
+                    )}
+                  />
+                </DeviceFrame>
+              ) : (
+                <ResponsivePicture
+                  id="modal-project-img"
+                  src={currentImg}
+                  fallbackSrc="/assets/images/portfolio-1.png"
+                  alt={`${project.title} preview`}
+                  width="960"
+                  height="540"
+                  pictureClassName="block h-full w-full"
+                  className="h-full w-full object-contain p-3"
+                />
+              )}
             </m.div>
           </AnimatePresence>
 
@@ -159,11 +251,38 @@ export function ProjectModal({ project, onClose }) {
             {project.category || 'Project'}
           </Badge>
 
-          {hasGallery && (
-            <>
-              <span className="absolute right-12 top-3 z-20 rounded-md border border-border bg-background/90 px-2 py-0.5 font-mono text-xs font-medium text-foreground">
+          <div className="absolute top-3 right-12 z-20 flex items-center gap-1.5">
+            {hasGallery && (
+              <span className="rounded-md border border-border bg-background/90 px-2 py-1 font-mono text-xs font-medium text-foreground">
                 {safeActiveIndex + 1} / {allImages.length}
               </span>
+            )}
+            <button
+              type="button"
+              aria-pressed={showFrame}
+              aria-label={showFrame ? 'Switch to full preview' : 'Switch to device frame preview'}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowFrame((prev) => !prev);
+              }}
+              className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background/90 px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-season-accent"
+            >
+              {showFrame ? (
+                <>
+                  <IconMaximize className="size-3.5" aria-hidden="true" />
+                  <span>Full</span>
+                </>
+              ) : (
+                <>
+                  <IconDeviceDesktop className="size-3.5" aria-hidden="true" />
+                  <span>Frame</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {hasGallery && (
+            <>
               <Button
                 type="button"
                 variant="secondary"
@@ -277,6 +396,28 @@ export function ProjectModal({ project, onClose }) {
             </div>
           </DialogHeader>
 
+          {(roleText || periodText) && (
+            <div
+              id="modal-project-case-meta"
+              className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-border bg-muted/40 px-3.5 py-2.5 text-xs text-muted-foreground"
+            >
+              {roleText && (
+                <div className="inline-flex items-center gap-1.5">
+                  <IconUser className="size-3.5 text-season-accent" aria-hidden="true" />
+                  <span className="font-medium text-foreground">Role:</span>
+                  <span>{roleText}</span>
+                </div>
+              )}
+              {periodText && (
+                <div className="inline-flex items-center gap-1.5">
+                  <IconCalendar className="size-3.5 text-season-accent" aria-hidden="true" />
+                  <span className="font-medium text-foreground">Period:</span>
+                  <span className="font-mono tabular-nums">{periodText}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           <div
             id="modal-project-desc"
             className="text-sm sm:text-base leading-relaxed text-muted-foreground"
@@ -284,6 +425,29 @@ export function ProjectModal({ project, onClose }) {
               __html: formatRichDescription(project.description || '')
             }}
           />
+
+          {highlights.length > 0 && (
+            <div className="flex flex-col gap-2.5" id="modal-project-highlights">
+              <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <IconCircleCheck className="size-4 text-season-accent" aria-hidden="true" />
+                Key Highlights
+              </h4>
+              <ul className="flex flex-col gap-2">
+                {highlights.map((item, idx) => (
+                  <li
+                    key={`${idx}-${item}`}
+                    className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/90"
+                  >
+                    <IconCircleCheck
+                      className="mt-0.5 size-4 shrink-0 text-season-accent"
+                      aria-hidden="true"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {techList.length > 0 && (
             <div className="flex flex-col gap-2.5">
@@ -307,6 +471,22 @@ export function ProjectModal({ project, onClose }) {
             className="flex flex-wrap items-center justify-end gap-2"
             id="modal-project-actions"
           >
+            {project.id && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCopyLink}
+                className="mr-auto"
+              >
+                {copiedLink ? (
+                  <IconCheck data-icon="inline-start" aria-hidden="true" />
+                ) : (
+                  <IconLink data-icon="inline-start" aria-hidden="true" />
+                )}
+                {copiedLink ? 'Copied' : 'Copy Link'}
+              </Button>
+            )}
             {project.githubUrl && (
               <Button asChild variant="outline" size="sm">
                 <a

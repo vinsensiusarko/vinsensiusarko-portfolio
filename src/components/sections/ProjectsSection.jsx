@@ -93,13 +93,45 @@ function matchesProjectFilter(project, categoryFilter, searchQuery) {
 
 const INITIAL_LIMIT = 6;
 
+function syncProjectUrlParam(projectId) {
+  if (typeof window === 'undefined' || !window.history?.replaceState) return;
+  try {
+    const url = new URL(window.location.href);
+    if (projectId) {
+      url.searchParams.set('project', projectId);
+    } else {
+      url.searchParams.delete('project');
+    }
+    const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+    window.history.replaceState(null, '', nextUrl);
+  } catch {
+    // ignore invalid url contexts in tests
+  }
+}
+
 export function ProjectsSection({ projects }) {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const isFirstMountRef = useRef(true);
+  const handledDeepLinkRef = useRef(null);
   const sectionId = useId();
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !Array.isArray(projects) || projects.length === 0) {
+      return;
+    }
+    const targetId = new URLSearchParams(window.location.search).get('project');
+    if (!targetId || handledDeepLinkRef.current === targetId) return;
+
+    const matched = projects.find((p) => p.id === targetId);
+    if (matched) {
+      handledDeepLinkRef.current = targetId;
+      setSelectedProject(matched);
+      trackProjectView(matched.id);
+    }
+  }, [projects]);
 
   useEffect(() => {
     if (isFirstMountRef.current) {
@@ -128,8 +160,15 @@ export function ProjectsSection({ projects }) {
   const handleOpenProject = (proj) => {
     setSelectedProject(proj);
     if (proj?.id) {
+      handledDeepLinkRef.current = proj.id;
+      syncProjectUrlParam(proj.id);
       trackProjectView(proj.id);
     }
+  };
+
+  const handleCloseProject = () => {
+    setSelectedProject(null);
+    syncProjectUrlParam(null);
   };
 
   const filteredProjects = useMemo(() => {
@@ -481,7 +520,7 @@ export function ProjectsSection({ projects }) {
 
       <ProjectModal
         project={selectedProject}
-        onClose={() => setSelectedProject(null)}
+        onClose={handleCloseProject}
       />
     </section>
   );
