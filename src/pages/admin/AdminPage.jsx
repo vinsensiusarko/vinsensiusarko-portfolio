@@ -257,6 +257,7 @@ function AdminDashboardContent() {
 
   const [projects, setProjects] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [messagesError, setMessagesError] = useState('');
   const [skills, setSkills] = useState(() => {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
@@ -348,10 +349,13 @@ function AdminDashboardContent() {
         const snap = await getDocs(q);
         const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
         setMessages(items);
+        setMessagesError('');
       } catch (err) {
         console.error('Error loading messages in Admin:', err);
+        const errMsg = err?.message || 'Unable to fetch messages from Firestore.';
+        setMessagesError(errMsg);
         if (notifyOnError) {
-          showToast('Error loading messages: ' + err.message, 'error');
+          showToast('Error loading messages: ' + errMsg, 'error');
         }
       }
     },
@@ -385,6 +389,8 @@ function AdminDashboardContent() {
           reloadAll();
         } else {
           setUser(null);
+          setMessages([]);
+          setMessagesError('');
           setAuthStatus('unauthenticated');
         }
       });
@@ -640,6 +646,7 @@ function AdminDashboardContent() {
                     reloadMessages={() => loadMessages({ notifyOnError: true })}
                     showToast={showToast}
                     loading={loadingData}
+                    error={messagesError}
                   />
                 )}
                 {activeTab === 'analytics' && <AdminAnalyticsTab showToast={showToast} />}

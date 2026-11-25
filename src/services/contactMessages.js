@@ -12,12 +12,29 @@ export const MESSAGE_STATUSES = ['unread', 'read', 'archived'];
 
 export const COOLDOWN_MS = 60_000;
 const COOLDOWN_STORAGE_KEY = 'portfolio_contact_last_sent_at';
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_PATTERN = /^[^\s@?,;&#<>"'\\]+@[^\s@?,;&#<>"'\\]+\.[^\s@?,;&#<>"'\\]+$/;
 const VALID_TOPIC_VALUES = new Set(MESSAGE_TOPICS.map((t) => t.value));
+const MAX_MAILTO_LENGTH = 1800;
 
 export function getTopicLabel(topicValue) {
   const found = MESSAGE_TOPICS.find((t) => t.value === topicValue);
   return found ? found.label : 'General Inquiry';
+}
+
+export function isSafeEmailAddress(email) {
+  const trimmed = String(email ?? '').trim();
+  return trimmed.length >= 5 && trimmed.length <= 160 && EMAIL_PATTERN.test(trimmed);
+}
+
+function encodeMailtoAddress(email) {
+  return encodeURIComponent(String(email ?? '').trim()).replace(/%40/g, '@');
+}
+
+export function buildSafeReplyMailto(email, topicValue) {
+  if (!isSafeEmailAddress(email)) return '';
+  const topicLabel = getTopicLabel(topicValue);
+  const subject = encodeURIComponent(`Re: ${topicLabel} Inquiry`);
+  return `mailto:${encodeMailtoAddress(email)}?subject=${subject}`;
 }
 
 export function validateContactForm({ name = '', email = '', topic = 'freelance', message = '' } = {}) {
@@ -25,14 +42,16 @@ export function validateContactForm({ name = '', email = '', topic = 'freelance'
   const trimmedName = String(name ?? '').trim();
   const trimmedEmail = String(email ?? '').trim();
   const trimmedMessage = String(message ?? '').trim();
+  const nameLen = [...trimmedName].length;
+  const messageLen = [...trimmedMessage].length;
 
-  if (trimmedName.length < 2) {
+  if (nameLen < 2) {
     errors.name = 'Please enter your name (at least 2 characters).';
-  } else if (trimmedName.length > 100) {
+  } else if (nameLen > 100) {
     errors.name = 'Name must be 100 characters or fewer.';
   }
 
-  if (!trimmedEmail || trimmedEmail.length > 160 || !EMAIL_PATTERN.test(trimmedEmail)) {
+  if (!isSafeEmailAddress(trimmedEmail)) {
     errors.email = 'Please enter a valid email address.';
   }
 
@@ -40,9 +59,9 @@ export function validateContactForm({ name = '', email = '', topic = 'freelance'
     errors.topic = 'Please select an inquiry topic.';
   }
 
-  if (trimmedMessage.length < 10) {
+  if (messageLen < 10) {
     errors.message = 'Please write at least 10 characters so I have enough context.';
-  } else if (trimmedMessage.length > 2000) {
+  } else if (messageLen > 2000) {
     errors.message = 'Message must be 2,000 characters or fewer.';
   }
 
@@ -83,10 +102,17 @@ export function recordSubmissionTimestamp(now = Date.now()) {
   }
 }
 
-export function buildMailtoFallbackUrl({ toEmail, name = '', email = '', topic = 'general', message = '' }) {
-  const recipient = String(toEmail ?? '').trim() || 'me@vinsensiusarka.id';
+export function buildMailtoFallbackUrl({
+  toEmail,
+  name = '',
+  email = '',
+  topic = 'general',
+  message = ''
+} = {}) {
+  const recipient = isSafeEmailAddress(toEmail) ? String(toEmail).trim() : 'me@vinsensiusarka.id';
   const topicLabel = getTopicLabel(topic);
   const subject = `[Portfolio] ${topicLabel} from ${String(name ?? '').trim() || 'Visitor'}`;
+  const prefix = `mailto:${encodeMailtoAddress(recipient)}?subject=${encodeURIComponent(subject)}&body=`;
   const bodyLines = [
     `Name: ${String(name ?? '').trim() || '-'}`,
     `Email: ${String(email ?? '').trim() || '-'}`,
@@ -94,7 +120,27 @@ export function buildMailtoFallbackUrl({ toEmail, name = '', email = '', topic =
     '',
     String(message ?? '').trim()
   ];
-  return `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
+  const fullBody = bodyLines.join('\n');
+  const encodedBody = encodeURIComponent(fullBody);
+
+  if (prefix.length + encodedBody.length <= MAX_MAILTO_LENGTH) {
+    return `${prefix}${encodedBody}`;
+  }
+
+  const suffix = '\n... [truncated]';
+  const encodedSuffix = encodeURIComponent(suffix);
+  const available = Math.max(0, MAX_MAILTO_LENGTH - prefix.length - encodedSuffix.length);
+
+  let truncated = '';
+  let encodedLen = 0;
+  for (const ch of fullBody) {
+    const chEncodedLen = encodeURIComponent(ch).length;
+    if (encodedLen + chEncodedLen > available) break;
+    truncated += ch;
+    encodedLen += chEncodedLen;
+  }
+
+  return `${prefix}${encodeURIComponent(truncated)}${encodedSuffix}`;
 }
 
 export async function submitContactMessage({

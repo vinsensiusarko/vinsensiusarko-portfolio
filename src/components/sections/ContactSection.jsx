@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import {
   IconMail,
@@ -19,7 +19,8 @@ import {
   MESSAGE_TOPICS,
   validateContactForm,
   submitContactMessage,
-  buildMailtoFallbackUrl
+  buildMailtoFallbackUrl,
+  getCooldownRemainingMs
 } from '@/services/contactMessages';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,10 +40,32 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
   const email = contactSettings.email || 'me@vinsensiusarka.id';
   const [form, setForm] = useState(INITIAL_FORM);
   const [fieldErrors, setFieldErrors] = useState({});
-  const [submitError, setSubmitError] = useState('');
+  const [submitError, setSubmitError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [submittedInfo, setSubmittedInfo] = useState(null);
+  const [cooldownSeconds, setCooldownSeconds] = useState(() =>
+    Math.ceil(getCooldownRemainingMs() / 1000)
+  );
   const topicRefs = useRef([]);
+  const nameInputRef = useRef(null);
+  const emailInputRef = useRef(null);
+  const messageInputRef = useRef(null);
+  const successRef = useRef(null);
+
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+    const timer = setInterval(() => {
+      const next = Math.ceil(getCooldownRemainingMs() / 1000);
+      setCooldownSeconds(next);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldownSeconds]);
+
+  useEffect(() => {
+    if (submittedInfo) {
+      successRef.current?.focus();
+    }
+  }, [submittedInfo]);
 
   const handleCopyEmail = async (e) => {
     e.preventDefault();
@@ -58,6 +81,21 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
     }
   };
 
+  const handleCopyDraftMessage = async () => {
+    const draft = String(form.message ?? '').trim();
+    if (!draft) return;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(draft);
+        toast.success('Message copied to clipboard');
+      } else {
+        toast.error('Clipboard is unavailable in this browser');
+      }
+    } catch {
+      toast.error('Could not copy message');
+    }
+  };
+
   const updateField = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (fieldErrors[field]) {
@@ -68,7 +106,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
       });
     }
     if (submitError) {
-      setSubmitError('');
+      setSubmitError(null);
     }
   };
 
@@ -87,18 +125,25 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
     }
   };
 
+  const focusFirstInvalidField = (errors) => {
+    if (errors.name) nameInputRef.current?.focus();
+    else if (errors.email) emailInputRef.current?.focus();
+    else if (errors.message) messageInputRef.current?.focus();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (submitting) return;
+    if (submitting || cooldownSeconds > 0) return;
 
     const validation = validateContactForm(form);
     if (!validation.valid) {
       setFieldErrors(validation.errors);
+      focusFirstInvalidField(validation.errors);
       return;
     }
 
     setFieldErrors({});
-    setSubmitError('');
+    setSubmitError(null);
     setSubmitting(true);
 
     try {
@@ -109,26 +154,43 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
           email: validation.sanitized.email
         });
         setForm(INITIAL_FORM);
+        setCooldownSeconds(Math.ceil(getCooldownRemainingMs() / 1000));
         toast.success('Message sent! Thanks for reaching out.');
       } else {
         if (result.errors) {
           setFieldErrors(result.errors);
+          focusFirstInvalidField(result.errors);
         }
-        setSubmitError(result.message || 'Could not send your message right now.');
-        toast.error(result.message || 'Could not send your message right now.');
+        if (result.code === 'cooldown') {
+          setCooldownSeconds(Math.ceil(getCooldownRemainingMs() / 1000));
+        }
+        const msg = result.message || 'Could not send your message right now.';
+        setSubmitError({ code: result.code || 'network', message: msg });
+        toast.error(msg);
       }
+    } catch {
+      const msg = 'Could not send your message right now. Use the email button below.';
+      setSubmitError({ code: 'network', message: msg });
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const fallbackMailto = buildMailtoFallbackUrl({
-    toEmail: email,
-    name: form.name,
-    email: form.email,
-    topic: form.topic,
-    message: form.message
-  });
+  const showMailtoFallback =
+    Boolean(submitError) &&
+    submitError.code !== 'cooldown' &&
+    submitError.code !== 'validation';
+
+  const fallbackMailto = showMailtoFallback
+    ? buildMailtoFallbackUrl({
+        toEmail: email,
+        name: form.name,
+        email: form.email,
+        topic: form.topic,
+        message: form.message
+      })
+    : '';
 
   const socialChannels = [
     {
@@ -271,8 +333,10 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
             <CardContent className="p-5 sm:p-7">
               {submittedInfo ? (
                 <div
+                  ref={successRef}
+                  tabIndex={-1}
                   role="status"
-                  className="flex flex-col items-start gap-4 py-4"
+                  className="flex flex-col items-start gap-4 py-4 outline-none"
                 >
                   <div className="flex size-11 items-center justify-center rounded-xl border border-status-success-border bg-status-success-bg text-status-success-fg">
                     <IconCircleCheck className="size-6" aria-hidden="true" />
@@ -292,7 +356,10 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                     variant="outline"
                     size="sm"
                     className="min-h-11 sm:min-h-9"
-                    onClick={() => setSubmittedInfo(null)}
+                    onClick={() => {
+                      setSubmittedInfo(null);
+                      setTimeout(() => nameInputRef.current?.focus(), 0);
+                    }}
                   >
                     Send Another Message
                   </Button>
@@ -340,7 +407,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                             tabIndex={isSelected ? 0 : -1}
                             onClick={() => updateField('topic', value)}
                             onKeyDown={(e) => handleTopicKeyDown(e, idx)}
-                            className={`inline-flex min-h-11 sm:min-h-9 items-center rounded-lg border px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-season-accent ${
+                            className={`inline-flex min-h-11 sm:min-h-9 items-center rounded-lg border px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-season-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card ${
                               isSelected
                                 ? 'border-primary bg-primary text-primary-foreground'
                                 : 'border-border bg-background text-muted-foreground hover:border-foreground/30 hover:text-foreground'
@@ -358,6 +425,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                     <div className="flex flex-col gap-1.5">
                       <Label htmlFor="contact-name">Your Name</Label>
                       <Input
+                        ref={nameInputRef}
                         id="contact-name"
                         name="name"
                         type="text"
@@ -365,8 +433,10 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                         maxLength={100}
                         placeholder="Alex Rivera"
                         value={form.name}
+                        aria-required="true"
                         aria-invalid={Boolean(fieldErrors.name)}
                         aria-describedby={fieldErrors.name ? 'contact-name-error' : undefined}
+                        className="h-11 sm:h-9"
                         onChange={(e) => updateField('name', e.target.value)}
                       />
                       {fieldErrors.name ? (
@@ -379,6 +449,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                     <div className="flex flex-col gap-1.5">
                       <Label htmlFor="contact-email">Email Address</Label>
                       <Input
+                        ref={emailInputRef}
                         id="contact-email"
                         name="email"
                         type="email"
@@ -386,8 +457,10 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                         maxLength={160}
                         placeholder="alex@company.com"
                         value={form.email}
+                        aria-required="true"
                         aria-invalid={Boolean(fieldErrors.email)}
                         aria-describedby={fieldErrors.email ? 'contact-email-error' : undefined}
+                        className="h-11 sm:h-9"
                         onChange={(e) => updateField('email', e.target.value)}
                       />
                       {fieldErrors.email ? (
@@ -403,16 +476,18 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                     <div className="flex items-center justify-between gap-2">
                       <Label htmlFor="contact-message">Message</Label>
                       <span className="font-mono text-xs tabular-nums text-muted-foreground">
-                        {form.message.length} / 2000
+                        {[...form.message].length} / 2000
                       </span>
                     </div>
                     <Textarea
+                      ref={messageInputRef}
                       id="contact-message"
                       name="message"
                       rows={5}
                       maxLength={2000}
                       placeholder="Tell me a bit about what you are building, timeline, or role..."
                       value={form.message}
+                      aria-required="true"
                       aria-invalid={Boolean(fieldErrors.message)}
                       aria-describedby={fieldErrors.message ? 'contact-message-error' : undefined}
                       onChange={(e) => updateField('message', e.target.value)}
@@ -424,15 +499,18 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                     ) : null}
                   </div>
 
-                  {/* Honeypot field for bots */}
+                  {/* Honeypot field hardened against password-manager autofill */}
                   <div className="sr-only" aria-hidden="true">
-                    <label htmlFor="contact-website">Website</label>
+                    <label htmlFor="contact-hp-url">Leave this field empty</label>
                     <input
-                      id="contact-website"
-                      name="website"
+                      id="contact-hp-url"
+                      name="contact_hp_url"
                       type="text"
                       tabIndex={-1}
-                      autoComplete="off"
+                      autoComplete="new-password"
+                      data-lpignore="true"
+                      data-1p-ignore="true"
+                      data-bwignore="true"
                       value={form.website}
                       onChange={(e) => updateField('website', e.target.value)}
                     />
@@ -448,19 +526,35 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                           className="mt-0.5 size-4 shrink-0 text-destructive-text"
                           aria-hidden="true"
                         />
-                        <span>{submitError}</span>
+                        <span>{submitError.message}</span>
                       </div>
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="sm"
-                        className="self-start min-h-11 sm:min-h-9"
-                      >
-                        <a href={fallbackMailto}>
-                          <IconMail data-icon="inline-start" aria-hidden="true" />
-                          Open in Email Client
-                        </a>
-                      </Button>
+                      {showMailtoFallback ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="min-h-11 sm:min-h-9"
+                          >
+                            <a href={fallbackMailto}>
+                              <IconMail data-icon="inline-start" aria-hidden="true" />
+                              Open in Email Client
+                            </a>
+                          </Button>
+                          {form.message.trim() ? (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="min-h-11 sm:min-h-9"
+                              onClick={handleCopyDraftMessage}
+                            >
+                              <IconCopy data-icon="inline-start" aria-hidden="true" />
+                              Copy Message
+                            </Button>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
                   ) : null}
 
@@ -471,7 +565,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                     <Button
                       type="submit"
                       size="lg"
-                      disabled={submitting}
+                      disabled={submitting || cooldownSeconds > 0}
                       className="w-full sm:w-auto min-h-11"
                     >
                       {submitting ? (
@@ -483,6 +577,8 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                           />
                           Sending...
                         </>
+                      ) : cooldownSeconds > 0 ? (
+                        <span>Wait {cooldownSeconds}s</span>
                       ) : (
                         <>
                           <IconSend data-icon="inline-start" aria-hidden="true" />

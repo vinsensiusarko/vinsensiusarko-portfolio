@@ -142,4 +142,12 @@ describe('ContactSection Component', () => {
     expect(mailtoLink).toHaveAttribute('href', expect.stringContaining('mailto:me@vinsensiusarka.id'));
     expect(mailtoLink).toHaveAttribute('href', expect.stringContaining(encodeURIComponent('React dashboard')));
   });
+
+  it('disables submit button during cooldown window and resets confirmation view cleanly', async () => {
+    localStorage.setItem('portfolio_contact_last_sent_at', String(Date.now()));
+    render(<ContactSection contactSettings={{ email: 'me@vinsensiusarka.id' }} />);
+
+    const submitBtn = screen.getByRole('button', { name: /Wait \d+s/i });
+    expect(submitBtn).toBeDisabled();
+  });
 });

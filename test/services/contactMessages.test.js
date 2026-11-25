@@ -7,7 +7,8 @@ import {
   submitContactMessage,
   getCooldownRemainingMs,
   recordSubmissionTimestamp,
-  buildMailtoFallbackUrl
+  buildMailtoFallbackUrl,
+  buildSafeReplyMailto
 } from '../../src/services/contactMessages';
 
 vi.mock('firebase/firestore', async (importOriginal) => {
@@ -126,6 +127,35 @@ describe('contactMessages service & firestore.rules hardening', () => {
     expect(rules).not.toMatch(/match\s+\/\{document=\*\*\}/);
     expect(rules).toMatch(/match\s+\/messages\/\{messageId\}/);
     expect(rules).toMatch(/allow\s+read,\s*update,\s*delete:\s*if\s+request\.auth\s*!=\s*null;/);
+    expect(rules).toMatch(/request\.resource\.data\.keys\(\)\.hasAll/);
+    expect(rules).toMatch(/request\.resource\.data\.name\.trim\(\)\.size\(\)\s*>=\s*2/);
+    expect(rules).toMatch(/request\.resource\.data\.message\.trim\(\)\.size\(\)\s*>=\s*10/);
     expect(rules).toMatch(/request\.resource\.data\.status\s*==\s*'unread'/);
+  });
+
+  it('blocks mailto parameter injection in email validation and reply links, and caps fallback mailto length', () => {
+    const malicious = 'attacker@evil.com?subject=Phish&cc=victim.com';
+    const validation = validateContactForm({
+      name: 'Mallory',
+      email: malicious,
+      topic: 'general',
+      message: 'Testing mailto injection prevention.'
+    });
+    expect(validation.valid).toBe(false);
+    expect(validation.errors.email).toBeTruthy();
+    expect(buildSafeReplyMailto(malicious, 'general')).toBe('');
+    expect(buildSafeReplyMailto('safe@example.com', 'freelance')).toBe(
+      'mailto:safe@example.com?subject=Re%3A%20Freelance%20Project%20Inquiry'
+    );
+
+    const longMailto = buildMailtoFallbackUrl({
+      toEmail: 'me@vinsensiusarka.id',
+      name: 'Alex',
+      email: 'alex@example.com',
+      topic: 'freelance',
+      message: 'A'.repeat(2000)
+    });
+    expect(longMailto.length).toBeLessThanOrEqual(1800);
+    expect(longMailto).toContain(encodeURIComponent('[truncated]'));
   });
 });

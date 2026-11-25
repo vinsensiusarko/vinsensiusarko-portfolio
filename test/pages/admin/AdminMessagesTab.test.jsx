@@ -121,4 +121,56 @@ describe('AdminMessagesTab', () => {
       expect(showToastMock).toHaveBeenCalledWith('Message deleted.', 'info');
     });
   });
+
+  it('rolls back status surgically on updateDoc error, handles error banner, and blocks unsafe reply emails', async () => {
+    updateDoc.mockRejectedValueOnce(new Error('Network offline'));
+    const showToastMock = vi.fn();
+    let currentMessages = [
+      {
+        id: 'm-unsafe',
+        name: { bad: true },
+        email: 'evil@host.com?cc=victim@example.com',
+        topic: 'general',
+        message: '',
+        status: 'unread',
+        createdAt: new Date('2026-11-25T10:00:00Z')
+      }
+    ];
+    const setMessagesMock = vi.fn((updater) => {
+      currentMessages = typeof updater === 'function' ? updater(currentMessages) : updater;
+    });
+
+    const { rerender } = renderInbox({
+      messages: currentMessages,
+      setMessages: setMessagesMock,
+      showToast: showToastMock
+    });
+
+    expect(screen.getByText('Anonymous Visitor')).toBeInTheDocument();
+    expect(screen.getByText('(No message content)')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Reply via Email/i })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Mark as Read/i }));
+    await waitFor(() => {
+      expect(showToastMock).toHaveBeenCalledWith(
+        expect.stringMatching(/Failed to update message: Network offline/i),
+        'error'
+      );
+    });
+    expect(currentMessages[0].status).toBe('unread');
+
+    rerender(
+      <ConfirmProvider>
+        <AdminMessagesTab
+          messages={[]}
+          setMessages={vi.fn()}
+          reloadMessages={vi.fn()}
+          showToast={vi.fn()}
+          error="Permission denied"
+        />
+      </ConfirmProvider>
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent(/Permission denied/i);
+    expect(screen.getByRole('button', { name: /Retry/i })).toBeInTheDocument();
+  });
 });

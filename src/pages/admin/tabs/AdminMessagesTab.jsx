@@ -1,6 +1,7 @@
 import { useState, useMemo, useId, useRef } from 'react';
 import { doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import {
+  IconAlertCircle,
   IconArchive,
   IconArchiveOff,
   IconInbox,
@@ -14,7 +15,11 @@ import {
 } from '@tabler/icons-react';
 import { db } from '../../../services/firebase';
 import { useConfirm } from '../../../context/ConfirmContext';
-import { getTopicLabel } from '../../../services/contactMessages';
+import {
+  MESSAGE_STATUSES,
+  getTopicLabel,
+  buildSafeReplyMailto
+} from '../../../services/contactMessages';
 import { Badge } from '../../../components/ui/badge';
 import { Button } from '../../../components/ui/button';
 import { Card, CardContent } from '../../../components/ui/card';
@@ -29,13 +34,23 @@ const STATUS_TABS = [
   { value: 'archived', label: 'Archived' }
 ];
 
+const VALID_STATUS_SET = new Set(MESSAGE_STATUSES);
+
+function normalizeStatus(rawStatus) {
+  return VALID_STATUS_SET.has(rawStatus) ? rawStatus : 'unread';
+}
+
 function formatMessageTimestamp(raw) {
   if (!raw) return 'Just now';
   let date = null;
-  if (typeof raw?.toDate === 'function') {
+  if (raw instanceof Date) {
+    date = raw;
+  } else if (typeof raw?.toDate === 'function') {
     date = raw.toDate();
   } else if (typeof raw?.seconds === 'number') {
     date = new Date(raw.seconds * 1000);
+  } else if (typeof raw?._seconds === 'number') {
+    date = new Date(raw._seconds * 1000);
   } else if (typeof raw === 'string' || typeof raw === 'number') {
     const parsed = new Date(raw);
     if (!Number.isNaN(parsed.getTime())) date = parsed;
@@ -57,21 +72,32 @@ export function AdminMessagesTab({
   setMessages,
   reloadMessages,
   showToast,
-  loading = false
+  loading = false,
+  error = ''
 }) {
   const confirm = useConfirm();
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [busyId, setBusyId] = useState(null);
+  const [busyIds, setBusyIds] = useState(() => new Set());
+  const busyIdsRef = useRef(new Set());
   const [refreshing, setRefreshing] = useState(false);
   const tabId = useId();
   const tabRefs = useRef([]);
   const panelId = `${tabId}-panel`;
 
+  const setCardBusy = (id, busy) => {
+    if (busy) {
+      busyIdsRef.current.add(id);
+    } else {
+      busyIdsRef.current.delete(id);
+    }
+    setBusyIds(new Set(busyIdsRef.current));
+  };
+
   const counts = useMemo(() => {
     const base = { all: messages.length, unread: 0, read: 0, archived: 0 };
     messages.forEach((msg) => {
-      const st = msg.status || 'unread';
+      const st = normalizeStatus(msg?.status);
       if (st === 'unread') base.unread += 1;
       else if (st === 'read') base.read += 1;
       else if (st === 'archived') base.archived += 1;
@@ -82,18 +108,19 @@ export function AdminMessagesTab({
   const filteredMessages = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return messages.filter((msg) => {
-      const st = msg.status || 'unread';
+      if (!msg || typeof msg !== 'object') return false;
+      const st = normalizeStatus(msg.status);
       if (statusFilter !== 'all' && st !== statusFilter) return false;
       if (!q) return true;
       const hay = [
-        msg.name,
-        msg.email,
+        typeof msg.name === 'string' ? msg.name : '',
+        typeof msg.email === 'string' ? msg.email : '',
         getTopicLabel(msg.topic),
-        msg.topic,
-        msg.message
+        typeof msg.topic === 'string' ? msg.topic : '',
+        typeof msg.message === 'string' ? msg.message : ''
       ]
-        .map((v) => String(v ?? '').toLowerCase())
-        .join(' ');
+        .join(' ')
+        .toLowerCase();
       return hay.includes(q);
     });
   }, [messages, statusFilter, searchQuery]);
@@ -128,9 +155,9 @@ export function AdminMessagesTab({
   };
 
   const handleStatusChange = async (msg, nextStatus) => {
-    if (!db || busyId) return;
-    const prevMessages = messages;
-    setBusyId(msg.id);
+    if (!db || !msg?.id || busyIdsRef.current.has(msg.id)) return;
+    const prevStatus = msg.status;
+    setCardBusy(msg.id, true);
     setMessages?.((prev) =>
       prev.map((item) => (item.id === msg.id ? { ...item, status: nextStatus } : item))
     );
@@ -148,37 +175,48 @@ export function AdminMessagesTab({
       showToast?.(labelMap[nextStatus] || 'Message updated.', 'success');
     } catch (err) {
       console.error('Error updating message status:', err);
-      setMessages?.(prevMessages);
-      showToast?.('Failed to update message: ' + err.message, 'error');
+      setMessages?.((prev) =>
+        prev.map((item) => (item.id === msg.id ? { ...item, status: prevStatus } : item))
+      );
+      showToast?.('Failed to update message: ' + (err?.message || 'Unexpected error'), 'error');
     } finally {
-      setBusyId(null);
+      setCardBusy(msg.id, false);
     }
   };
 
   const handleDelete = async (msg) => {
-    if (!db || busyId) return;
-    const ok = await confirm({
-      title: 'Delete Message?',
-      message: `Are you sure you want to permanently delete the inquiry from "${msg.name || msg.email || 'this sender'}"? This cannot be undone.`,
-      confirmText: 'Delete Message',
-      cancelText: 'Cancel',
-      variant: 'danger'
-    });
-    if (!ok) return;
-
-    const prevMessages = messages;
-    setBusyId(msg.id);
-    setMessages?.((prev) => prev.filter((item) => item.id !== msg.id));
+    if (!db || !msg?.id || busyIdsRef.current.has(msg.id)) return;
+    setCardBusy(msg.id, true);
 
     try {
-      await deleteDoc(doc(db, 'messages', msg.id));
-      showToast?.('Message deleted.', 'info');
-    } catch (err) {
-      console.error('Error deleting message:', err);
-      setMessages?.(prevMessages);
-      showToast?.('Failed to delete message: ' + err.message, 'error');
+      const safeSender =
+        (typeof msg.name === 'string' && msg.name.trim()) ||
+        (typeof msg.email === 'string' && msg.email.trim()) ||
+        'this sender';
+
+      const ok = await confirm({
+        title: 'Delete Message?',
+        message: `Are you sure you want to permanently delete the inquiry from "${safeSender}"? This cannot be undone.`,
+        confirmText: 'Delete Message',
+        cancelText: 'Cancel',
+        variant: 'danger'
+      });
+      if (!ok) return;
+
+      setMessages?.((prev) => prev.filter((item) => item.id !== msg.id));
+
+      try {
+        await deleteDoc(doc(db, 'messages', msg.id));
+        showToast?.('Message deleted.', 'info');
+      } catch (err) {
+        console.error('Error deleting message:', err);
+        setMessages?.((prev) =>
+          prev.some((item) => item.id === msg.id) ? prev : [msg, ...prev]
+        );
+        showToast?.('Failed to delete message: ' + (err?.message || 'Unexpected error'), 'error');
+      }
     } finally {
-      setBusyId(null);
+      setCardBusy(msg.id, false);
     }
   };
 
@@ -261,7 +299,7 @@ export function AdminMessagesTab({
             placeholder="Search sender, email, or message..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-11 sm:h-9 pl-9 pr-10"
+            className="h-11 sm:h-9 pl-9 pr-11 sm:pr-9"
           />
           {searchQuery ? (
             <button
@@ -280,7 +318,9 @@ export function AdminMessagesTab({
       <div
         id={panelId}
         role="tabpanel"
+        tabIndex={0}
         aria-labelledby={`${tabId}-tab-${statusFilter}`}
+        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl"
       >
         {loading ? (
           <div className="flex flex-col gap-3">
@@ -297,6 +337,36 @@ export function AdminMessagesTab({
               </Card>
             ))}
           </div>
+        ) : error ? (
+          <Card role="alert" className="border-destructive/40 bg-destructive/5 py-8">
+            <CardContent className="flex flex-col items-center gap-3 text-center">
+              <div className="flex size-11 items-center justify-center rounded-xl border border-destructive/30 bg-destructive/10 text-destructive-text">
+                <IconAlertCircle className="size-5" stroke={1.75} aria-hidden="true" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-semibold text-foreground">
+                  Could not load inbox messages
+                </p>
+                <p className="max-w-md text-xs text-muted-foreground">{error}</p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="min-h-11 sm:min-h-9"
+                disabled={refreshing}
+                onClick={handleRefresh}
+              >
+                <IconRefresh
+                  className={`size-4 ${refreshing ? 'animate-spin' : ''}`}
+                  stroke={1.75}
+                  data-icon="inline-start"
+                  aria-hidden="true"
+                />
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
         ) : filteredMessages.length === 0 ? (
           <Card className="border-dashed py-12">
             <CardContent className="flex flex-col items-center gap-3 text-center">
@@ -334,15 +404,21 @@ export function AdminMessagesTab({
         ) : (
           <div className="flex flex-col gap-3">
             {filteredMessages.map((msg) => {
-              const status = msg.status || 'unread';
+              const status = normalizeStatus(msg.status);
               const isUnread = status === 'unread';
               const isArchived = status === 'archived';
               const topicLabel = getTopicLabel(msg.topic);
-              const isBusy = busyId === msg.id;
-              const safeEmail = String(msg.email ?? '').trim();
-              const replyHref = safeEmail
-                ? `mailto:${safeEmail}?subject=${encodeURIComponent(`Re: ${topicLabel} Inquiry`)}`
-                : '';
+              const isBusy = busyIds.has(msg.id);
+              const safeName =
+                typeof msg.name === 'string' && msg.name.trim()
+                  ? msg.name.trim()
+                  : 'Anonymous Visitor';
+              const safeEmail = typeof msg.email === 'string' ? msg.email.trim() : '';
+              const safeMessage =
+                typeof msg.message === 'string' && msg.message.trim()
+                  ? msg.message
+                  : '(No message content)';
+              const replyHref = buildSafeReplyMailto(safeEmail, msg.topic);
 
               return (
                 <Card
@@ -357,12 +433,12 @@ export function AdminMessagesTab({
                         <div className="flex flex-wrap items-center gap-2">
                           {isUnread ? (
                             <span
-                              aria-label="Unread message"
+                              aria-hidden="true"
                               className="size-2 shrink-0 rounded-full bg-foreground"
                             />
                           ) : null}
                           <h3 className="font-display text-base font-semibold tracking-tight text-foreground">
-                            {msg.name || 'Anonymous Visitor'}
+                            {safeName}
                           </h3>
                           <Badge variant="secondary" className="text-[11px] font-medium">
                             {topicLabel}
@@ -370,7 +446,7 @@ export function AdminMessagesTab({
                           {isUnread ? (
                             <Badge
                               variant="outline"
-                              className="border-warning/40 bg-warning/10 text-warning text-[11px]"
+                              className="border-status-warn-border bg-status-warn-bg text-status-warn-fg text-[11px]"
                             >
                               Unread
                             </Badge>
@@ -381,7 +457,7 @@ export function AdminMessagesTab({
                           ) : (
                             <Badge
                               variant="outline"
-                              className="border-success/40 bg-success/10 text-success text-[11px]"
+                              className="border-status-success-border bg-status-success-bg text-status-success-fg text-[11px]"
                             >
                               Read
                             </Badge>
@@ -400,7 +476,7 @@ export function AdminMessagesTab({
                     </div>
 
                     <p className="whitespace-pre-wrap break-words rounded-lg border border-border bg-muted/30 p-3.5 text-sm leading-relaxed text-foreground">
-                      {msg.message}
+                      {safeMessage}
                     </p>
 
                     <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
@@ -490,7 +566,7 @@ export function AdminMessagesTab({
                         size="icon"
                         disabled={isBusy}
                         className="size-11 text-muted-foreground hover:bg-destructive/10 hover:text-destructive-text sm:size-8"
-                        aria-label={`Delete message from ${msg.name || safeEmail || 'visitor'}`}
+                        aria-label={`Delete message from ${safeName}`}
                         onClick={() => handleDelete(msg)}
                       >
                         <IconTrash className="size-4" stroke={1.75} aria-hidden="true" />
