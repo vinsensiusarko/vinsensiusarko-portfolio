@@ -4,6 +4,7 @@ import {
   IconAlertCircle,
   IconArchive,
   IconArchiveOff,
+  IconCopy,
   IconInbox,
   IconMail,
   IconMailCheck,
@@ -141,6 +142,43 @@ export function AdminMessagesTab({
       e.preventDefault();
       setStatusFilter(STATUS_TABS[nextIndex].value);
       tabRefs.current[nextIndex]?.focus();
+    }
+  };
+
+  const handleCopySenderEmail = async (email) => {
+    if (!email) return;
+    let copied = false;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(email);
+        copied = true;
+      }
+    } catch {
+      copied = false;
+    }
+
+    if (!copied && typeof document !== 'undefined') {
+      const ta = document.createElement('textarea');
+      ta.value = email;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      try {
+        ta.focus();
+        ta.select();
+        copied = typeof document.execCommand === 'function' && Boolean(document.execCommand('copy'));
+      } catch {
+        copied = false;
+      } finally {
+        if (ta.parentNode) ta.parentNode.removeChild(ta);
+      }
+    }
+
+    if (copied) {
+      showToast?.(`Copied ${email}`, 'success');
+    } else {
+      showToast?.('Could not copy email address.', 'error');
     }
   };
 
@@ -464,9 +502,22 @@ export function AdminMessagesTab({
                           )}
                         </div>
                         {safeEmail ? (
-                          <span className="truncate font-mono text-xs text-muted-foreground">
-                            {safeEmail}
-                          </span>
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="truncate font-mono text-xs text-muted-foreground">
+                              {safeEmail}
+                            </span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-11 sm:size-7 shrink-0 text-muted-foreground hover:text-foreground"
+                              aria-label={`Copy email ${safeEmail}`}
+                              title="Copy email address"
+                              onClick={() => handleCopySenderEmail(safeEmail)}
+                            >
+                              <IconCopy className="size-3.5" stroke={1.75} aria-hidden="true" />
+                            </Button>
+                          </div>
                         ) : null}
                       </div>
 

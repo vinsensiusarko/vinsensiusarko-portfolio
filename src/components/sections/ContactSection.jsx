@@ -51,6 +51,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
   const emailInputRef = useRef(null);
   const messageInputRef = useRef(null);
   const successRef = useRef(null);
+  const shouldFocusNameRef = useRef(false);
 
   useEffect(() => {
     if (cooldownSeconds <= 0) return;
@@ -64,6 +65,9 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
   useEffect(() => {
     if (submittedInfo) {
       successRef.current?.focus();
+    } else if (shouldFocusNameRef.current) {
+      shouldFocusNameRef.current = false;
+      nameInputRef.current?.focus();
     }
   }, [submittedInfo]);
 
@@ -357,8 +361,8 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                     size="sm"
                     className="min-h-11 sm:min-h-9"
                     onClick={() => {
+                      shouldFocusNameRef.current = true;
                       setSubmittedInfo(null);
-                      setTimeout(() => nameInputRef.current?.focus(), 0);
                     }}
                   >
                     Send Another Message
@@ -431,7 +435,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                         type="text"
                         autoComplete="name"
                         maxLength={100}
-                        placeholder="Alex Rivera"
+                        placeholder="Your full name"
                         value={form.name}
                         aria-required="true"
                         aria-invalid={Boolean(fieldErrors.name)}
@@ -455,7 +459,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
                         type="email"
                         autoComplete="email"
                         maxLength={160}
-                        placeholder="alex@company.com"
+                        placeholder="you@domain.com"
                         value={form.email}
                         aria-required="true"
                         aria-invalid={Boolean(fieldErrors.email)}

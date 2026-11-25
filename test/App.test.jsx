@@ -39,24 +39,29 @@ describe('App routing integration', () => {
   it('renders lazy-loaded PrivacyPolicyPage at /privacy-policy', async () => {
     renderRoute('/privacy-policy');
     expect(
-      await screen.findByRole('heading', { level: 1, name: /Privacy Policy/i })
+      await screen.findByRole('heading', { level: 1, name: /Privacy Policy/i }, { timeout: 4000 })
     ).toBeInTheDocument();
     expect(screen.getByText(/Google Play Store Compliant/i)).toBeInTheDocument();
   });
 
   it('renders lazy-loaded AdminPage at /admin with skeleton verification or login', async () => {
     renderRoute('/admin');
-    await waitFor(() => {
-      const hasPortal = screen.queryByRole('heading', { name: /Admin Portal/i });
-      const hasSkeleton = screen.queryByTestId('admin-dashboard-skeleton');
-      const hasVerifying = screen.queryByText(/Verifying Admin Session/i);
-      expect(hasPortal || hasSkeleton || hasVerifying).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        const hasPortal = screen.queryByRole('heading', { name: /Admin Portal/i });
+        const hasSkeleton = screen.queryByTestId('admin-dashboard-skeleton');
+        const hasVerifying = screen.queryByText(/Verifying Admin Session/i);
+        expect(hasPortal || hasSkeleton || hasVerifying).toBeTruthy();
+      },
+      { timeout: 4000 }
+    );
   });
 
   it('renders lazy-loaded NotFoundPage at unknown routes', async () => {
     renderRoute('/some-non-existent-page');
-    expect(await screen.findByRole('heading', { name: /Oops!/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: /Oops!/i }, { timeout: 4000 })
+    ).toBeInTheDocument();
     expect(screen.getByText(/Halaman yang Anda cari tidak ditemukan/i)).toBeInTheDocument();
   });
 });

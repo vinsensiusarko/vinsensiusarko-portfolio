@@ -96,6 +96,17 @@ describe('AdminMessagesTab', () => {
       expect.stringContaining('mailto:alex@studio.dev?subject=')
     );
 
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Copy email alex@studio\.dev/i }));
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith('alex@studio.dev');
+      expect(showToastMock).toHaveBeenCalledWith('Copied alex@studio.dev', 'success');
+    });
+
     fireEvent.click(screen.getByRole('button', { name: /Mark as Read/i }));
     await waitFor(() => {
       expect(updateDoc).toHaveBeenCalledWith(
