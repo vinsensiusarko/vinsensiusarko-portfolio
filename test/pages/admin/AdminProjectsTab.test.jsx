@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { updateDoc } from 'firebase/firestore';
 import { AdminProjectsTab } from '../../../src/pages/admin/tabs/AdminProjectsTab';
 import { ConfirmProvider } from '../../../src/context/ConfirmContext';
 
@@ -24,6 +25,11 @@ describe('AdminProjectsTab Gallery & DnD Reordering', () => {
       title: 'Project One',
       category: 'Web Application',
       order: 1,
+      description: 'Web dashboard project',
+      techStack: ['React', 'Firebase'],
+      role: 'Lead Developer',
+      period: '2025',
+      highlights: ['Shipped v1', 'Automated deploys'],
       image: '/assets/images/portfolio-1.png',
       gallery: ['/assets/images/portfolio-1.png', '/assets/images/portfolio-2.png']
     },
@@ -122,6 +128,46 @@ describe('AdminProjectsTab Gallery & DnD Reordering', () => {
       expect(showToastMock).toHaveBeenCalledWith(
         expect.stringMatching(/Reordered "Project One" to position #2/i),
         'success'
+      );
+    });
+  });
+
+  it('populates and saves optional Case Study fields (role, period, highlights)', async () => {
+    const reloadProjectsMock = vi.fn().mockResolvedValue();
+    render(
+      <ConfirmProvider>
+        <AdminProjectsTab
+          projects={mockProjects}
+          setProjects={vi.fn()}
+          reloadProjects={reloadProjectsMock}
+          showToast={vi.fn()}
+        />
+      </ConfirmProvider>
+    );
+
+    const editButtons = screen.getAllByRole('button', { name: /Edit/i });
+    fireEvent.click(editButtons[0]);
+
+    const roleInput = screen.getByLabelText(/Role \/ Contribution/i);
+    const periodInput = screen.getByLabelText(/Year \/ Period/i);
+    const highlightsInput = screen.getByLabelText(/Key Highlights \/ Outcomes/i);
+
+    expect(roleInput).toHaveValue('Lead Developer');
+    expect(periodInput).toHaveValue('2025');
+    expect(highlightsInput).toHaveValue('Shipped v1\nAutomated deploys');
+
+    fireEvent.change(roleInput, { target: { value: 'Full-Stack Developer' } });
+    fireEvent.change(highlightsInput, { target: { value: 'Line one\n\n  Line two  ' } });
+    fireEvent.submit(roleInput.closest('form'));
+
+    await waitFor(() => {
+      expect(updateDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          role: 'Full-Stack Developer',
+          period: '2025',
+          highlights: ['Line one', 'Line two']
+        })
       );
     });
   });

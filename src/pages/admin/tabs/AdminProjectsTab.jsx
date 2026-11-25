@@ -71,6 +71,9 @@ const INITIAL_FORM = {
   category: 'Mobile Application',
   order: 1,
   description: '',
+  role: '',
+  period: '',
+  highlights: '',
   techStack: '',
   imageUrl: '',
   imageBase64: '',
@@ -118,6 +121,9 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       category: project.category || 'Mobile Application',
       order: project.order || 1,
       description: project.description || '',
+      role: project.role || '',
+      period: project.period || '',
+      highlights: Array.isArray(project.highlights) ? project.highlights.join('\n') : '',
       techStack: Array.isArray(project.techStack) ? project.techStack.join(', ') : '',
       imageUrl: isDataUri ? '' : rawImg,
       imageBase64: isDataUri ? rawImg : '',
@@ -381,6 +387,12 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
       category: formData.category.trim(),
       order: parseInt(formData.order, 10) || 1,
       description: formData.description.trim(),
+      role: formData.role.trim(),
+      period: formData.period.trim(),
+      highlights: formData.highlights
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean),
       techStack: formData.techStack
         .split(',')
         .map((s) => s.trim())
@@ -726,6 +738,52 @@ export function AdminProjectsTab({ projects, setProjects, reloadProjects, showTo
                   />
                 </div>
               ) : null}
+            </div>
+
+            <Separator />
+
+            {/* CASE STUDY DETAILS (OPTIONAL) */}
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-0.5">
+                <p className="text-sm leading-none font-medium text-foreground">
+                  Case Study Details (Optional)
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Displayed inside the public project modal when filled. Leave blank to hide.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="project-role">Role / Contribution</Label>
+                  <Input
+                    type="text"
+                    id="project-role"
+                    placeholder="e.g. Full-Stack Developer"
+                    value={formData.role}
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="project-period">Year / Period</Label>
+                  <Input
+                    type="text"
+                    id="project-period"
+                    placeholder="e.g. 2025"
+                    value={formData.period}
+                    onChange={(e) => setFormData({ ...formData, period: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="project-highlights">Key Highlights / Outcomes (One per line)</Label>
+                <Textarea
+                  id="project-highlights"
+                  rows={3}
+                  placeholder={'Built responsive inventory dashboard\nDeployed production API with automated backups'}
+                  value={formData.highlights}
+                  onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
+                />
+              </div>
             </div>
 
             <Separator />
