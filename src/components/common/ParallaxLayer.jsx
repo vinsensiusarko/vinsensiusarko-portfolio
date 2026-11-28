@@ -54,10 +54,10 @@ export function ParallaxLayer({
     offset: scrollOffset
   });
 
-  const smoothProgress = useSpring(scrollYProgress, PARALLAX_SPRING);
-  const progress = smooth && !prefersReducedMotion ? smoothProgress : scrollYProgress;
-
   const effectiveFactor = prefersReducedMotion ? 0 : isCompact ? mobileFactor : 1;
+  const smoothProgress = useSpring(scrollYProgress, PARALLAX_SPRING);
+  const progress =
+    smooth && !prefersReducedMotion && effectiveFactor !== 0 ? smoothProgress : scrollYProgress;
 
   const yRange =
     Array.isArray(range) && range.length === 2

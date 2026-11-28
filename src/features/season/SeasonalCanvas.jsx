@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSeason } from '../../context/SeasonContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -155,19 +155,41 @@ export function SeasonalCanvas() {
   const canvasRef = useRef(null);
   const { season, particlesEnabled, seasonMeta } = useSeason();
   const { theme } = useTheme();
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return false;
+    }
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return;
+    }
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (event) => setPrefersReducedMotion(Boolean(event.matches));
+    setPrefersReducedMotion(Boolean(mql.matches));
+    if (typeof mql.addEventListener === 'function') {
+      mql.addEventListener('change', onChange);
+      return () => mql.removeEventListener('change', onChange);
+    }
+    if (typeof mql.addListener === 'function') {
+      mql.addListener(onChange);
+      return () => mql.removeListener(onChange);
+    }
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !particlesEnabled) return;
 
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    if (prefersReducedMotion) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
 
     let animationFrameId = null;
     let width = (canvas.width = window.innerWidth);
@@ -301,7 +323,7 @@ export function SeasonalCanvas() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, [season, particlesEnabled, seasonMeta, theme]);
+  }, [season, particlesEnabled, seasonMeta, theme, prefersReducedMotion]);
 
   if (!particlesEnabled) return null;
 

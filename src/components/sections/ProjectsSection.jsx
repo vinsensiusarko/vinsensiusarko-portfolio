@@ -110,7 +110,7 @@ function syncProjectUrlParam(projectId) {
   }
 }
 
-export function ProjectsSection({ projects }) {
+export function ProjectsSection({ projects, sectionIndex = '04' }) {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
@@ -226,7 +226,7 @@ export function ProjectsSection({ projects }) {
       id="projects"
       className="reveal-on-scroll relative z-10 mx-auto max-w-6xl overflow-x-clip px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
     >
-      <SectionWatermark targetRef={sectionRef} label="04" align="right" />
+      <SectionWatermark targetRef={sectionRef} label={sectionIndex} align="right" />
 
       <ParallaxLayer
         targetRef={sectionRef}

@@ -37,7 +37,7 @@ const INITIAL_FORM = {
   website: ''
 };
 
-export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
+export function ContactSection({ contactSettings = {}, siteSettings = {}, sectionIndex = '05' }) {
   const email = contactSettings.email || 'me@vinsensiusarka.id';
   const [form, setForm] = useState(INITIAL_FORM);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -242,7 +242,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
       id="contact"
       className="reveal-on-scroll relative z-10 mx-auto max-w-6xl overflow-x-clip px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
     >
-      <SectionWatermark targetRef={sectionRef} label="05" align="right" />
+      <SectionWatermark targetRef={sectionRef} label={sectionIndex} align="right" />
 
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
         <div className="lg:col-span-5 flex flex-col gap-5">

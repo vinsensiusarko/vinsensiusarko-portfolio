@@ -8,7 +8,7 @@ import { TACTILE_SPRING } from '@/lib/motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-export function ExperienceSection({ skills }) {
+export function ExperienceSection({ skills, sectionIndex = '03' }) {
   const sectionRef = useRef(null);
   const languages = useMemo(
     () => (skills || []).filter((s) => s.category === 'language'),
@@ -61,7 +61,7 @@ export function ExperienceSection({ skills }) {
       className="reveal-on-scroll relative z-10 overflow-x-clip border-y border-border bg-muted/40 py-20 lg:py-24"
     >
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <SectionWatermark targetRef={sectionRef} label="03" align="right" />
+        <SectionWatermark targetRef={sectionRef} label={sectionIndex} align="right" />
 
         <div className="relative z-10 flex flex-col gap-1.5">
           <p className="font-mono text-xs uppercase tracking-wider text-season-foreground">

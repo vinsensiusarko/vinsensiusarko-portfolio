@@ -78,9 +78,13 @@ export function HomePage() {
         <HeroSection siteSettings={siteSettings} contactSettings={contactSettings} />
         <AboutSection siteSettings={siteSettings} />
         <JourneySection timeline={siteSettings.timeline} />
-        <ExperienceSection skills={skills} />
-        <ProjectsSection projects={projects} />
-        <ContactSection contactSettings={contactSettings} siteSettings={siteSettings} />
+        <ExperienceSection skills={skills} sectionIndex={hasJourney ? '03' : '02'} />
+        <ProjectsSection projects={projects} sectionIndex={hasJourney ? '04' : '03'} />
+        <ContactSection
+          contactSettings={contactSettings}
+          siteSettings={siteSettings}
+          sectionIndex={hasJourney ? '05' : '04'}
+        />
       </main>
       <Footer variant="home" siteName={siteSettings.name} />
       <FloatingActions whatsapp={contactSettings.whatsapp} />
