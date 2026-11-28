@@ -18,6 +18,12 @@ export const SCROLL_PROGRESS_SPRING = {
   restDelta: 0.001
 };
 
+export const PARALLAX_SPRING = {
+  stiffness: 180,
+  damping: 28,
+  mass: 0.45
+};
+
 export const HERO_CONTAINER_VARIANTS = {
   hidden: {},
   visible: {
