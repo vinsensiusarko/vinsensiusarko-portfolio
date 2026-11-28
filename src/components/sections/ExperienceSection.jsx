@@ -1,13 +1,15 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { cn } from 'cn';
 import { m } from 'motion/react';
 import { IconCode, IconStack2 } from '@tabler/icons-react';
 import { SkillIcon } from '@/components/common/SkillIcon';
+import { ParallaxLayer, SectionWatermark } from '@/components/common/ParallaxLayer';
 import { TACTILE_SPRING } from '@/lib/motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 export function ExperienceSection({ skills }) {
+  const sectionRef = useRef(null);
   const languages = useMemo(
     () => (skills || []).filter((s) => s.category === 'language'),
     [skills]
@@ -54,11 +56,14 @@ export function ExperienceSection({ skills }) {
 
   return (
     <section
+      ref={sectionRef}
       id="experience"
-      className="reveal-on-scroll relative z-10 border-y border-border bg-muted/40 py-20 lg:py-24"
+      className="reveal-on-scroll relative z-10 overflow-x-clip border-y border-border bg-muted/40 py-20 lg:py-24"
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-1.5">
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <SectionWatermark targetRef={sectionRef} label="03" align="right" />
+
+        <div className="relative z-10 flex flex-col gap-1.5">
           <p className="font-mono text-xs uppercase tracking-wider text-season-foreground">
             Technical Stack
           </p>
@@ -67,46 +72,50 @@ export function ExperienceSection({ skills }) {
           </h2>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader className="border-b border-border pb-4">
-              <CardTitle className="flex items-center gap-2.5 font-display text-lg">
-                <IconCode className="size-5 text-season-accent" aria-hidden="true" />
-                Programming Languages
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-5">
-              {languages.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No programming languages listed yet.
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {languages.map(renderSkillCard)}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <div className="relative z-10 mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ParallaxLayer targetRef={sectionRef} offset={-16} mobileFactor={0}>
+            <Card className="h-full">
+              <CardHeader className="border-b border-border pb-4">
+                <CardTitle className="flex items-center gap-2.5 font-display text-lg">
+                  <IconCode className="size-5 text-season-accent" aria-hidden="true" />
+                  Programming Languages
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-5">
+                {languages.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No programming languages listed yet.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {languages.map(renderSkillCard)}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </ParallaxLayer>
 
-          <Card>
-            <CardHeader className="border-b border-border pb-4">
-              <CardTitle className="flex items-center gap-2.5 font-display text-lg">
-                <IconStack2 className="size-5 text-season-accent" aria-hidden="true" />
-                Frameworks &amp; Tools
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-5">
-              {tools.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No frameworks or tools listed yet.
-                </p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {tools.map(renderSkillCard)}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <ParallaxLayer targetRef={sectionRef} offset={16} mobileFactor={0}>
+            <Card className="h-full">
+              <CardHeader className="border-b border-border pb-4">
+                <CardTitle className="flex items-center gap-2.5 font-display text-lg">
+                  <IconStack2 className="size-5 text-season-accent" aria-hidden="true" />
+                  Frameworks &amp; Tools
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-5">
+                {tools.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No frameworks or tools listed yet.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {tools.map(renderSkillCard)}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </ParallaxLayer>
         </div>
       </div>
     </section>

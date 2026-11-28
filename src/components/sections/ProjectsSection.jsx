@@ -21,6 +21,7 @@ import {
 import { formatRichDescription } from '@/utils/formatDescription';
 import { resolveProjectImage } from '@/utils/resolveProjectImage';
 import { ResponsivePicture } from '@/components/common/ResponsivePicture';
+import { ParallaxLayer, SectionWatermark } from '@/components/common/ParallaxLayer';
 import { EDITORIAL_EASE, EDITORIAL_SPRING, TACTILE_SPRING } from '@/lib/motion';
 import { ProjectModal } from './ProjectModal';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
@@ -116,6 +117,7 @@ export function ProjectsSection({ projects }) {
   const [selectedProject, setSelectedProject] = useState(null);
   const isFirstMountRef = useRef(true);
   const handledDeepLinkRef = useRef(null);
+  const sectionRef = useRef(null);
   const tabRefs = useRef([]);
   const sectionId = useId();
   const panelId = `${sectionId}-panel`;
@@ -220,10 +222,18 @@ export function ProjectsSection({ projects }) {
 
   return (
     <section
+      ref={sectionRef}
       id="projects"
-      className="reveal-on-scroll relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
+      className="reveal-on-scroll relative z-10 mx-auto max-w-6xl overflow-x-clip px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
     >
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <SectionWatermark targetRef={sectionRef} label="04" align="right" />
+
+      <ParallaxLayer
+        targetRef={sectionRef}
+        offset={-12}
+        mobileFactor={0}
+        className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
+      >
         <div className="flex flex-col gap-1.5">
           <p className="font-mono text-xs uppercase tracking-wider text-season-foreground">
             Selected Work
@@ -269,10 +279,10 @@ export function ProjectsSection({ projects }) {
             )}
           </div>
         </div>
-      </div>
+      </ParallaxLayer>
 
       <div
-        className="mt-6 flex flex-wrap items-center gap-2"
+        className="relative z-10 mt-6 flex flex-wrap items-center gap-2"
         role="tablist"
         aria-label="Filter projects by category"
       >

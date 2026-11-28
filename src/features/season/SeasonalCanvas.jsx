@@ -11,6 +11,7 @@ function createParticle(width, height, season) {
   }[season] || ['#f9a8d4'];
 
   const color = colors[Math.floor(Math.random() * colors.length)];
+  const depth = 0.35 + Math.random() * 0.65;
 
   if (season === 'spring') {
     return {
@@ -23,6 +24,7 @@ function createParticle(width, height, season) {
       spin: (Math.random() - 0.5) * 0.02,
       swayOffset: Math.random() * Math.PI * 2,
       opacity: 0.55 + Math.random() * 0.3,
+      depth,
       color
     };
   }
@@ -37,6 +39,7 @@ function createParticle(width, height, season) {
       pulse: Math.random() * Math.PI * 2,
       pulseSpeed: 0.02 + Math.random() * 0.03,
       opacity: 0.35 + Math.random() * 0.45,
+      depth,
       color
     };
   }
@@ -52,20 +55,22 @@ function createParticle(width, height, season) {
       spin: (Math.random() - 0.5) * 0.03,
       swayOffset: Math.random() * Math.PI * 2,
       opacity: 0.6 + Math.random() * 0.3,
+      depth,
       color
     };
   }
 
   // winter
-  const depth = 0.4 + Math.random() * 0.6;
+  const snowDepth = 0.4 + Math.random() * 0.6;
   return {
     x: Math.random() * width,
     y: Math.random() * height,
-    size: (2 + Math.random() * 3.5) * depth,
-    speedY: (0.5 + Math.random() * 0.9) * depth,
+    size: (2 + Math.random() * 3.5) * snowDepth,
+    speedY: (0.5 + Math.random() * 0.9) * snowDepth,
     speedX: (Math.random() - 0.5) * 0.4,
     swayOffset: Math.random() * Math.PI * 2,
-    opacity: 0.4 + depth * 0.45,
+    opacity: 0.4 + snowDepth * 0.45,
+    depth: snowDepth,
     color
   };
 }
@@ -178,6 +183,15 @@ export function SeasonalCanvas() {
     );
 
     let tick = 0;
+    let lastScrollY = window.scrollY || 0;
+    let scrollImpulse = 0;
+
+    const handleScroll = () => {
+      const currentY = window.scrollY || 0;
+      const delta = Math.max(-80, Math.min(80, currentY - lastScrollY));
+      lastScrollY = currentY;
+      scrollImpulse = Math.max(-60, Math.min(60, scrollImpulse + delta * 0.18));
+    };
 
     const renderLoop = () => {
       if (document.hidden) {
@@ -188,9 +202,15 @@ export function SeasonalCanvas() {
       tick += 0.015;
       ctx.clearRect(0, 0, width, height);
       const isDark = theme === 'dark';
+      const hasScrollImpulse = Math.abs(scrollImpulse) > 0.05;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
+        if (hasScrollImpulse) {
+          p.y -= scrollImpulse * (0.12 + (p.depth || 0.5) * 0.24);
+          if (p.y < -24) p.y = height + 16;
+          if (p.y > height + 24) p.y = -16;
+        }
 
         if (season === 'spring') {
           p.y += p.speedY;
@@ -236,6 +256,12 @@ export function SeasonalCanvas() {
         }
       }
 
+      if (hasScrollImpulse) {
+        scrollImpulse *= 0.86;
+      } else {
+        scrollImpulse = 0;
+      }
+
       animationFrameId = requestAnimationFrame(renderLoop);
     };
 
@@ -257,11 +283,13 @@ export function SeasonalCanvas() {
     };
 
     window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
     document.addEventListener('visibilitychange', handleVisibilityChange);
     animationFrameId = requestAnimationFrame(renderLoop);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };

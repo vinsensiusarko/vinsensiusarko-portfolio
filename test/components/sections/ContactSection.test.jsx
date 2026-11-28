@@ -1,6 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { LazyMotion, MotionConfig, domMax } from 'motion/react';
 import { ContactSection } from '../../../src/components/sections/ContactSection';
+
+function renderContact(props = {}) {
+  return render(
+    <MotionConfig reducedMotion="always">
+      <LazyMotion features={domMax} strict>
+        <ContactSection {...props} />
+      </LazyMotion>
+    </MotionConfig>
+  );
+}
 
 vi.mock('sonner', () => ({
   toast: {
@@ -32,15 +43,13 @@ describe('ContactSection Component', () => {
   });
 
   it('renders full email address and social channel links', () => {
-    render(
-      <ContactSection
-        contactSettings={{
-          email: 'me@vinsensiusarka.id',
-          linkedin: 'https://www.linkedin.com/in/vinsensiusarka/',
-          github: 'https://github.com/vinsensiusarko'
-        }}
-      />
-    );
+    renderContact({
+      contactSettings: {
+        email: 'me@vinsensiusarka.id',
+        linkedin: 'https://www.linkedin.com/in/vinsensiusarka/',
+        github: 'https://github.com/vinsensiusarko'
+      }
+    });
 
     expect(screen.getByRole('heading', { name: /Contact Me/i })).toBeInTheDocument();
     expect(screen.getByText('me@vinsensiusarka.id')).toBeInTheDocument();
@@ -49,7 +58,7 @@ describe('ContactSection Component', () => {
   });
 
   it('copies email to clipboard and fires Sonner success toast', async () => {
-    render(<ContactSection contactSettings={{ email: 'me@vinsensiusarka.id' }} />);
+    renderContact({ contactSettings: { email: 'me@vinsensiusarka.id' } });
 
     const copyBtn = screen.getByRole('button', { name: /Copy email address/i });
     fireEvent.click(copyBtn);
@@ -61,26 +70,28 @@ describe('ContactSection Component', () => {
   });
 
   it('keeps AvailabilityBadge hidden by default and displays it when enabled via siteSettings', () => {
-    const { rerender } = render(
-      <ContactSection
-        contactSettings={{ email: 'me@vinsensiusarka.id' }}
-        siteSettings={{ availabilityStatus: 'hidden' }}
-      />
-    );
+    const { rerender } = renderContact({
+      contactSettings: { email: 'me@vinsensiusarka.id' },
+      siteSettings: { availabilityStatus: 'hidden' }
+    });
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
 
     rerender(
-      <ContactSection
-        contactSettings={{ email: 'me@vinsensiusarka.id' }}
-        siteSettings={{ availabilityStatus: 'available', availabilityText: 'Open for freelance builds' }}
-      />
+      <MotionConfig reducedMotion="always">
+        <LazyMotion features={domMax} strict>
+          <ContactSection
+            contactSettings={{ email: 'me@vinsensiusarka.id' }}
+            siteSettings={{ availabilityStatus: 'available', availabilityText: 'Open for freelance builds' }}
+          />
+        </LazyMotion>
+      </MotionConfig>
     );
     expect(screen.getByRole('status', { name: 'Open for freelance builds' })).toBeInTheDocument();
   });
 
   it('validates direct contact form fields and submits a valid inquiry cleanly', async () => {
     submitContactMessage.mockResolvedValueOnce({ ok: true, id: 'msg-1' });
-    render(<ContactSection contactSettings={{ email: 'me@vinsensiusarka.id' }} />);
+    renderContact({ contactSettings: { email: 'me@vinsensiusarka.id' } });
 
     fireEvent.click(screen.getByRole('button', { name: /Send Message/i }));
     expect(screen.getByText(/Please enter your name/i)).toBeInTheDocument();
@@ -125,7 +136,7 @@ describe('ContactSection Component', () => {
       message: 'Direct form submissions are currently unavailable.'
     });
 
-    render(<ContactSection contactSettings={{ email: 'me@vinsensiusarka.id' }} />);
+    renderContact({ contactSettings: { email: 'me@vinsensiusarka.id' } });
 
     fireEvent.change(screen.getByLabelText(/Your Name/i), { target: { value: 'Jordan' } });
     fireEvent.change(screen.getByLabelText(/^Email Address$/i), {
@@ -145,7 +156,7 @@ describe('ContactSection Component', () => {
 
   it('disables submit button during cooldown window and resets confirmation view cleanly', async () => {
     localStorage.setItem('portfolio_contact_last_sent_at', String(Date.now()));
-    render(<ContactSection contactSettings={{ email: 'me@vinsensiusarka.id' }} />);
+    renderContact({ contactSettings: { email: 'me@vinsensiusarka.id' } });
 
     const submitBtn = screen.getByRole('button', { name: /Wait \d+s/i });
     expect(submitBtn).toBeDisabled();

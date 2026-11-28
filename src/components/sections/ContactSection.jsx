@@ -15,6 +15,7 @@ import {
   IconAlertCircle
 } from '@tabler/icons-react';
 import { AvailabilityBadge } from '@/components/common/AvailabilityBadge';
+import { ParallaxLayer, SectionWatermark } from '@/components/common/ParallaxLayer';
 import {
   MESSAGE_TOPICS,
   validateContactForm,
@@ -47,6 +48,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
     Math.ceil(getCooldownRemainingMs() / 1000)
   );
   const topicRefs = useRef([]);
+  const sectionRef = useRef(null);
   const nameInputRef = useRef(null);
   const emailInputRef = useRef(null);
   const messageInputRef = useRef(null);
@@ -236,10 +238,13 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
 
   return (
     <section
+      ref={sectionRef}
       id="contact"
-      className="reveal-on-scroll relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
+      className="reveal-on-scroll relative z-10 mx-auto max-w-6xl overflow-x-clip px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+      <SectionWatermark targetRef={sectionRef} label="05" align="right" />
+
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
         <div className="lg:col-span-5 flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <p className="font-mono text-xs uppercase tracking-wider text-season-foreground">
@@ -332,7 +337,12 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
           </div>
         </div>
 
-        <div className="lg:col-span-7">
+        <ParallaxLayer
+          targetRef={sectionRef}
+          offset={-18}
+          mobileFactor={0}
+          className="lg:col-span-7"
+        >
           <Card className="border-border bg-card">
             <CardContent className="p-5 sm:p-7">
               {submittedInfo ? (
@@ -595,7 +605,7 @@ export function ContactSection({ contactSettings = {}, siteSettings = {} }) {
               )}
             </CardContent>
           </Card>
-        </div>
+        </ParallaxLayer>
       </div>
     </section>
   );
