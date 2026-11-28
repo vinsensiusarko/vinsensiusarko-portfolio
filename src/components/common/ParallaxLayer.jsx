@@ -3,7 +3,7 @@ import { m, useScroll, useTransform, useSpring, useReducedMotion } from 'motion/
 import { PARALLAX_SPRING } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
-const COMPACT_MEDIA_QUERY = '(max-width: 767px)';
+const COMPACT_MEDIA_QUERY = '(max-width: 1023px)';
 
 export function useIsCompactViewport() {
   const [isCompact, setIsCompact] = useState(() => {
@@ -74,6 +74,7 @@ export function ParallaxLayer({
   return (
     <m.div
       data-parallax-layer="true"
+      data-reduced-motion={prefersReducedMotion ? 'true' : 'false'}
       className={className}
       style={{
         y,
@@ -90,7 +91,7 @@ export function SectionWatermark({
   targetRef,
   label,
   align = 'right',
-  offset = -52,
+  offset = -40,
   className
 }) {
   if (!label) return null;
@@ -100,7 +101,7 @@ export function SectionWatermark({
       aria-hidden="true"
       data-section-watermark={label}
       className={cn(
-        'pointer-events-none select-none absolute top-4 sm:top-6 z-0',
+        'pointer-events-none select-none absolute top-10 sm:top-14 z-0',
         align === 'left' ? 'left-4 sm:left-6 lg:left-8' : 'right-4 sm:right-6 lg:right-8',
         className
       )}

@@ -31,8 +31,8 @@ export function AboutSection({ siteSettings }) {
             <div className="overflow-hidden rounded-lg bg-muted">
               <ParallaxLayer
                 targetRef={sectionRef}
-                offset={22}
-                scaleRange={[1.1, 1.1]}
+                offset={18}
+                scaleRange={[1.14, 1.14]}
                 mobileFactor={0.45}
               >
                 <ResponsivePicture

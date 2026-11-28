@@ -185,19 +185,24 @@ export function SeasonalCanvas() {
     let tick = 0;
     let lastScrollY = window.scrollY || 0;
     let scrollImpulse = 0;
+    let lastFrameTime = performance.now();
 
     const handleScroll = () => {
+      if (document.hidden) return;
       const currentY = window.scrollY || 0;
       const delta = Math.max(-80, Math.min(80, currentY - lastScrollY));
       lastScrollY = currentY;
       scrollImpulse = Math.max(-60, Math.min(60, scrollImpulse + delta * 0.18));
     };
 
-    const renderLoop = () => {
+    const renderLoop = (now = performance.now()) => {
       if (document.hidden) {
         animationFrameId = requestAnimationFrame(renderLoop);
         return;
       }
+
+      const dt = Math.min(64, Math.max(4, now - lastFrameTime));
+      lastFrameTime = now;
 
       tick += 0.015;
       ctx.clearRect(0, 0, width, height);
@@ -257,7 +262,7 @@ export function SeasonalCanvas() {
       }
 
       if (hasScrollImpulse) {
-        scrollImpulse *= 0.86;
+        scrollImpulse *= Math.pow(0.86, dt / 16.67);
       } else {
         scrollImpulse = 0;
       }
@@ -278,6 +283,9 @@ export function SeasonalCanvas() {
           animationFrameId = null;
         }
       } else if (!animationFrameId) {
+        lastScrollY = window.scrollY || 0;
+        scrollImpulse = 0;
+        lastFrameTime = performance.now();
         animationFrameId = requestAnimationFrame(renderLoop);
       }
     };

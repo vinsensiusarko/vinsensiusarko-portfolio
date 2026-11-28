@@ -250,7 +250,7 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
             >
               <ParallaxLayer
                 targetRef={sectionRef}
-                range={[0, -24]}
+                range={[0, -18]}
                 scrollOffset={['start start', 'end start']}
                 mobileFactor={0.4}
                 className="pointer-events-none absolute -right-2 -bottom-2 z-20"
