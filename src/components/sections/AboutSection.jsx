@@ -1,16 +1,22 @@
+import { useRef } from 'react';
 import { IconBriefcase, IconSchool } from '@tabler/icons-react';
 import { Separator } from '@/components/ui/separator';
 import { ResponsivePicture } from '@/components/common/ResponsivePicture';
+import { ParallaxLayer, SectionWatermark } from '@/components/common/ParallaxLayer';
 
 export function AboutSection({ siteSettings }) {
   const aboutImgSrc = siteSettings.aboutImage || '/assets/images/arko-about.jpg';
+  const sectionRef = useRef(null);
 
   return (
     <section
+      ref={sectionRef}
       id="about"
-      className="reveal-on-scroll relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
+      className="reveal-on-scroll relative z-10 mx-auto max-w-6xl overflow-x-clip px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
     >
-      <div className="flex flex-col gap-1.5">
+      <SectionWatermark targetRef={sectionRef} label="01" align="right" />
+
+      <div className="relative z-10 flex flex-col gap-1.5">
         <p className="font-mono text-xs uppercase tracking-wider text-season-foreground">
           Background
         </p>
@@ -19,24 +25,38 @@ export function AboutSection({ siteSettings }) {
         </h2>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+      <div className="relative z-10 mt-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
         <div className="lg:col-span-5 flex justify-center lg:justify-start">
           <div className="w-full max-w-sm overflow-hidden rounded-xl border border-border bg-card p-2">
-            <ResponsivePicture
-              id="about-img"
-              src={aboutImgSrc}
-              fallbackSrc="/assets/images/arko-about.jpg"
-              alt={`${siteSettings.name || 'Vinsensius Arka'} personal photo`}
-              width="380"
-              height="475"
-              loading="lazy"
-              decoding="async"
-              className="aspect-[4/5] w-full rounded-lg object-cover bg-muted"
-            />
+            <div className="overflow-hidden rounded-lg bg-muted">
+              <ParallaxLayer
+                targetRef={sectionRef}
+                offset={22}
+                scaleRange={[1.1, 1.1]}
+                mobileFactor={0.45}
+              >
+                <ResponsivePicture
+                  id="about-img"
+                  src={aboutImgSrc}
+                  fallbackSrc="/assets/images/arko-about.jpg"
+                  alt={`${siteSettings.name || 'Vinsensius Arka'} personal photo`}
+                  width="380"
+                  height="475"
+                  loading="lazy"
+                  decoding="async"
+                  className="aspect-[4/5] w-full object-cover bg-muted"
+                />
+              </ParallaxLayer>
+            </div>
           </div>
         </div>
 
-        <div className="lg:col-span-7 flex flex-col gap-6">
+        <ParallaxLayer
+          targetRef={sectionRef}
+          offset={-14}
+          mobileFactor={0}
+          className="lg:col-span-7 flex flex-col gap-6"
+        >
           <p className="max-w-prose text-base sm:text-lg leading-relaxed text-muted-foreground">
             {siteSettings.bioText}
           </p>
@@ -78,7 +98,7 @@ export function AboutSection({ siteSettings }) {
               </div>
             </div>
           </div>
-        </div>
+        </ParallaxLayer>
       </div>
     </section>
   );

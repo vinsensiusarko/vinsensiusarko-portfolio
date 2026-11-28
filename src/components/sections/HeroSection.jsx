@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { m } from 'motion/react';
 import {
   IconDownload,
@@ -17,6 +17,7 @@ import {
 } from '@/lib/motion';
 import { ResponsivePicture } from '@/components/common/ResponsivePicture';
 import { AvailabilityBadge } from '@/components/common/AvailabilityBadge';
+import { ParallaxLayer } from '@/components/common/ParallaxLayer';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -98,19 +99,28 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
   ];
 
   const heroImgSrc = siteSettings.heroImage || '/assets/images/arko-pic.jpg';
+  const sectionRef = useRef(null);
 
   return (
       <section
+        ref={sectionRef}
         id="profile"
-        className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-10 pb-20 lg:pt-20 lg:pb-28"
+        className="relative z-10 mx-auto max-w-6xl overflow-x-clip px-4 sm:px-6 lg:px-8 pt-10 pb-20 lg:pt-20 lg:pb-28"
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-          <m.div
-            variants={HERO_CONTAINER_VARIANTS}
-            initial="hidden"
-            animate="visible"
-            className="lg:col-span-7 flex flex-col gap-5 order-2 lg:order-1"
+          <ParallaxLayer
+            targetRef={sectionRef}
+            range={[0, 18]}
+            scrollOffset={['start start', 'end start']}
+            mobileFactor={0.35}
+            className="lg:col-span-7 order-2 lg:order-1"
           >
+            <m.div
+              variants={HERO_CONTAINER_VARIANTS}
+              initial="hidden"
+              animate="visible"
+              className="flex flex-col gap-5"
+            >
             <m.div
               variants={HERO_ITEM_VARIANTS}
               className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground"
@@ -221,19 +231,35 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
                 </Tooltip>
               ))}
             </m.div>
-          </m.div>
+            </m.div>
+          </ParallaxLayer>
 
-          <m.div
-            initial={{ scale: 0.985 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.35, ease: EDITORIAL_EASE }}
+          <ParallaxLayer
+            targetRef={sectionRef}
+            range={[0, -36]}
+            scaleRange={[1, 1.035]}
+            scrollOffset={['start start', 'end start']}
+            mobileFactor={0.4}
             className="lg:col-span-5 flex justify-center lg:justify-end order-1 lg:order-2"
           >
-            <div className="relative w-full max-w-70 sm:max-w-85 lg:max-w-95 rounded-2xl border border-border bg-card p-2.5 shadow-sm">
-              <div
-                className="pointer-events-none absolute -right-2 -bottom-2 h-16 w-16 rounded-br-2xl border-r-2 border-b-2 border-season-accent"
-                aria-hidden="true"
-              />
+            <m.div
+              initial={{ scale: 0.985 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.35, ease: EDITORIAL_EASE }}
+              className="relative w-full max-w-70 sm:max-w-85 lg:max-w-95 rounded-2xl border border-border bg-card p-2.5 shadow-sm"
+            >
+              <ParallaxLayer
+                targetRef={sectionRef}
+                range={[0, -24]}
+                scrollOffset={['start start', 'end start']}
+                mobileFactor={0.4}
+                className="pointer-events-none absolute -right-2 -bottom-2 z-20"
+              >
+                <div
+                  className="h-16 w-16 rounded-br-2xl border-r-2 border-b-2 border-season-accent"
+                  aria-hidden="true"
+                />
+              </ParallaxLayer>
               <ResponsivePicture
                 id="hero-img"
                 src={heroImgSrc}
@@ -245,8 +271,8 @@ export function HeroSection({ siteSettings = {}, contactSettings = {} }) {
                 decoding="async"
                 className="aspect-square w-full rounded-xl object-cover bg-muted"
               />
-            </div>
-          </m.div>
+            </m.div>
+          </ParallaxLayer>
         </div>
       </section>
   );

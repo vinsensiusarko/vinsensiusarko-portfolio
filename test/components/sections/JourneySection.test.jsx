@@ -46,6 +46,7 @@ describe('JourneySection', () => {
     renderJourney();
 
     expect(screen.getByRole('heading', { name: 'Journey' })).toBeInTheDocument();
+    expect(screen.getByTestId('journey-scroll-spine')).toBeInTheDocument();
     expect(screen.getByText('Web & Mobile Developer')).toBeInTheDocument();
     expect(screen.getByText('Bachelors Degree in Computer Science')).toBeInTheDocument();
     expect(screen.getByText('Current')).toBeInTheDocument();

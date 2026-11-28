@@ -1,8 +1,9 @@
 import { useState, useMemo, useId, useRef } from 'react';
 import { cn } from 'cn';
-import { AnimatePresence, m } from 'motion/react';
+import { AnimatePresence, m, useScroll, useSpring, useReducedMotion } from 'motion/react';
 import { IconBriefcase, IconSchool, IconTimeline } from '@tabler/icons-react';
-import { EDITORIAL_EASE, EDITORIAL_SPRING } from '@/lib/motion';
+import { EDITORIAL_EASE, EDITORIAL_SPRING, PARALLAX_SPRING } from '@/lib/motion';
+import { SectionWatermark } from '@/components/common/ParallaxLayer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -12,10 +13,30 @@ const JOURNEY_TABS = [
   { value: 'education', label: 'Education', Icon: IconSchool }
 ];
 
+function JourneyScrollSpine({ targetRef }) {
+  const prefersReducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: targetRef,
+    offset: ['start 75%', 'end 65%']
+  });
+  const spineProgress = useSpring(scrollYProgress, PARALLAX_SPRING);
+
+  return (
+    <m.span
+      data-testid="journey-scroll-spine"
+      aria-hidden="true"
+      style={{ scaleY: prefersReducedMotion ? 1 : spineProgress }}
+      className="pointer-events-none absolute top-0 bottom-0 -left-px w-0.5 origin-top bg-season-accent"
+    />
+  );
+}
+
 export function JourneySection({ timeline = [] }) {
   const [filter, setFilter] = useState('all');
   const journeyId = useId();
   const tabRefs = useRef([]);
+  const sectionRef = useRef(null);
+  const timelineRef = useRef(null);
 
   const items = useMemo(() => {
     if (!Array.isArray(timeline)) return [];
@@ -73,10 +94,13 @@ export function JourneySection({ timeline = [] }) {
 
   return (
     <section
+      ref={sectionRef}
       id="journey"
-      className="reveal-on-scroll relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
+      className="reveal-on-scroll relative z-10 mx-auto max-w-6xl overflow-x-clip px-4 sm:px-6 lg:px-8 py-20 lg:py-24"
     >
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+      <SectionWatermark targetRef={sectionRef} label="02" align="right" />
+
+      <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1.5">
           <p className="font-mono text-xs uppercase tracking-wider text-season-foreground">
             Background
@@ -136,6 +160,7 @@ export function JourneySection({ timeline = [] }) {
         id={panelId}
         role="tabpanel"
         aria-labelledby={`${journeyId}-tab-${filter}`}
+        className="relative z-10"
       >
         {filteredItems.length === 0 ? (
           <div className="mt-8 flex flex-col items-start gap-3 rounded-xl border border-dashed border-border bg-card p-6">
@@ -153,7 +178,11 @@ export function JourneySection({ timeline = [] }) {
             </Button>
           </div>
         ) : (
-          <ol className="relative mt-10 ml-2 flex flex-col gap-6 border-l border-border pl-6 sm:pl-8">
+          <ol
+            ref={timelineRef}
+            className="relative mt-10 ml-2 flex flex-col gap-6 border-l border-border pl-6 sm:pl-8"
+          >
+            <JourneyScrollSpine targetRef={timelineRef} />
             <AnimatePresence mode="popLayout" initial={false}>
               {filteredItems.map((entry) => {
                 const isEducation = entry.type === 'education';
